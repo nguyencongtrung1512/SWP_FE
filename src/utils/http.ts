@@ -1,0 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axios"
+
+
+class Http {
+  instance: AxiosInstance
+
+  constructor() {
+    this.instance = axios.create({
+      baseURL: 'http://localhost:8080/api',
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    this.instance.interceptors.request.use(this.handleBefore.bind(this), this.handleError)
+  }
+
+  private handleBefore(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
+    const token = localStorage.getItem('token')?.replace(/"/g, '')
+    if (token) {
+      config.headers = config.headers || {}
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  }
+
+  private handleError(error: any) {
+    console.error('Request error:', error)
+    return Promise.reject(error)
+  }
+}
+
+const http = new Http().instance
+export default http

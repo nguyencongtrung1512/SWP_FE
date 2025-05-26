@@ -39,7 +39,7 @@ function Header() {
         <a href='/private-consultation' className='text-gray-900 hover:text-blue-500 transition-colors'>
           Private Consultation
         </a>
-        <a href='#' className='text-gray-900 hover:text-blue-500 transition-colors'>
+        <a href='/blog' className='text-gray-900 hover:text-blue-500 transition-colors'>
           Blog
         </a>
       </nav>

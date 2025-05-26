@@ -5,6 +5,8 @@ const path = {
   healthRecord: '/health-record',
   sendMedicine: '/send-medicine',
   privateConsultation: '/private-consultation',
+  blog: '/blog',
+  blogDetail: '/blog/:id',
   profile: '/profile',
   //=============Nurse============
   BASE_NURSE: '/nurse',

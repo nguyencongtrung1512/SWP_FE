@@ -30,14 +30,8 @@ function Header() {
         <a href='/home' className='text-gray-900 hover:text-blue-500 transition-colors'>
           Home
         </a>
-        <a href='/health-record' className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Health Record
-        </a>
-        <a href='/send-medicine' className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Send Medicine
-        </a>
-        <a href='/private-consultation' className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Private Consultation
+        <a href='/' className='text-gray-900 hover:text-blue-500 transition-colors'>
+          About Me
         </a>
         <a href='/blog' className='text-gray-900 hover:text-blue-500 transition-colors'>
           Blog

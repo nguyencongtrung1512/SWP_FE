@@ -1,11 +1,14 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { Button } from 'antd'
+import BlogEditor from './BlogEditor'
 
 const Blog: React.FC = () => {
   const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showWriteForm, setShowWriteForm] = useState(false)
   
   const blogPosts = [
     {
@@ -78,7 +81,6 @@ const Blog: React.FC = () => {
 
   const postsPerPage = 3
   
-  // Filter posts based on search term
   const filteredPosts = searchTerm 
     ? blogPosts.filter(post => 
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,14 +106,19 @@ const Blog: React.FC = () => {
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    setCurrentPage(1) // Reset to first page when searching
+    setCurrentPage(1)
+  }
+
+  const handleSubmitBlog = (blogData: any) => {
+    console.log('Blog submitted:', blogData)
+    setShowWriteForm(false)
   }
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center px-6 md:px-28 py-12'>
       <div className='w-full max-w-[1200px]'>
         {/* Header with Blog title and arrow */}
-        <div className='text-center mb-12'>
+        <div className='text-center mb-8'>
           <h1 className='text-5xl font-bold text-gray-900 mb-4'>Blog</h1>
           <div className='flex justify-center'>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black mt-4">
@@ -119,6 +126,30 @@ const Blog: React.FC = () => {
             </svg>
           </div>
         </div>
+        
+        {/* Write a Blog button in a separate section */}
+        <div className='flex justify-center mb-12'>
+          <Button 
+            type="primary"
+            size="large"
+            onClick={() => setShowWriteForm(true)}
+            className='bg-blue-500 hover:bg-blue-600 flex items-center gap-2 px-6'
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+              <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+            </svg>
+            Tạo bài viết
+          </Button>
+        </div>
+        
+        {/* Blog Editor Component */}
+        <BlogEditor 
+          visible={showWriteForm}
+          onClose={() => setShowWriteForm(false)}
+          onSubmit={handleSubmitBlog}
+          categories={categories}
+        />
         
         <div className='flex flex-col lg:flex-row gap-12'>
           {/* Blog Posts */}
@@ -196,7 +227,7 @@ const Blog: React.FC = () => {
           <div className='w-full lg:w-1/3 space-y-8'>
             {/* Search */}
             <div className='bg-white p-6 rounded-2xl shadow-sm'>
-              <h3 className='text-xl font-bold mb-4 text-gray-900'>Search</h3>
+              <h3 className='text-xl font-bold mb-4 text-gray-900'>Tìm kiếm</h3>
               <form onSubmit={handleSearch} className='relative'>
                 <input 
                   type='text' 
@@ -215,7 +246,7 @@ const Blog: React.FC = () => {
             
             {/* Categories */}
             <div className='bg-white p-6 rounded-2xl shadow-sm'>
-              <h3 className='text-xl font-bold mb-4 text-gray-900'>Categories</h3>
+              <h3 className='text-xl font-bold mb-4 text-gray-900'>Danh mục</h3>
               <ul className='space-y-3'>
                 {categories.map((category, index) => (
                   <li key={index} className='flex items-center'>
@@ -228,7 +259,7 @@ const Blog: React.FC = () => {
             
             {/* Recent Posts */}
             <div className='bg-white p-6 rounded-2xl shadow-sm'>
-              <h3 className='text-xl font-bold mb-4 text-gray-900'>Recent posts</h3>
+              <h3 className='text-xl font-bold mb-4 text-gray-900'>Bài viết gần đây</h3>
               <div className='space-y-4'>
                 {recentPosts.map(post => (
                   <div key={post.id} className='flex gap-3 cursor-pointer' onClick={() => handlePostClick(post.id)}>

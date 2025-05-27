@@ -159,22 +159,6 @@ const BlogPost: React.FC = () => {
           </Link>
         </div>
 
-        <div className='flex items-center gap-4 mb-16 bg-gray-50 p-6 rounded-2xl'>
-          <img 
-            src={post.authorImage} 
-            alt={post.author}
-            className='w-20 h-20 rounded-full object-cover'
-          />
-          <div>
-            <h3 className='text-xl font-bold mb-1'>{post.author}</h3>
-            <p className='text-gray-600 mb-2'>ABOUT AUTHOR</p>
-            <p className='text-gray-700'>
-              Phasellus et ipsum justo. Aenean fringilla a fermentum mauris non venenatis. Praesent at nulla aliquam ligula.
-            </p>
-            
-          </div>
-        </div>
-
         <div className='mb-16'>
           <h3 className='text-2xl font-bold mb-8'>{comments.length} Bình luận</h3>
           
@@ -210,32 +194,20 @@ const BlogPost: React.FC = () => {
         <div className='mb-16 bg-gray-50 p-6 rounded-2xl'>
           <h3 className='text-2xl font-bold mb-6'>Để lại bình luận</h3>
           <form className='space-y-6'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-              <input 
-                type='text' 
-                placeholder='Tên của bạn *' 
-                className='w-full border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                required
-              />
-              <input 
-                type='email' 
-                placeholder='Email của bạn *' 
-                className='w-full border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                required
-              />
-            </div>
             <textarea 
               placeholder='Bình luận của bạn *' 
               rows={6}
               className='w-full border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500'
               required
             ></textarea>
-            <button 
-              type='submit'
-              className='bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200'
-            >
-              Gửi bình luận
-            </button>
+            <div className='flex justify-end'>
+              <button 
+                type='submit'
+                className='bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200'
+              >
+                Gửi bình luận
+              </button>
+            </div>
           </form>
         </div>
 

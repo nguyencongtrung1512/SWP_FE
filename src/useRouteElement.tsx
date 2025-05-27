@@ -16,6 +16,8 @@ import MedicalReport from './pages/nurse/medicalReport/MedicalReport'
 
 import DashBoardNurse from './pages/nurse/dashboardNurse/DashBoardNurse'
 import PrivateConsultation from './pages/nurse/privateConsultation/PrivateConsultation'
+import Blog from './pages/parent/blog/blog'
+import BlogPost from './pages/parent/blog/[id]'
 import AdminLayout from './layouts/AdminLayout/AdminLayout'
 import DashBoardAdmin from './pages/admin/dashBoardAdmin/DashBoardAdmin'
 import CensorList from './pages/admin/censorManagement/CensorList'
@@ -53,6 +55,14 @@ export default function useRouteElements() {
         {
           path: path.privateConsultation,
           element: <PrivateConsultation />
+        },
+        {
+          path: path.blog,
+          element: <Blog />
+        },
+        {
+          path: path.blogDetail,
+          element: <BlogPost />
         },
         {
           path: path.profile,

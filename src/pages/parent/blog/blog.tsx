@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { Button } from 'antd'
-import BlogEditor from './BlogEditor'
+import BlogEditor from './blogEditor'
 
 const Blog: React.FC = () => {
   const navigate = useNavigate()

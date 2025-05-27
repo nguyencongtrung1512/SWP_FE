@@ -46,7 +46,7 @@ function Header() {
         {open && (
           <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50'>
             <div className='px-4 py-2 text-gray-900 font-bold'>{user.name}</div>
-            <a href='/profile' className='block px-4 py-2 text-gray-700 hover:bg-blue-50'>
+            <a href='/parent/profile' className='block px-4 py-2 text-gray-700 hover:bg-blue-50'>
               Hồ sơ của tôi
             </a>
             <button

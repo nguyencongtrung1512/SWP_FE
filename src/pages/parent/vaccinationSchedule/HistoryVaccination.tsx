@@ -63,7 +63,7 @@ const HistoryVaccination: React.FC = () => {
   return (
     <div className='space-y-6'>
       {Object.entries(groupedByYear).map(([year, records]) => (
-        <Card key={year} className='bg-gradient-to-br from-blue-50 to-indigo-50 shadow-md'>
+        <Card key={year} className='bg-white shadow-md'>
           <Title level={4} className='mb-4'>
             Năm {year}
           </Title>

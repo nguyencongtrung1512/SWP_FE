@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
-import { Card, Table, Tag, Space, Typography, Button, Modal, Descriptions, Timeline, Row, Col, Statistic } from 'antd'
+import { Card, Table, Tag, Typography, Button, Modal, Descriptions, Timeline, Row, Col, Statistic } from 'antd'
 import {
   FileTextOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
+  AlertOutlined,
+  HistoryOutlined
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 
 interface MedicalEvent {
   id: string
@@ -154,9 +156,10 @@ const MedicalEventParent: React.FC = () => {
   return (
     <div className='p-6 space-y-8'>
       <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-md'>
-        <Title level={3} className='mb-6'>
-          Báo cáo y tế hiện tại
-        </Title>
+        <div className='flex items-center mb-6'>
+          <AlertOutlined className='text-3xl text-blue-500 mr-3' />
+          <h1 className='text-2xl font-bold text-gray-800'>Báo cáo y tế hiện tại</h1>
+        </div>
 
         <Row gutter={[16, 16]} className='mb-6'>
           <Col span={8}>
@@ -180,11 +183,11 @@ const MedicalEventParent: React.FC = () => {
             </Card>
           </Col>
           <Col span={8}>
-            <Card className='bg-blue-50'>
+            <Card className='bg-blue-100'>
               <Statistic
                 title='Đang xử lý'
                 value={currentEvents.filter((e) => e.status === 'in_progress').length}
-                valueStyle={{ color: '#1890ff' }}
+                valueStyle={{ color: '#0066cc' }}
                 prefix={<ClockCircleOutlined />}
               />
             </Card>
@@ -197,9 +200,10 @@ const MedicalEventParent: React.FC = () => {
       </div>
 
       <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-md'>
-        <Title level={3} className='mb-6'>
-          Lịch sử báo cáo y tế
-        </Title>
+        <div className='flex items-center mb-6'>
+          <HistoryOutlined className='text-3xl text-blue-500 mr-3' />
+          <h1 className='text-2xl font-bold text-gray-800'>Lịch sử báo cáo y tế</h1>
+        </div>
 
         <Timeline
           items={historyEvents.map((event) => ({

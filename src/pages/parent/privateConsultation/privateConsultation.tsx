@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Table, Tag, Button, Modal, Form, DatePicker, Input, message, Space } from 'antd'
-import { CheckOutlined, HistoryOutlined, EditOutlined } from '@ant-design/icons'
+import { CheckOutlined, EditOutlined, MessageOutlined } from '@ant-design/icons'
 import type { Dayjs } from 'dayjs'
 
 const { TextArea } = Input
@@ -146,49 +146,47 @@ const PrivateConsultation: React.FC = () => {
   ]
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12'>
-      <div className='w-full mx-auto px-20'>
-        <div className='bg-white rounded-2xl shadow-xl p-8'>
-          <div className='flex items-center mb-6'>
-            <HistoryOutlined className='text-3xl text-blue-500 mr-3' />
-            <h1 className='text-2xl font-bold text-gray-800'>Danh sách yêu cầu tư vấn</h1>
-          </div>
-
-          <Table columns={columns} dataSource={consultationRequests} rowKey='id' pagination={{ pageSize: 5 }} />
-
-          <Modal
-            title='Đề xuất lại lịch tư vấn'
-            open={isModalOpen}
-            onCancel={() => {
-              setIsModalOpen(false)
-              form.resetFields()
-            }}
-            footer={null}
-          >
-            <Form form={form} layout='vertical' onFinish={handleReschedule} className='mt-4'>
-              <Form.Item
-                name='newDateTime'
-                label='Thời gian đề xuất mới'
-                rules={[{ required: true, message: 'Vui lòng chọn thời gian!' }]}
-              >
-                <DatePicker showTime format='HH:mm DD/MM/YYYY' className='w-full' placeholder='Chọn ngày và giờ' />
-              </Form.Item>
-
-              <Form.Item name='note' label='Ghi chú' rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]}>
-                <TextArea rows={4} placeholder='Ví dụ: Tôi bận sáng, xin đổi sang chiều' />
-              </Form.Item>
-
-              <Form.Item className='mb-0 text-right'>
-                <Space>
-                  <Button onClick={() => setIsModalOpen(false)}>Hủy</Button>
-                  <Button type='primary' htmlType='submit' className='bg-blue-500'>
-                    Gửi đề xuất
-                  </Button>
-                </Space>
-              </Form.Item>
-            </Form>
-          </Modal>
+    <div className='p-6 space-y-8'>
+      <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-md'>
+        <div className='flex items-center mb-6'>
+          <MessageOutlined className='text-3xl text-blue-500 mr-3' />
+          <h1 className='text-2xl font-bold text-gray-800'>Danh sách yêu cầu tư vấn</h1>
         </div>
+
+        <Table columns={columns} dataSource={consultationRequests} rowKey='id' pagination={{ pageSize: 5 }} />
+
+        <Modal
+          title='Đề xuất lại lịch tư vấn'
+          open={isModalOpen}
+          onCancel={() => {
+            setIsModalOpen(false)
+            form.resetFields()
+          }}
+          footer={null}
+        >
+          <Form form={form} layout='vertical' onFinish={handleReschedule} className='mt-4'>
+            <Form.Item
+              name='newDateTime'
+              label='Thời gian đề xuất mới'
+              rules={[{ required: true, message: 'Vui lòng chọn thời gian!' }]}
+            >
+              <DatePicker showTime format='HH:mm DD/MM/YYYY' className='w-full' placeholder='Chọn ngày và giờ' />
+            </Form.Item>
+
+            <Form.Item name='note' label='Ghi chú' rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]}>
+              <TextArea rows={4} placeholder='Ví dụ: Tôi bận sáng, xin đổi sang chiều' />
+            </Form.Item>
+
+            <Form.Item className='mb-0 text-right'>
+              <Space>
+                <Button onClick={() => setIsModalOpen(false)}>Hủy</Button>
+                <Button type='primary' htmlType='submit' className='bg-blue-500'>
+                  Gửi đề xuất
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
     </div>
   )

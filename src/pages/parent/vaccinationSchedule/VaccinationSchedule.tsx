@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-import { Card, Table, Tag, Space, Typography, Button, Modal, Descriptions, Statistic } from 'antd'
-import { FileTextOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { Card, Table, Tag, Space, Button, Modal, Descriptions, Statistic } from 'antd'
+import { FileTextOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, HistoryOutlined, CalendarOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import HistoryVaccination from './HistoryVaccination'
-
-const { Title } = Typography
 
 interface ScheduleData {
   key: string
@@ -125,9 +123,6 @@ const VaccinationSchedule: React.FC = () => {
       key: 'action',
       render: (_, record: ScheduleData) => (
         <Space>
-          <Button type='link' icon={<FileTextOutlined />} onClick={() => handleViewDetails(record)}>
-            Xem chi tiết
-          </Button>
           {record.status === 'active' && (
             <Space>
               <Button type='primary' className='bg-green-500 hover:bg-green-600'>
@@ -138,6 +133,9 @@ const VaccinationSchedule: React.FC = () => {
               </Button>
             </Space>
           )}
+          <Button className='ml-10' type='link' icon={<FileTextOutlined />} onClick={() => handleViewDetails(record)}>
+            Xem chi tiết
+          </Button>
         </Space>
       )
     }
@@ -146,9 +144,10 @@ const VaccinationSchedule: React.FC = () => {
   return (
     <div className='p-6 space-y-8'>
       <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-md'>
-        <Title level={3} className='mb-6'>
-          Lịch tiêm chủng / khám sức khỏe
-        </Title>
+        <div className='flex items-center mb-6'>
+          <CalendarOutlined className='text-3xl text-blue-500 mr-3' />
+          <h1 className='text-2xl font-bold text-gray-800'>Lịch tiêm chủng / khám sức khỏe</h1>
+        </div>
 
         <Card className='shadow-md'>
           <Table
@@ -164,9 +163,10 @@ const VaccinationSchedule: React.FC = () => {
       </div>
 
       <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg shadow-md'>
-        <Title level={3} className='mb-6'>
-          Lịch sử tiêm của con
-        </Title>
+        <div className='flex items-center mb-6'>
+          <HistoryOutlined className='text-3xl text-blue-500 mr-3' />
+          <h1 className='text-2xl font-bold text-gray-800'>Lịch sử tiêm của con</h1>
+        </div>
         <HistoryVaccination />
       </div>
 

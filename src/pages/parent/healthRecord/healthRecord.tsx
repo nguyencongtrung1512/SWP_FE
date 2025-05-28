@@ -82,7 +82,7 @@ const HealthRecord = () => {
             icon={<PlusOutlined />}
             className='bg-blue-500 hover:bg-blue-600 flex items-center'
           >
-            Add child
+            Đăng ký thông tin con
           </Button>
         </div>
         <div className='flex justify-start mb-8 space-x-4'>

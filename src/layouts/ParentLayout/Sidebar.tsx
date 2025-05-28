@@ -12,31 +12,6 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     {
-      key: path.healthRecord,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Khai báo sức khỏe'
-    },
-    {
-      key: path.vaccinationSchedule,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Lịch tiêm chủng'
-    },
-    {
-      key: path.sendMedicine,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Gửi thuốc'
-    },
-    {
-      key: path.medicalEvent,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Báo cáo y tế'
-    },
-    {
-      key: path.privateConsultation,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Tư vấn riêng'
-    },
-    {
       key: path.profile,
       icon: <FileSearchOutlined className='text-lg' />,
       label: 'Hồ sơ của tôi'

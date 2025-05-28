@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import path from '../../../constants/path'
 
 function Header() {
   const [open, setOpen] = useState(false)
@@ -27,14 +28,20 @@ function Header() {
       </div>
       {/* Menu */}
       <nav className='flex space-x-8 text-lg font-medium flex-1'>
-        <a href='/home' className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Home
+        <a href={path.healthRecord} className='text-gray-900 hover:text-blue-500 transition-colors'>
+          Khai báo sức khỏe
         </a>
-        <a href='/' className='text-gray-900 hover:text-blue-500 transition-colors'>
-          About Me
+        <a href={path.vaccinationSchedule} className='text-gray-900 hover:text-blue-500 transition-colors'>
+          Lịch tiêm chủng
         </a>
-        <a href='/blog' className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Blog
+        <a href={path.sendMedicine} className='text-gray-900 hover:text-blue-500 transition-colors'>
+          Gửi thuốc
+        </a>
+        <a href={path.medicalEvent} className='text-gray-900 hover:text-blue-500 transition-colors'>
+          Báo cáo y tế
+        </a>
+        <a href={path.privateConsultation} className='text-gray-900 hover:text-blue-500 transition-colors'>
+          Tư vấn riêng
         </a>
       </nav>
       {/* Avatar user */}
@@ -46,7 +53,7 @@ function Header() {
         {open && (
           <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50'>
             <div className='px-4 py-2 text-gray-900 font-bold'>{user.name}</div>
-            <a href='/parent/profile' className='block px-4 py-2 text-gray-700 hover:bg-blue-50'>
+            <a href={path.profile} className='block px-4 py-2 text-gray-700 hover:bg-blue-50'>
               Hồ sơ của tôi
             </a>
             <button

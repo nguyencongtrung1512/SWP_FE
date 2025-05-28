@@ -74,15 +74,6 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    to='/courses'
-                    className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
-                  >
-                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>→</span>
-                    Courses
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     to='/about'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >

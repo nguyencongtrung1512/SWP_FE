@@ -8,24 +8,24 @@ const BlogPost: React.FC = () => {
   // Mock data for the current post
   const post = {
     id: postId,
-    title: 'Khoa học đằng sau liệu pháp hành vi nhận thức cho học sinh',
-    category: 'TÂM LÝ',
+    title: 'Y tế học đường & sơ cấp cứu',
+    category: 'SỨC KHỎE',
     date: 'Ngày 15 tháng 10, 2023',
     comments: 1,
     author: 'Nguyễn Văn A',
     content: [
-      'Qroin faucibus nec mauris a sodales, sed elementum mi tincidunt. Sed eget viverra egestas nisi in consequat. Fusce sodales augue a accumsan. Cras sollicitudin, ipsum eget blandit pulvinar, integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.',
-      'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo.',
-      'At vero eos et accusam',
-      'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt.',
-      'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo.',
-      'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit. Lorem ipsum dolor sit amet, consectetur adipisicing elit.'
+      'Trường học, đặc biệt là trường mầm non và trường tiểu học là nơi học sinh rất hiếu động và các chấn thương như gãy xương, bong gân, trật khớp, hay trầy xước xảy ra thường xuyên. Nhiệm vụ của nhân viên y tế học đường là rất quan trọng và nặng nề, đòi hỏi phải có trách nhiệm cao với công việc và không thể để xảy ra sai sót vì liên quan đến sự an toàn, sức khỏe của học sinh. Vì thế, nhân viên y tế học đường cần có kiến thức sơ cứu và kỹ năng xử lý các tình huống khẩn cấp.',
+      'Đồng thời, nhân viên y tế học đường cũng cần trang bị túi sơ cứu có đầy đủ các dụng cụ sơ cứu như băng gạc, gạc, khăn bông, nước muối sinh lý và găng tay y tế để có thể cung cấp sự chăm sóc tối ưu cho các học sinh.',
+      'Một số công việc chính của nhân viên y tế về công tác y tế học đường',
+      'Sĩ số học sinh lớn trong một trường học đặt ra một thách thức lớn cho nhân viên y tế học đường. Họ phải có kiến thức về sơ cứu để đáp ứng nhanh chóng và hiệu quả khi có tai nạn.',
+      'Túi sơ cứu cung cấp các dụng cụ và vật liệu cần thiết để xử lý các vấn đề sức khỏe phổ biến mà học sinh có thể gặp phải.',
+      'Lựa chọn túi sơ cứu đầy đủ dụng cụ và chất lượng là một giải pháp hữu ích để giúp nhân viên y tế học đường tiếp cận nhanh chóng và hiệu quả đến các trường hợp cần sự can thiệp sơ cứu.'
     ],
     authorImage: 'https://i.pravatar.cc/150?img=3',
     image: 'https://getwallpapers.com/wallpaper/full/e/f/7/7182.jpg',
     image1: 'https://wallpaperaccess.com/full/136935.jpg',
     image2: 'https://wallpaperaccess.com/full/136954.jpg',
-    quote: 'Curabitur varius eros et lacus rutrum consequat. Mauris sollicitudin enim condimentum, luctus justo non, molestie nisl.'
+    quote: 'Túi sơ cứu là trang thiết bị cơ bản và tối quan trọng giúp nhân viên y tế học đường xử lý nhanh chóng và hiệu quả các tình huống sơ cứu khẩn cấp.'
   }
 
   // Mock data for recommended posts
@@ -48,11 +48,11 @@ const BlogPost: React.FC = () => {
   const comments = [
     {
       id: 1,
-      author: 'Nguyễn Văn A',
-      date: 'Ngày 3 tháng 10, 2023, lúc 12:30 pm',
-      content: 'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo.',
+      author: 'Phạm Văn B',
+      date: 'Ngày 24 tháng 10, 2023, lúc 12:30 pm',
+      content: 'Bài viết rất hữu ích, cảm ơn tác giả đã chia sẻ!',
       isAuthor: true,
-      avatar: 'https://i.pravatar.cc/150?img=3'
+      avatar: 'https://toigingiuvedep.vn/wp-content/uploads/2021/05/anh-avatar-trang-chat.jpg'
     }
   ]
 
@@ -173,9 +173,9 @@ const BlogPost: React.FC = () => {
                 <div className='flex justify-between items-center mb-2'>
                   <div>
                     <span className='font-bold mr-2'>{comment.author}</span>
-                    {comment.isAuthor && (
+                    {/* {comment.isAuthor && (
                       <span className='bg-gray-200 px-2 py-0.5 text-xs rounded-md'>Post Author</span>
-                    )}
+                    )} */}
                   </div>
                   <span className='text-sm text-gray-500'>{comment.date}</span>
                 </div>

@@ -23,7 +23,6 @@ import DashBoardAdmin from './pages/admin/dashBoardAdmin/DashBoardAdmin'
 import CensorList from './pages/admin/censorManagement/CensorList'
 import MedicalPlan from './pages/nurse/medicalPlan'
 import UserList from './pages/admin/userManagerment/UserList'
-import StudentHierarchy from './pages/admin/studentManagement/StudentHierarchy'
 import StudentList from './pages/admin/studentManagement/StudentList'
 import GradeList from './pages/admin/gradeManagement/GradeList'
 import ClassList from './pages/admin/classroomManagement/Classlist'
@@ -145,10 +144,6 @@ export default function useRouteElements() {
         {
           path: path.USER_MANAGEMENT,
           element: <UserList />
-        },
-        {
-          path: path.STUDENT_MANAGEMENT,
-          element: <StudentHierarchy />
         },
         {
           path: path.GRADE_MANAGEMENT,

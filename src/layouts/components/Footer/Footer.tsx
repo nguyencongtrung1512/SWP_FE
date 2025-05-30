@@ -6,16 +6,15 @@ export default function Footer() {
       <div className='w-full max-w-screen-xl mx-auto p-8 md:py-12'>
 
         <div className='sm:flex sm:justify-between'>
-          <div className='mb-8 md:mb-0'>
+          <div className='mb-8 md:mb-0 mr-8'>
             <Link to='/' className='flex items-center mb-6 space-x-3 rtl:space-x-reverse'>
               <div className='bg-white text-blue-500 rounded-full w-12 h-12 flex items-center justify-center shadow-md'>
                 <span className='text-2xl font-bold'>@</span>
               </div>
               <span className='self-center text-2xl font-bold whitespace-nowrap'>Care Health Edu</span>
             </Link>
-            <p className='max-w-xs text-white/80 text-sm leading-relaxed'>
-              Elevating your child's learning experience with fun, interactive coding education designed for young
-              minds.
+            <p className='max-w-xs text-white/80 text-md leading-relaxed'>
+              Giúp phụ huynh theo dõi và quản lý thông tin sức khỏe của con một cách thuận tiện
             </p>
             <div className='mt-6 flex space-x-4'>
               <a
@@ -60,7 +59,7 @@ export default function Footer() {
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 10V3L4 14h7v7l9-11h-7z' />
                   </svg>
                 </span>
-                Quick Links
+                Liên Kết Nhanh
               </h3>
               <ul className='space-y-3'>
                 <li>
@@ -69,7 +68,7 @@ export default function Footer() {
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
                     <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>→</span>
-                    Home
+                    Trang Chủ
                   </Link>
                 </li>
                 <li>
@@ -78,16 +77,25 @@ export default function Footer() {
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
                     <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>→</span>
-                    About Us
+                    Về Chúng Tôi
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to='/contact'
+                    to='/faq'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
-                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>→</span>
-                    Contact
+                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>?</span>
+                    Câu Hỏi Thường Gặp
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/help'
+                    className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
+                  >
+                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>!</span>
+                    Trung Tâm Hỗ Trợ
                   </Link>
                 </li>
               </ul>
@@ -155,7 +163,7 @@ export default function Footer() {
                     />
                   </svg>
                 </span>
-                Contact Us
+                Liên Hệ Chúng Tôi
               </h3>
               <ul className='space-y-3'>
                 <li className='flex items-start'>
@@ -181,7 +189,7 @@ export default function Footer() {
                       />
                     </svg>
                   </span>
-                  <span className='text-white/80'>123 Learning Street, Education City, 10001</span>
+                  <span className='text-white/80'>Nhà Văn hóa Sinh viên TP. Hồ Chí Minh</span>
                 </li>
                 <li className='flex items-center'>
                   <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 flex-shrink-0'>
@@ -200,7 +208,7 @@ export default function Footer() {
                       />
                     </svg>
                   </span>
-                  <span className='text-white/80'>+ (48) 123-4567</span>
+                  <span className='text-white/80'>+ (84) 123-4567</span>
                 </li>
                 <li className='flex items-center'>
                   <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 flex-shrink-0'>
@@ -229,17 +237,17 @@ export default function Footer() {
         <div className='mt-12 pt-8 border-t border-white/20'>
           <div className='flex flex-col md:flex-row justify-between items-center'>
             <p className='text-sm text-white/70 mb-4 md:mb-0'>
-              © 2025 <span className='font-medium'>Care Health Edu™</span>. All Rights Reserved.
+              © 2025 <span className='font-medium'>Care Health Edu™</span>. Tất Cả Các Quyền Được Bảo Lưu.
             </p>
             <div className='flex space-x-6'>
               <Link to='/privacy' className='text-sm text-white/70 hover:text-white transition-colors duration-300'>
-                Privacy Policy
+                Chính Sách Bảo Mật
               </Link>
               <Link to='/terms' className='text-sm text-white/70 hover:text-white transition-colors duration-300'>
-                Terms of Service
+                Điều Khoản Dịch Vụ
               </Link>
               <Link to='/cookies' className='text-sm text-white/70 hover:text-white transition-colors duration-300'>
-                Cookie Policy
+                Chính Sách Cookie
               </Link>
             </div>
           </div>

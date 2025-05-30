@@ -155,12 +155,12 @@ const GradeList: React.FC = () => {
 
         <Row gutter={[16, 16]} className='mb-6'>
           <Col span={8}>
-            <Card className='bg-blue-50'>
+            <Card className='bg-blue-100'>
               <Statistic title='Tổng số khối' value={mockData.length} valueStyle={{ color: '#1890ff' }} />
             </Card>
           </Col>
           <Col span={8}>
-            <Card className='bg-green-50'>
+            <Card className='bg-green-100'>
               <Statistic
                 title='Tổng số lớp'
                 value={mockData.reduce((sum, grade) => sum + grade.totalClasses, 0)}
@@ -169,7 +169,7 @@ const GradeList: React.FC = () => {
             </Card>
           </Col>
           <Col span={8}>
-            <Card className='bg-purple-50'>
+            <Card className='bg-purple-100'>
               <Statistic
                 title='Tổng số học sinh'
                 value={mockData.reduce((sum, grade) => sum + grade.totalStudents, 0)}

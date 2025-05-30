@@ -24,12 +24,12 @@ const Sidebar: React.FC = () => {
     {
       key: path.USER_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Quản lí User'
+      label: 'Quản lí người dùng'
     },
     {
-      key: path.STUDENT_MANAGEMENT,
+      key: path.GRADE_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Quản lí Student'
+      label: 'Quản lí học sinh'
     }
   ]
 

@@ -33,7 +33,7 @@ interface Classroom {
 }
 
 const StudentList: React.FC = () => {
-  const { classroomId } = useParams<{ classroomId: string }>()
+  const { classId } = useParams<{ classId: string }>()
   const [studentList, setStudentList] = useState<Student[]>([])
   const [currentClassroom, setCurrentClassroom] = useState<Classroom | null>(null)
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
@@ -41,15 +41,15 @@ const StudentList: React.FC = () => {
 
   useEffect(() => {
     // Lấy thông tin lớp hiện tại
-    const classroom = classrooms.find((c) => c.id === classroomId)
+    const classroom = classrooms.find((c) => c.id === classId)
     if (classroom) {
       setCurrentClassroom(classroom)
     }
 
     // Lấy danh sách học sinh của lớp
-    const studentsInClass = students.filter((s) => s.classroomId === classroomId)
+    const studentsInClass = students.filter((s) => s.classroomId === classId)
     setStudentList(studentsInClass)
-  }, [classroomId])
+  }, [classId])
 
   const handleViewDetail = (student: Student) => {
     setSelectedStudent(student)
@@ -123,17 +123,17 @@ const StudentList: React.FC = () => {
 
         <Row gutter={[16, 16]} className='mb-6'>
           <Col span={8}>
-            <Card className='bg-blue-50'>
+            <Card className='bg-blue-100'>
               <Statistic title='Tổng số học sinh' value={studentList.length} valueStyle={{ color: '#1890ff' }} />
             </Card>
           </Col>
           <Col span={8}>
-            <Card className='bg-green-50'>
+            <Card className='bg-green-100'>
               <Statistic title='Sức chứa lớp' value={currentClassroom.capacity} valueStyle={{ color: '#3f8600' }} />
             </Card>
           </Col>
           <Col span={8}>
-            <Card className='bg-purple-50'>
+            <Card className='bg-purple-100'>
               <Statistic
                 title='Còn trống'
                 value={currentClassroom.capacity - studentList.length}

@@ -155,12 +155,12 @@ const ClassList: React.FC = () => {
 
         <Row gutter={[16, 16]} className='mb-6'>
           <Col span={8}>
-            <Card className='bg-blue-50'>
+            <Card className='bg-blue-100'>
               <Statistic title='Tổng số lớp' value={classList.length} valueStyle={{ color: '#1890ff' }} />
             </Card>
           </Col>
           <Col span={8}>
-            <Card className='bg-green-50'>
+            <Card className='bg-green-100'>
               <Statistic
                 title='Tổng số học sinh'
                 value={classList.reduce((sum, classes) => sum + classes.totalStudents, 0)}

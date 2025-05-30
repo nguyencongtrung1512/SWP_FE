@@ -1,28 +1,6 @@
-export const levels = [
-  {
-    id: '1',
-    name: 'Tiểu học',
-    description: 'Cấp Tiểu học - Năm học 2023-2024',
-    totalGrades: 5,
-    totalClasses: 20,
-    totalStudents: 600,
-    status: 'active'
-  },
-  {
-    id: '2',
-    name: 'THCS',
-    description: 'Cấp Trung học cơ sở - Năm học 2023-2024',
-    totalGrades: 4,
-    totalClasses: 16,
-    totalStudents: 480,
-    status: 'active'
-  }
-]
-
 export const grades = [
   {
     id: '1',
-    levelId: '1',
     name: 'Lớp 1',
     description: 'Khối lớp 1 - Năm học 2023-2024',
     totalClasses: 4,
@@ -31,7 +9,6 @@ export const grades = [
   },
   {
     id: '2',
-    levelId: '1',
     name: 'Lớp 2',
     description: 'Khối lớp 2 - Năm học 2023-2024',
     totalClasses: 4,
@@ -40,18 +17,16 @@ export const grades = [
   },
   {
     id: '3',
-    levelId: '2',
-    name: 'Lớp 6',
-    description: 'Khối lớp 6 - Năm học 2023-2024',
+    name: 'Lớp 5',
+    description: 'Khối lớp 5 - Năm học 2023-2024',
     totalClasses: 4,
     totalStudents: 120,
     status: 'active'
   },
   {
     id: '4',
-    levelId: '2',
-    name: 'Lớp 7',
-    description: 'Khối lớp 7 - Năm học 2023-2024',
+    name: 'Lớp 3',
+    description: 'Khối lớp 3 - Năm học 2023-2024',
     totalClasses: 4,
     totalStudents: 120,
     status: 'active'

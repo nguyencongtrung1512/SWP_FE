@@ -33,9 +33,8 @@ const path = {
   DASHBOARD_ADMIN: '/admin/dashboard',
   CENSOR_LIST: '/admin/censor-list',
   USER_MANAGEMENT: '/admin/user-management',
-  STUDENT_MANAGEMENT: '/admin/student-management',
-  GRADE_MANAGEMENT: '/admin/student-management/level/:levelId/grades',
-  CLASS_MANAGEMENT: '/admin/student-management/level/:levelId/grade/:gradeId/classes',
-  STUDENT_LIST: '/admin/student-management/level/:levelId/grade/:gradeId/class/:classId/students',
+  GRADE_MANAGEMENT: '/admin/student-management/grades',
+  CLASS_MANAGEMENT: '/admin/student-management/grades/:gradeId/classes',
+  STUDENT_LIST: '/admin/student-management/classes/:classId/students'
 }
 export default path

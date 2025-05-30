@@ -1,13 +1,3 @@
-interface Level {
-  id: string
-  name: string
-  description: string
-  totalGrades: number
-  totalClasses: number
-  totalStudents: number
-  status: string
-}
-
 interface Grade {
   id: string
   levelId: string
@@ -18,7 +8,7 @@ interface Grade {
   status: string
 }
 
-interface Classroom {
+interface Classes {
   id: string
   gradeId: string
   name: string
@@ -44,7 +34,6 @@ interface Student {
   healthStatus: string
 }
 
-export const levels: Level[]
 export const grades: Grade[]
-export const classrooms: Classroom[]
+export const classes: Classes[]
 export const students: Student[]

@@ -54,12 +54,12 @@ const AdminLayout: React.FC = () => {
             </button>
             
             {open && (
-              <div className='absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200'>
+              <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200'>
                 <button
-                  className='w-full flex items-center px-4 py-3 text-red-500 hover:bg-blue-50 transition-colors'
+                  className='w-full flex items-center px-3 py-2 text-red-500 hover:bg-blue-50 transition-colors text-sm'
                   onClick={handleLogout}
                 >
-                  <LogoutOutlined className='mr-3' />
+                  <LogoutOutlined className='mr-2' />
                   <span>Đăng xuất</span>
                 </button>
               </div>

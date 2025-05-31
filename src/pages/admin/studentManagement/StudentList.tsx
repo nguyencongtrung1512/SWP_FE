@@ -132,15 +132,6 @@ const StudentList: React.FC = () => {
               <Statistic title='Sức chứa lớp' value={currentClassroom.capacity} valueStyle={{ color: '#3f8600' }} />
             </Card>
           </Col>
-          <Col span={8}>
-            <Card className='bg-purple-100'>
-              <Statistic
-                title='Còn trống'
-                value={currentClassroom.capacity - studentList.length}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Card>
-          </Col>
         </Row>
 
         <Card className='shadow-md'>

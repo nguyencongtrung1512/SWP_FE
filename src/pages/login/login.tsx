@@ -1,16 +1,29 @@
 import React, { useState } from 'react'
-import { Form, Input, Button, message } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { Form, Input, Button, message, Tooltip } from 'antd'
+import { UserOutlined, LockOutlined, InfoCircleOutlined } from '@ant-design/icons'
+import { useAuth } from '../../contexts/auth.context'
+import { useNavigate } from 'react-router-dom'
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [showCredentials, setShowCredentials] = useState(false)
 
   const onFinish = async (values: { phone: string; password: string }) => {
     try {
       setLoading(true)
-      // TODO: Implement login logic here
-      console.log('Login values:', values)
-      message.success('Đăng nhập thành công!')
+      const result = await login(values.phone, values.password)
+      
+      if (result.success) {
+        message.success(result.message)
+        // Redirect based on user role
+        if (result.redirectUrl) {
+          navigate(result.redirectUrl)
+        }
+      } else {
+        message.error(result.message)
+      }
     } catch (error) {
       message.error('Đăng nhập thất bại!')
     } finally {
@@ -49,6 +62,36 @@ const Login: React.FC = () => {
               <span className='text-blue-500'>Care</span>
             </span>
           </div>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='text-2xl font-semibold text-gray-800'>Đăng nhập</h2>
+            <Tooltip title='Hiển thị thông tin đăng nhập demo'>
+              <Button 
+                type='text' 
+                icon={<InfoCircleOutlined />}
+                onClick={() => setShowCredentials(!showCredentials)}
+                className='text-blue-500'
+              />
+            </Tooltip>
+          </div>
+          {showCredentials && (
+            <div className='mb-6 p-3 bg-blue-50 rounded-md border border-blue-100'>
+              <div className='text-sm font-medium text-blue-900 mb-2'>Tài khoản demo:</div>
+              <div className='grid grid-cols-2 gap-2 text-sm'>
+                <div>
+                  <div className='font-medium'>Phụ huynh:</div>
+                  <div className='text-gray-600'>0123456789 / parent123</div>
+                </div>
+                <div>
+                  <div className='font-medium'>Y tá:</div>
+                  <div className='text-gray-600'>0987654321 / nurse123</div>
+                </div>
+                <div>
+                  <div className='font-medium'>Admin:</div>
+                  <div className='text-gray-600'>0909090909 / admin123</div>
+                </div>
+              </div>
+            </div>
+          )}
           <Form name='login' onFinish={onFinish} layout='vertical'>
             <Form.Item
               name='phone'

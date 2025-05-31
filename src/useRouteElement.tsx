@@ -13,7 +13,6 @@ import ScheduleVaccination from './pages/nurse/scheduleVaccination/ScheduleVacci
 import ResultsAfterVaccination from './pages/nurse/resultsAfterVaccination'
 import ReceiveMedicine from './pages/nurse/receiveMedicine/ReceiveMedicine'
 import MedicalReport from './pages/nurse/medicalReport/MedicalReport'
-
 import DashBoardNurse from './pages/nurse/dashboardNurse/DashBoardNurse'
 import PrivateConsultation from './pages/nurse/privateConsultation/PrivateConsultation'
 import Blog from './pages/parent/blog/blog'
@@ -29,6 +28,7 @@ import ClassList from './pages/admin/classroomManagement/Classlist'
 import ParentLayout from './layouts/ParentLayout/ParentLayout'
 import VaccinationSchedule from './pages/parent/vaccinationSchedule/VaccinationSchedule'
 import MedicalEventParent from './pages/parent/medicalEvent/medicalEventParent'
+import ProtectedRoute from './components/ProtectedRoute'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -55,107 +55,134 @@ export default function useRouteElements() {
         }
       ]
     },
+    // PARENT routes with protection
     {
       path: '',
-      element: <ParentLayout />,
+      element: <ProtectedRoute requiredRole='Parent' />,
       children: [
         {
-          path: path.healthRecord,
-          element: <HealthRecord />
-        },
-        {
-          path: path.sendMedicine,
-          element: <SendMedicine />
-        },
-        {
-          path: path.privateConsultation,
-          element: <PrivateConsultation />
-        },
-        {
-          path: path.vaccinationSchedule,
-          element: <VaccinationSchedule />
-        },
-        {
-          path: path.medicalEvent,
-          element: <MedicalEventParent />
-        },
-        {
-          path: path.profile,
-          element: <ProfileParent />
+          path: '',
+          element: <ParentLayout />,
+          children: [
+            {
+              path: path.healthRecord,
+              element: <HealthRecord />
+            },
+            {
+              path: path.sendMedicine,
+              element: <SendMedicine />
+            },
+            {
+              path: path.privateConsultation,
+              element: <PrivateConsultation />
+            },
+            {
+              path: path.vaccinationSchedule,
+              element: <VaccinationSchedule />
+            },
+            {
+              path: path.medicalEvent,
+              element: <MedicalEventParent />
+            },
+            {
+              path: path.profile,
+              element: <ProfileParent />
+            }
+          ]
         }
       ]
     },
     //================ NURSE routes ================
     {
       path: path.BASE_NURSE,
-      element: <NurseLayout />,
+      element: <ProtectedRoute requiredRole='Nurse' />,
       children: [
         {
-          path: path.DASHBOARD_NURSE,
-          element: <DashBoardNurse />
-        },
-        {
-          path: path.HEALTH_RECORD_CENSORSHIP,
-          element: <HealthRecordCensorship />
-        },
-        {
-          path: path.NURSE_PROFILE,
-          element: <NurseProfile />
-        },
-        {
-          path: path.SCHEDULE_VACCINATION,
-          element: <ScheduleVaccination />
-        },
-        {
-          path: path.RESULTS_AFTER_VACCINATION,
-          element: <ResultsAfterVaccination />
-        },
-        {
-          path: path.RECEIVE_MEDICINE,
-          element: <ReceiveMedicine />
-        },
-        {
-          path: path.MEDICAL_REPORT,
-          element: <MedicalReport />
-        },
-        {
-          path: path.MEDICAL_PLAN,
-          element: <MedicalPlan />
-        },
-        {
-          path: path.PRIVATE_CONSULTATION,
-          element: <PrivateConsultation />
+          path: '',
+          element: <NurseLayout />,
+          children: [
+            {
+              path: '',
+              element: <DashBoardNurse />
+            },
+            {
+              path: 'dashboard',
+              element: <DashBoardNurse />
+            },
+            {
+              path: 'health-record-censorship',
+              element: <HealthRecordCensorship />
+            },
+            {
+              path: 'profile',
+              element: <NurseProfile />
+            },
+            {
+              path: 'schedule-vaccination',
+              element: <ScheduleVaccination />
+            },
+            {
+              path: 'results-after-vaccination',
+              element: <ResultsAfterVaccination />
+            },
+            {
+              path: 'receive-medicine',
+              element: <ReceiveMedicine />
+            },
+            {
+              path: 'medical-report',
+              element: <MedicalReport />
+            },
+            {
+              path: 'medical-plan',
+              element: <MedicalPlan />
+            },
+            {
+              path: 'private-consultation',
+              element: <PrivateConsultation />
+            }
+          ]
         }
       ]
     },
     //================ ADMIN routes ================
     {
       path: path.BASE_ADMIN,
-      element: <AdminLayout />,
+      element: <ProtectedRoute requiredRole='Admin' />,
       children: [
         {
-          path: path.DASHBOARD_ADMIN,
-          element: <DashBoardAdmin />
-        },
-        {
-          path: path.CENSOR_LIST,
-          element: <CensorList />
-        },
-        {
-          path: path.USER_MANAGEMENT,
-          element: <UserList />
-        },
-        {
-          path: path.GRADE_MANAGEMENT,
-          element: <GradeList />
-        },
-        {
-          path: path.CLASS_MANAGEMENT,
-          element: <ClassList />
-        },
-        {
-          path: path.STUDENT_LIST,
-          element: <StudentList />
+          path: '',
+          element: <AdminLayout />,
+          children: [
+            {
+              path: '',
+              element: <DashBoardAdmin />
+            },
+            {
+              path: 'dashboard',
+              element: <DashBoardAdmin />
+            },
+            {
+              path: 'censor-list',
+              element: <CensorList />
+            },
+            {
+              path: 'user-management',
+              element: <UserList />
+            },
+            {
+              path: 'student-management/grades',
+              element: <GradeList />
+            },
+            {
+              path: 'student-management/grades/:gradeId/classes',
+              element: <ClassList />
+            },
+            {
+              path: 'student-management/classes/:classId/students',
+              element: <StudentList />
+            }
+          ]
         }
       ]
     }

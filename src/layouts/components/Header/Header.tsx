@@ -1,13 +1,34 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import path from '../../../constants/path'
+import { useAuth } from '../../../contexts/auth.context'
+import { useNavigate } from 'react-router-dom'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 function Header() {
   const [open, setOpen] = useState(false)
-  // Giả lập thông tin user
-  const user = {
-    name: 'Nguyễn Văn A',
-    avatar: 'https://i.pravatar.cc/150?img=3'
+  const { user, logout, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  const handleLogout = () => {
+    logout()
+    setOpen(false)
+    navigate(path.login)
   }
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   return (
     <header className='flex items-center px-12 py-6 bg-white w-full relative'>
@@ -47,27 +68,44 @@ function Header() {
           Blog
         </a>
       </nav>
-      {/* Avatar user */}
-      <div className='relative'>
-        <button className='flex items-center space-x-2 focus:outline-none' onClick={() => setOpen(!open)}>
-          <img src={user.avatar} alt='avatar' className='w-10 h-10 rounded-full border-2 border-blue-400' />
-          <span className='font-semibold text-gray-800'>{user.name}</span>
-        </button>
-        {open && (
-          <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50'>
-            <div className='px-4 py-2 text-gray-900 font-bold'>{user.name}</div>
-            <a href={path.profile} className='block px-4 py-2 text-gray-700 hover:bg-blue-50'>
-              Hồ sơ của tôi
-            </a>
-            <button
-              className='w-full text-left px-4 py-2 text-red-500 hover:bg-blue-50'
-              onClick={() => alert('Đăng xuất!')}
-            >
-              Đăng xuất
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Avatar user - only shown when logged in */}
+      {isAuthenticated && user ? (
+        <div className='relative' ref={dropdownRef}>
+          <button 
+            className='flex items-center space-x-2 focus:outline-none rounded-full hover:bg-gray-100 p-1 transition-colors' 
+            onClick={() => setOpen(!open)}
+          >
+            <img 
+              src={user.avatar} 
+              alt='avatar' 
+              className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
+            />
+            <span className='font-semibold text-gray-800 mr-1'>{user.name}</span>
+          </button>
+          {open && (
+            <div className='absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200'>
+              <a 
+                href={path.profile} 
+                className='flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors'
+                onClick={() => setOpen(false)}
+              >
+                <UserOutlined className='mr-3 text-gray-500' />
+                <span>Hồ sơ của tôi</span>
+              </a>
+              <button
+                className='w-full flex items-center px-4 py-3 text-red-500 hover:bg-blue-50 transition-colors'
+                onClick={handleLogout}
+              >
+                <LogoutOutlined className='mr-3' />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+        </>
+      )}
     </header>
   )
 }

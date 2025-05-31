@@ -32,7 +32,7 @@ function Header() {
 
   return (
     <header className='flex items-center px-12 py-6 bg-white w-full relative'>
-      <div className='flex items-center mr-16'>
+      <div className='flex items-center mr-16 mb-2'>
         <a href={path.home} className='flex items-center'>
           <span className='text-blue-500 mr-2'>
             <svg width='36' height='36' viewBox='0 0 36 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -48,7 +48,7 @@ function Header() {
         </a>
       </div>
       {/* Menu */}
-      <nav className='flex space-x-8 text-lg font-medium flex-1 mt-2'>
+      <nav className='flex space-x-8 text-lg font-medium flex-1'>
         <a href={path.healthRecord} className='text-gray-900 hover:text-blue-500 transition-colors'>
           Khai báo sức khỏe
         </a>

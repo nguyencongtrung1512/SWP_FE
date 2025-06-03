@@ -1,25 +1,39 @@
 import React, { useState } from 'react'
-import { Form, Input, Button, message, Tooltip } from 'antd'
-import { UserOutlined, LockOutlined, InfoCircleOutlined } from '@ant-design/icons'
-import { useAuth } from '../../contexts/auth.context'
+import { Form, Button, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import { login, register } from '../../api/auth.api'
+import path from '../../constants/path'
+import LoginForm from './loginForm'
+import SignupForm from './signupForm'
+import { useAuth } from '../../contexts/auth.context'
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
   const navigate = useNavigate()
-  const [showCredentials, setShowCredentials] = useState(false)
+  const [isLogin, setIsLogin] = useState(true)
+  const [form] = Form.useForm()
+  const { login: authLogin } = useAuth()
 
-  const onFinish = async (values: { phone: string; password: string }) => {
+  const onFinishLogin = async (values: { email: string; password: string }) => {
     try {
       setLoading(true)
-      const result = await login(values.phone, values.password)
-      
+      const result : any = await login(values)
+
       if (result.success) {
         message.success(result.message)
-        // Redirect based on user role
-        if (result.redirectUrl) {
-          navigate(result.redirectUrl)
+        const userData = result.data.account;
+        
+        authLogin(userData)
+        
+        if (userData.roleName === 'Parent') {
+          navigate(path.healthRecord)
+        } else if (userData.roleName === 'Nurse') {
+          navigate(path.NURSE_PROFILE);
+        } else if (userData.roleName === 'Admin') {
+          navigate(path.CENSOR_LIST);
+        } else {
+          navigate('/');
         }
       } else {
         message.error(result.message)
@@ -31,12 +45,46 @@ const Login: React.FC = () => {
     }
   }
 
+  const onFinishRegister = async (values: { 
+    phone: string; 
+    password: string; 
+    fullName: string; 
+    email: string;
+    address: string;
+    dateOfBirth: Date;
+  }) => {
+    try {
+      setLoading(true)
+      const formattedValues = {
+        ...values,
+        dateOfBirth: values.dateOfBirth.toISOString()
+      }
+      
+      const result : any = await register(formattedValues)
+      
+      if (result.success) {
+        message.success('Đăng ký thành công!')
+        setIsLogin(true)
+        form.resetFields()
+      } else {
+        message.error(result.message || 'Đăng ký thất bại!')
+      }
+    } catch (error) {
+      message.error('Đăng ký thất bại!')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleForm = () => {
+    form.resetFields()
+    setIsLogin(!isLogin)
+  }
+
   return (
     <div className='min-h-screen flex items-center justify-center bg-[#44aade]'>
-      {/* Bên trái: Logo + slogan */}
-      <div className='flex-1 flex flex-col items-center justify-center text-white'>
+      <div className='hidden md:flex flex-1 flex-col items-center justify-center text-white'>
         <div className='mb-8'>
-          {/* Logo SVG hoặc ảnh */}
           <svg width='120' height='120' viewBox='0 0 36 36' fill='none'>
             <rect x='7' y='16' width='22' height='4' rx='2' fill='#fff' />
             <rect x='16' y='7' width='4' height='22' rx='2' fill='#fff' />
@@ -46,9 +94,8 @@ const Login: React.FC = () => {
         <h1 className='text-5xl font-bold mb-4'>EduCare</h1>
         <p className='text-xl text-center max-w-xs'>Nền tảng y tế trực tuyến bảo vệ sức khỏe của con bạn!</p>
       </div>
-      {/* Bên phải: Form đăng nhập */}
-      <div className='flex-1 flex items-center justify-center'>
-        <div className='bg-white rounded-lg shadow-lg p-8 w-[400px]'>
+      <div className='flex-1 flex items-center justify-center p-4'>
+        <div className='bg-white rounded-lg shadow-lg p-6 md:p-8 w-full max-w-[450px]'>
           <div className='flex items-center justify-center mb-6'>
             <span className='text-blue-500 mr-2'>
               <svg width='36' height='36' viewBox='0 0 36 36' fill='none'>
@@ -63,61 +110,39 @@ const Login: React.FC = () => {
             </span>
           </div>
           <div className='flex justify-between items-center mb-4'>
-            <h2 className='text-2xl font-semibold text-gray-800'>Đăng nhập</h2>
-            <Tooltip title='Hiển thị thông tin đăng nhập demo'>
-              <Button 
-                type='text' 
-                icon={<InfoCircleOutlined />}
-                onClick={() => setShowCredentials(!showCredentials)}
-                className='text-blue-500'
-              />
-            </Tooltip>
+            <h2 className='text-2xl font-semibold text-gray-800'>
+              {isLogin ? 'Đăng nhập' : 'Đăng ký'}
+            </h2>
           </div>
-          {showCredentials && (
-            <div className='mb-6 p-3 bg-blue-50 rounded-md border border-blue-100'>
-              <div className='text-sm font-medium text-blue-900 mb-2'>Tài khoản demo:</div>
-              <div className='grid grid-cols-2 gap-2 text-sm'>
-                <div>
-                  <div className='font-medium'>Phụ huynh:</div>
-                  <div className='text-gray-600'>0123456789 / parent123</div>
-                </div>
-                <div>
-                  <div className='font-medium'>Y tá:</div>
-                  <div className='text-gray-600'>0987654321 / nurse123</div>
-                </div>
-                <div>
-                  <div className='font-medium'>Admin:</div>
-                  <div className='text-gray-600'>0909090909 / admin123</div>
-                </div>
-              </div>
-            </div>
-          )}
-          <Form name='login' onFinish={onFinish} layout='vertical'>
-            <Form.Item
-              name='phone'
-              rules={[
-                { required: true, message: 'Vui lòng nhập số điện thoại!' },
-                { pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ!' }
-              ]}
-            >
-              <Input prefix={<UserOutlined />} placeholder='Số điện thoại' size='large' />
-            </Form.Item>
-            <Form.Item name='password' rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}>
-              <Input.Password prefix={<LockOutlined />} placeholder='Mật khẩu' size='large' />
-            </Form.Item>
-            <Form.Item>
+          
+          <AnimatePresence mode="wait">
+            {isLogin ? (
+              <LoginForm 
+                onFinish={onFinishLogin} 
+                loading={loading} 
+                form={form} 
+              />
+            ) : (
+              <SignupForm 
+                onFinish={onFinishRegister} 
+                loading={loading} 
+                form={form} 
+              />
+            )}
+          </AnimatePresence>
+          
+          <div className='mt-4 text-center'>
+            <p className='text-gray-600'>
+              {isLogin ? 'Bạn chưa có tài khoản?' : 'Bạn đã có tài khoản?'}
               <Button
-                type='primary'
-                htmlType='submit'
-                loading={loading}
-                block
-                size='large'
-                className='bg-blue-500 hover:bg-blue-600'
+                type='link'
+                onClick={toggleForm}
+                className='p-0 ml-1 font-medium'
               >
-                Đăng nhập
+                {isLogin ? 'Đăng ký' : 'Đăng nhập'}
               </Button>
-            </Form.Item>
-          </Form>
+            </p>
+          </div>
         </div>
       </div>
     </div>

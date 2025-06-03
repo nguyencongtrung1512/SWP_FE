@@ -1,7 +1,8 @@
 const path = {
   //===============Public===============
-  home: '/home',
-  login: '/',
+  home: '/',
+  login: '/login',
+  signup: '/signup',
   blog: '/blog',
   blogDetail: '/blog/:id',
   // ============ Parent ============

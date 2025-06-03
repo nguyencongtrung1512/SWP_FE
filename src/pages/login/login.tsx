@@ -95,7 +95,7 @@ const Login: React.FC = () => {
         <p className='text-xl text-center max-w-xs'>Nền tảng y tế trực tuyến bảo vệ sức khỏe của con bạn!</p>
       </div>
       <div className='flex-1 flex items-center justify-center p-4'>
-        <div className='bg-white rounded-lg shadow-lg p-6 md:p-8 w-full max-w-[450px]'>
+        <div className={`bg-white rounded-lg shadow-lg p-6 md:p-8 w-full ${!isLogin ? 'max-w-[540px]' : 'max-w-[450px]'}`}>
           <div className='flex items-center justify-center mb-6'>
             <span className='text-blue-500 mr-2'>
               <svg width='36' height='36' viewBox='0 0 36 36' fill='none'>

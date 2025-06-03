@@ -37,6 +37,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onFinish, loading, form }) => {
         onFinishFailed={(errorInfo) => {
           console.log('Form validation failed:', errorInfo);
         }}
+        className="space-y-4"
       >
         <Form.Item
           name='email'
@@ -44,20 +45,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onFinish, loading, form }) => {
             { required: true, message: 'Vui lòng nhập email!' },
             { type: 'email', message: 'Email không hợp lệ!' }
           ]}
+          className="mb-4"
         >
-          <Input prefix={<MailOutlined />} placeholder='Email' size='large' />
+          <Input prefix={<MailOutlined className="mr-2 text-gray-400" />} placeholder='Email' size='large' className="py-2.5 px-4" />
         </Form.Item>
-        <Form.Item name='password' rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}>
-          <Input.Password prefix={<LockOutlined />} placeholder='Mật khẩu' size='large' />
+        <Form.Item
+          name='password'
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+          className="mb-6"
+        >
+          <Input.Password prefix={<LockOutlined className="mr-2 text-gray-400" />} placeholder='Mật khẩu' size='large' className="py-2.5 px-4" />
         </Form.Item>
-        <Form.Item>
+        <Form.Item className="mb-0">
           <Button
             type='primary'
             htmlType='submit'
             loading={loading}
             block
             size='large'
-            className='bg-blue-500 hover:bg-blue-600'
+            className='bg-blue-500 hover:bg-blue-600 h-12 text-base font-medium'
           >
             Đăng nhập
           </Button>

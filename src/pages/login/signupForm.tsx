@@ -2,7 +2,6 @@ import React from 'react';
 import { Form, Input, Button, DatePicker, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import './signupForm.css';
 
 interface SignupFormProps {
   onFinish: (values: { 
@@ -31,17 +30,24 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
       animate="visible"
       exit="exit"
       variants={formVariants}
+      className="mt-2 w-full"
     >
-      <Form name='register' onFinish={onFinish} layout='vertical' form={form}>
-        <Row gutter={16}>
+      <Form name='register' onFinish={onFinish} layout='vertical' form={form} className="space-y-2 w-full ml-2">
+        <Row gutter={16} className="w-full">
           <Col xs={24} sm={12}>
             <Form.Item
               name='fullName'
               rules={[
                 { required: true, message: 'Vui lòng nhập họ tên!' }
               ]}
+              className="mb-3"
             >
-              <Input prefix={<UserOutlined />} placeholder='Họ và tên' size='large' />
+              <Input 
+                prefix={<UserOutlined className="mr-2 text-gray-400" />} 
+                placeholder='Họ và tên' 
+                size='large'
+                className="py-3 px-4 w-full" 
+              />
             </Form.Item>
           </Col>
           
@@ -52,13 +58,19 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                 { required: true, message: 'Vui lòng nhập email!' },
                 { type: 'email', message: 'Email không hợp lệ!' }
               ]}
+              className="mb-3"
             >
-              <Input prefix={<MailOutlined />} placeholder='Email' size='large' />
+              <Input 
+                prefix={<MailOutlined className="mr-2 text-gray-400" />} 
+                placeholder='Email' 
+                size='large'
+                className="py-3 px-4 w-full" 
+              />
             </Form.Item>
           </Col>
         </Row>
         
-        <Row gutter={16}>
+        <Row gutter={16} className="w-full">
           <Col xs={24} sm={12}>
             <Form.Item
               name='phone'
@@ -66,8 +78,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                 { required: true, message: 'Vui lòng nhập số điện thoại!' },
                 { pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ!' }
               ]}
+              className="mb-3"
             >
-              <Input prefix={<PhoneOutlined />} placeholder='Số điện thoại' size='large' />
+              <Input 
+                prefix={<PhoneOutlined className="mr-2 text-gray-400" />} 
+                placeholder='Số điện thoại' 
+                size='large'
+                className="py-3 px-4 w-full" 
+              />
             </Form.Item>
           </Col>
           
@@ -77,34 +95,45 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
               rules={[
                 { required: true, message: 'Vui lòng chọn ngày sinh!' }
               ]}
+              className="mb-3"
             >
-              <div className="custom-date-picker-wrapper">
-                <span className="date-picker-prefix">
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-3 z-10 text-gray-400">
                   <CalendarOutlined />
                 </span>
                 <DatePicker 
                   placeholder='Ngày sinh' 
                   size='large' 
-                  style={{ width: '100%' }} 
                   format="DD/MM/YYYY"
-                  className="custom-date-picker"
+                  className="w-full py-3 px-4 pl-9"
                   suffixIcon={null}
+                  style={{ paddingLeft: '36px', height: '48px' }}
                 />
               </div>
             </Form.Item>
           </Col>
         </Row>
         
-        <Form.Item
-          name='address'
-          rules={[
-            { required: true, message: 'Vui lòng nhập địa chỉ!' }
-          ]}
-        >
-          <Input prefix={<HomeOutlined />} placeholder='Địa chỉ' size='large' />
-        </Form.Item>
+        <Row gutter={16} className="w-full">
+          <Col xs={24}>
+            <Form.Item
+              name='address'
+              rules={[
+                { required: true, message: 'Vui lòng nhập địa chỉ!' }
+              ]}
+              className="mb-3"
+            >
+              <Input 
+                prefix={<HomeOutlined className="mr-2 text-gray-400" />} 
+                placeholder='Địa chỉ' 
+                size='large'
+                className="py-3 px-4 w-full" 
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         
-        <Row gutter={16}>
+        <Row gutter={16} className="w-full">
           <Col xs={24} sm={12}>
             <Form.Item
               name='password'
@@ -112,8 +141,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                 { required: true, message: 'Vui lòng nhập mật khẩu!' },
                 { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
               ]}
+              className="mb-3"
             >
-              <Input.Password prefix={<LockOutlined />} placeholder='Mật khẩu' size='large' />
+              <Input.Password 
+                prefix={<LockOutlined className="mr-2 text-gray-400" />} 
+                placeholder='Mật khẩu' 
+                size='large'
+                className="py-3 px-4 w-full" 
+              />
             </Form.Item>
           </Col>
           
@@ -132,24 +167,34 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                   },
                 }),
               ]}
+              className="mb-3"
             >
-              <Input.Password prefix={<LockOutlined />} placeholder='Xác nhận mật khẩu' size='large' />
+              <Input.Password 
+                prefix={<LockOutlined className="mr-2 text-gray-400" />} 
+                placeholder='Xác nhận mật khẩu' 
+                size='large'
+                className="py-3 px-4 w-full" 
+              />
             </Form.Item>
           </Col>
         </Row>
         
-        <Form.Item>
-          <Button
-            type='primary'
-            htmlType='submit'
-            loading={loading}
-            block
-            size='large'
-            className='bg-blue-500 hover:bg-blue-600'
-          >
-            Đăng ký
-          </Button>
-        </Form.Item>
+        <Row gutter={16} className="w-full">
+          <Col xs={24}>
+            <Form.Item className="mb-0 mt-4">
+              <Button
+                type='primary'
+                htmlType='submit'
+                loading={loading}
+                block
+                size='large'
+                className='bg-blue-500 hover:bg-blue-600 h-12 text-base font-medium w-full'
+              >
+                Đăng ký
+              </Button>
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
     </motion.div>
   );

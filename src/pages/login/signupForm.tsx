@@ -1,16 +1,18 @@
 import React from 'react';
-import { Form, Input, Button, DatePicker, Row, Col } from 'antd';
+import { Form, Input, Button, DatePicker, Row, Col, Alert } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
+import dayjs from 'dayjs';
 
 interface SignupFormProps {
   onFinish: (values: { 
-    phone: string; 
-    password: string; 
-    fullName: string; 
+    phoneNumber: string; 
+    password: string;
+    confirmPassword: string; 
+    fullname: string; 
     email: string;
     address: string;
-    dateOfBirth: Date;
+    dateOfBirth: any;
   }) => Promise<void>;
   loading: boolean;
   form: any;
@@ -23,6 +25,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
     exit: { opacity: 0, x: -50, transition: { duration: 0.3 } }
   };
 
+  const maxDate = dayjs().subtract(20, 'year');
+  const minDate = dayjs().subtract(50, 'year');
+
+  const handleSubmit = (values: { 
+    phoneNumber: string; 
+    password: string;
+    confirmPassword: string; 
+    fullname: string; 
+    email: string;
+    address: string;
+    dateOfBirth: any; }) => { return onFinish(values) };
+
   return (
     <motion.div
       key="register"
@@ -32,13 +46,21 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
       variants={formVariants}
       className="mt-2 w-full"
     >
-      <Form name='register' onFinish={onFinish} layout='vertical' form={form} className="space-y-2 w-full ml-2">
+      <Alert
+        message="Vui lòng điền đầy đủ thông tin để đăng ký tài khoản"
+        type="info"
+        showIcon
+        className="mb-4"
+      />
+      
+      <Form name='register' onFinish={handleSubmit} layout='vertical' form={form} className="space-y-2 w-full ml-2">
         <Row gutter={16} className="w-full">
           <Col xs={24} sm={12}>
             <Form.Item
-              name='fullName'
+              name='fullname'
               rules={[
-                { required: true, message: 'Vui lòng nhập họ tên!' }
+                { required: true, message: 'Vui lòng nhập họ tên!' },
+                { min: 2, message: 'Họ tên phải có ít nhất 2 ký tự!' }
               ]}
               className="mb-3"
             >
@@ -59,6 +81,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                 { type: 'email', message: 'Email không hợp lệ!' }
               ]}
               className="mb-3"
+              validateTrigger={['onChange', 'onBlur']}
             >
               <Input 
                 prefix={<MailOutlined className="mr-2 text-gray-400" />} 
@@ -73,12 +96,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
         <Row gutter={16} className="w-full">
           <Col xs={24} sm={12}>
             <Form.Item
-              name='phone'
+              name='phoneNumber'
               rules={[
                 { required: true, message: 'Vui lòng nhập số điện thoại!' },
-                { pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ!' }
+                { pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải có 10 chữ số!' }
               ]}
               className="mb-3"
+              validateTrigger={['onChange', 'onBlur']}
             >
               <Input 
                 prefix={<PhoneOutlined className="mr-2 text-gray-400" />} 
@@ -96,6 +120,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                 { required: true, message: 'Vui lòng chọn ngày sinh!' }
               ]}
               className="mb-3"
+              getValueProps={(value) => {
+                return {
+                  value: value ? dayjs(value) : undefined,
+                };
+              }}
             >
               <div className="relative flex items-center w-full">
                 <span className="absolute left-3 z-10 text-gray-400">
@@ -108,6 +137,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                   className="w-full py-3 px-4 pl-9"
                   suffixIcon={null}
                   style={{ paddingLeft: '36px', height: '48px' }}
+                  disabledDate={(current) => {
+                    return current && (current > maxDate || current < minDate);
+                  }}
+                  onChange={(dateString) => {
+                    form.setFieldsValue({ dateOfBirth: dateString });
+                  }}
                 />
               </div>
             </Form.Item>
@@ -119,7 +154,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
             <Form.Item
               name='address'
               rules={[
-                { required: true, message: 'Vui lòng nhập địa chỉ!' }
+                { required: true, message: 'Vui lòng nhập địa chỉ!' },
+                { min: 5, message: 'Địa chỉ phải có ít nhất 5 ký tự!' }
               ]}
               className="mb-3"
             >
@@ -139,9 +175,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
               name='password'
               rules={[
                 { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự!' },
+                {
+                  pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
+                  message: 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt!'
+                }
               ]}
               className="mb-3"
+              validateTrigger={['onChange', 'onBlur']}
             >
               <Input.Password 
                 prefix={<LockOutlined className="mr-2 text-gray-400" />} 
@@ -168,6 +209,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                 }),
               ]}
               className="mb-3"
+              validateTrigger={['onChange', 'onBlur']}
             >
               <Input.Password 
                 prefix={<LockOutlined className="mr-2 text-gray-400" />} 

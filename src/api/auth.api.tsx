@@ -15,19 +15,19 @@ export const login = async (params: { email: string; password: string }) => {
       data: response.data
     };
   } catch (error: any) {
-    console.log(error);
     return {
       success: false,
-      message: error.response?.data?.message || 'Đăng nhập thất bại!',
+      message: error.response?.data  || 'Đăng nhập thất bại! Vui lòng thử lại.',
       data: null
     };
   }
 };
 
 export const register = async (params: { 
-  phone: string; 
+  phoneNumber: string; 
   password: string;
-  fullName: string;
+  confirmPassword: string;
+  fullname: string;
   email: string;
   address: string;
   dateOfBirth: string;
@@ -36,10 +36,15 @@ export const register = async (params: {
     const response = await http.post(`${API_URL}/register`, params);
     return {
       success: true,
-      message: 'Đăng ký thành công!',
+      message: response.data.message,
       data: response.data
     };
   } catch (error: any) {
     console.log(error);
+    return {
+      success: false,
+      message: error.response?.data?.errors || 'Đăng ký thất bại! Vui lòng thử lại.',
+      data: null
+    };
   }
 };

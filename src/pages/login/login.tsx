@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Form, Button, message } from 'antd'
+import { Form, Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { login, register } from '../../api/auth.api'
@@ -7,6 +7,8 @@ import path from '../../constants/path'
 import LoginForm from './loginForm'
 import SignupForm from './signupForm'
 import { useAuth } from '../../contexts/auth.context'
+import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -21,56 +23,85 @@ const Login: React.FC = () => {
       const result : any = await login(values)
 
       if (result.success) {
-        message.success(result.message)
+        toast.success('Đăng nhập thành công!')
         const userData = result.data.account;
         
         authLogin(userData)
         
-        if (userData.roleName === 'Parent') {
+        if (userData.roleName === 'Parent') 
           navigate(path.healthRecord)
-        } else if (userData.roleName === 'Nurse') {
+        else if (userData.roleName === 'Nurse') 
           navigate(path.NURSE_PROFILE);
-        } else if (userData.roleName === 'Admin') {
+        else if (userData.roleName === 'Admin') 
           navigate(path.CENSOR_LIST);
-        } else {
-          navigate('/');
-        }
+        
       } else {
-        message.error(result.message)
+        toast.error(result.message)
       }
     } catch (error) {
-      message.error('Đăng nhập thất bại!')
+      console.log('Login error:', error)
     } finally {
       setLoading(false)
     }
   }
 
   const onFinishRegister = async (values: { 
-    phone: string; 
+    phoneNumber: string; 
     password: string; 
-    fullName: string; 
+    confirmPassword: string;
+    fullname: string; 
     email: string;
     address: string;
-    dateOfBirth: Date;
+    dateOfBirth: any;
   }) => {
     try {
       setLoading(true)
+      
+      if (!values.dateOfBirth) {
+        toast.error('Vui lòng chọn ngày sinh!')
+        setLoading(false)
+        return
+      }
+      
+      let formattedDate;
+      
+      try {
+        if (typeof values.dateOfBirth === 'string') {
+          const parts = values.dateOfBirth.split('/');
+          if (parts.length === 3) {
+            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}T00:00:00Z`;
+          } else {
+            formattedDate = new Date(values.dateOfBirth).toISOString();
+          }
+        } else if (values.dateOfBirth instanceof Date) {
+          formattedDate = values.dateOfBirth.toISOString();
+        } else {
+          formattedDate = dayjs(values.dateOfBirth).format('YYYY-MM-DD') + 'T00:00:00Z';
+        }
+      } catch (e) {
+        console.error('Date format error:', e);
+        toast.error('Định dạng ngày sinh không hợp lệ!');
+        setLoading(false);
+        return;
+      }
+      
       const formattedValues = {
         ...values,
-        dateOfBirth: values.dateOfBirth.toISOString()
+        dateOfBirth: formattedDate
       }
       
       const result : any = await register(formattedValues)
       
-      if (result.success) {
-        message.success('Đăng ký thành công!')
+      if (result && result.success) {
+        toast.success('Đăng ký thành công! Vui lòng đăng nhập lại.')
         setIsLogin(true)
         form.resetFields()
-      } else {
-        message.error(result.message || 'Đăng ký thất bại!')
+      } else if (result) {
+        toast.error(result.message)
       }
-    } catch (error) {
-      message.error('Đăng ký thất bại!')
+
+    } catch (error: any) {
+      console.log('Registration error:', error)
     } finally {
       setLoading(false)
     }

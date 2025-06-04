@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import { Form, Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { login, register } from '../../api/auth.api'
+import { login, register, verifyOtp, resendOtp } from '../../api/auth.api'
 import path from '../../constants/path'
 import LoginForm from './loginForm'
 import SignupForm from './signupForm'
+import OtpVerification from './otpVerification'
 import { useAuth } from '../../contexts/auth.context'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
@@ -14,6 +15,8 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const [isLogin, setIsLogin] = useState(true)
+  const [showOtpVerification, setShowOtpVerification] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
   const [form] = Form.useForm()
   const { login: authLogin } = useAuth()
 
@@ -56,7 +59,6 @@ const Login: React.FC = () => {
   }) => {
     try {
       setLoading(true)
-      
       if (!values.dateOfBirth) {
         toast.error('Vui lòng chọn ngày sinh!')
         setLoading(false)
@@ -68,18 +70,17 @@ const Login: React.FC = () => {
       try {
         if (typeof values.dateOfBirth === 'string') {
           const parts = values.dateOfBirth.split('/');
-          if (parts.length === 3) {
+          if (parts.length === 3)
             formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}T00:00:00Z`;
-          } else {
+          else 
             formattedDate = new Date(values.dateOfBirth).toISOString();
-          }
+          
         } else if (values.dateOfBirth instanceof Date) {
           formattedDate = values.dateOfBirth.toISOString();
         } else {
           formattedDate = dayjs(values.dateOfBirth).format('YYYY-MM-DD') + 'T00:00:00Z';
         }
       } catch (e) {
-        console.error('Date format error:', e);
         toast.error('Định dạng ngày sinh không hợp lệ!');
         setLoading(false);
         return;
@@ -93,21 +94,60 @@ const Login: React.FC = () => {
       const result : any = await register(formattedValues)
       
       if (result && result.success) {
-        toast.success('Đăng ký thành công! Vui lòng đăng nhập lại.')
-        setIsLogin(true)
-        form.resetFields()
+        setRegisteredEmail(values.email)
+        setShowOtpVerification(true)
+        toast.success('Đăng ký thành công! Vui lòng nhập mã OTP để xác thực tài khoản.')
       } else if (result) {
         toast.error(result.message)
       }
 
     } catch (error: any) {
-      console.log('Registration error:', error)
+      console.error('Registration error:', error)
+      toast.error(error?.message || 'Đăng ký thất bại! Vui lòng thử lại.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async (otpValue: string) => {
+    try {
+      setLoading(true)
+      const result = await verifyOtp({ email: registeredEmail, otp: otpValue })
+      
+      if (result.success) {
+        toast.success('Xác thực tài khoản thành công! Vui lòng đăng nhập.')
+        setShowOtpVerification(false)
+        setIsLogin(true)
+        form.resetFields()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error: any) {
+      toast.error(error?.message || 'Xác thực thất bại! Vui lòng thử lại.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    try {
+      setLoading(true)
+      const result = await resendOtp({ email: registeredEmail })
+      
+      if (result.success)
+        toast.success(result.message || 'Đã gửi lại mã OTP!')
+      else 
+        toast.error(result.message)
+      
+    } catch (error: any) {
+      toast.error(error?.message || 'Không thể gửi lại mã OTP!')
     } finally {
       setLoading(false)
     }
   }
 
   const toggleForm = () => {
+    setShowOtpVerification(false)
     form.resetFields()
     setIsLogin(!isLogin)
   }
@@ -142,7 +182,7 @@ const Login: React.FC = () => {
           </div>
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-2xl font-semibold text-gray-800'>
-              {isLogin ? 'Đăng nhập' : 'Đăng ký'}
+              {isLogin ? 'Đăng nhập' : (showOtpVerification ? '' : 'Đăng ký')}
             </h2>
           </div>
           
@@ -153,6 +193,13 @@ const Login: React.FC = () => {
                 loading={loading} 
                 form={form} 
               />
+            ) : showOtpVerification ? (
+              <OtpVerification
+                onVerify={handleVerifyOtp}
+                loading={loading}
+                email={registeredEmail}
+                onResendOtp={handleResendOtp}
+              />
             ) : (
               <SignupForm 
                 onFinish={onFinishRegister} 
@@ -162,18 +209,20 @@ const Login: React.FC = () => {
             )}
           </AnimatePresence>
           
-          <div className='mt-4 text-center'>
-            <p className='text-gray-600'>
-              {isLogin ? 'Bạn chưa có tài khoản?' : 'Bạn đã có tài khoản?'}
-              <Button
-                type='link'
-                onClick={toggleForm}
-                className='p-0 ml-1 font-medium'
-              >
-                {isLogin ? 'Đăng ký' : 'Đăng nhập'}
-              </Button>
-            </p>
-          </div>
+          {!showOtpVerification && (
+            <div className='mt-4 text-center'>
+              <p className='text-gray-600'>
+                {isLogin ? 'Bạn chưa có tài khoản?' : 'Bạn đã có tài khoản?'}
+                <Button
+                  type='link'
+                  onClick={toggleForm}
+                  className='p-0 ml-1 font-medium'
+                >
+                  {isLogin ? 'Đăng ký' : 'Đăng nhập'}
+                </Button>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

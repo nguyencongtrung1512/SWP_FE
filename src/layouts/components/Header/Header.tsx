@@ -76,7 +76,7 @@ function Header() {
             onClick={() => setOpen(!open)}
           >
             <img 
-              src={user.avatar} 
+              src='https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg' 
               alt='avatar' 
               className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
             />
@@ -103,8 +103,9 @@ function Header() {
           )}
         </div>
       ) : (
-        <>
-        </>
+        <span className='bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors' onClick={() => navigate(path.login)}>
+          Đăng nhập
+        </span>
       )}
     </header>
   )

@@ -39,7 +39,7 @@ export const fakeUsers = [
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
-  login: (phone: string, password: string) => Promise<{success: boolean, message: string, redirectUrl?: string}>
+  login: (phone: string, password: string) => Promise<{ success: boolean; message: string; redirectUrl?: string }>
   logout: () => void
 }
 
@@ -60,9 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (phone: string, password: string) => {
     // Find user with matching phone and password
-    const foundUser = fakeUsers.find(
-      (u) => u.phone === phone && u.password === password
-    )
+    const foundUser = fakeUsers.find((u) => u.phone === phone && u.password === password)
 
     if (foundUser) {
       // Create a user object without the password
@@ -74,8 +72,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (foundUser.role === 'Nurse') redirectUrl = '/nurse/health-record-censorship'
       if (foundUser.role === 'Admin') redirectUrl = '/admin/censor-list'
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: 'Đăng nhập thành công!',
         redirectUrl
       }
@@ -89,11 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user')
   }
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>{children}</AuthContext.Provider>
 }
 
-export const useAuth = () => useContext(AuthContext) 
+export const useAuth = () => useContext(AuthContext)

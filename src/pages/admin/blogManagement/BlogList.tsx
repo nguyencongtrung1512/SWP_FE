@@ -1,0 +1,176 @@
+import React, { useEffect, useState } from 'react'
+import { Card, Row, Col, Table, Button, Dropdown, message, Modal } from 'antd'
+import { FileTextOutlined, TagsOutlined, MoreOutlined } from '@ant-design/icons'
+import { useParams } from 'react-router-dom'
+import type { MenuProps } from 'antd'
+import blogApi, { type Blog, type CreateBlogRequest } from '../../../apis/blog.api'
+import { categoryApi, type Category } from '../../../apis/category.api'
+import CreateBlogForm from './Create'
+
+function BlogList() {
+  const { categoryId } = useParams<{ categoryId: string }>()
+  const [blogs, setBlogs] = useState<Blog[]>([])
+  const [loading, setLoading] = useState(false)
+  const [categoryName, setCategoryName] = useState('')
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [categories] = useState<Category[]>([])
+  const [isCreating, setIsCreating] = useState(false)
+
+  const fetchBlogs = async () => {
+    if (!categoryId) return
+    try {
+      setLoading(true)
+      const response = await categoryApi.getCategoryById(parseInt(categoryId))
+      console.log('Category Response:', response.data)
+      if (response.data && response.data.blogs && response.data.blogs.$values) {
+        setBlogs(response.data.blogs.$values)
+        setCategoryName(response.data.name || '')
+      } else {
+        setBlogs([])
+        setCategoryName('Không tìm thấy danh mục')
+      }
+    } catch (error) {
+      console.error('Error fetching blogs by category:', error)
+      setBlogs([])
+      setCategoryName('Lỗi tải dữ liệu')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBlogs()
+  }, [categoryId])
+
+  const handleViewDetail = (record: Blog) => {
+    console.log('Xem chi tiết blog:', record.id)
+  }
+
+  const handleEdit = (record: Blog) => {
+    console.log('Chỉnh sửa blog:', record.id)
+  }
+
+  const handleDelete = async (record: Blog) => {
+    console.log('Xóa blog:', record.id)
+    try {
+      message.success('Xóa blog thành công (Chức năng chưa implement)')
+    } catch (error) {
+      message.error('Không thể xóa blog (Chức năng chưa implement)')
+      console.error('Error deleting blog:', error)
+    }
+  }
+
+  const getDropdownItems = (record: Blog): MenuProps['items'] => [
+    {
+      key: 'view',
+      label: 'Xem chi tiết',
+      onClick: () => handleViewDetail(record)
+    },
+    {
+      key: 'edit',
+      label: 'Chỉnh sửa',
+      onClick: () => handleEdit(record)
+    },
+    {
+      key: 'delete',
+      label: 'Xóa',
+      danger: true,
+      onClick: () => handleDelete(record)
+    }
+  ]
+
+  const columns = [
+    {
+      title: 'Tiêu đề',
+      dataIndex: 'title',
+      key: 'title'
+    },
+    {
+      title: 'Mô Tả',
+      dataIndex: 'description',
+      key: 'description'
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      render: (_: unknown, record: Blog) => (
+        <Dropdown menu={{ items: getDropdownItems(record) }} trigger={['click']}>
+          <Button type='text' icon={<MoreOutlined />} />
+        </Dropdown>
+      )
+    }
+  ]
+
+  const showModal = () => {
+    setIsModalVisible(true)
+  }
+
+  const handleCancelModal = () => {
+    setIsModalVisible(false)
+  }
+
+  const handleCreateBlogSubmit = async (values: CreateBlogRequest) => {
+    setIsCreating(true)
+    try {
+      const response = await blogApi.createBlog(values)
+      if (response.data) {
+        message.success('Tạo blog thành công!')
+        handleCancelModal()
+        fetchBlogs()
+      } else {
+        console.log('Tạo blog thất bại: Không nhận được dữ liệu phản hồi.')
+      }
+    } catch (error) {
+      console.error('Error creating blog:', error)
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  return (
+    <div className='p-6'>
+      <h1 className='text-2xl font-bold mb-6'>Quản lý Blog</h1>
+
+      <Row gutter={16} className='mb-6'>
+        <Col span={12}>
+          <Card>
+            <div className='flex items-center'>
+              <FileTextOutlined className='text-3xl text-blue-500 mr-4' />
+              <div>
+                <p className='text-gray-500'>Tổng số bài viết</p>
+                <h2 className='text-2xl font-bold'>{blogs.length}</h2>
+              </div>
+            </div>
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card>
+            <div className='flex items-center'>
+              <TagsOutlined className='text-3xl text-green-500 mr-4' />
+              <div>
+                <p className='text-gray-500'>Tổng số danh mục</p>
+                <h2 className='text-2xl font-bold'>{new Set(blogs.map((blog) => blog.category)).size}</h2>
+              </div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      <Card>
+        <div className='flex justify-between mb-4'>
+          <h2 className='text-xl font-semibold'>Danh sách bài viết theo danh mục: {categoryName}</h2>
+          <Button type='primary' onClick={showModal}>
+            Thêm bài viết mới
+          </Button>
+        </div>
+        <Table columns={columns} dataSource={blogs} loading={loading} rowKey='id' />
+      </Card>
+
+      <Modal title='Thêm bài viết mới' visible={isModalVisible} onCancel={handleCancelModal} footer={null} width={800}>
+        <CreateBlogForm categories={categories} onSubmit={handleCreateBlogSubmit} loading={isCreating} />
+      </Modal>
+    </div>
+  )
+}
+
+export default BlogList

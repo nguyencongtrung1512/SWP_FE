@@ -29,6 +29,8 @@ import ParentLayout from './layouts/ParentLayout/ParentLayout'
 import VaccinationSchedule from './pages/parent/vaccinationSchedule/VaccinationSchedule'
 import MedicalEventParent from './pages/parent/medicalEvent/medicalEventParent'
 import ProtectedRoute from './components/ProtectedRoute'
+import CategoryList from './pages/admin/categoryManagement/List'
+import BlogList from './pages/admin/blogManagement/BlogList'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -110,35 +112,35 @@ export default function useRouteElements() {
               element: <DashBoardNurse />
             },
             {
-              path: 'health-record-censorship',
+              path: path.HEALTH_RECORD_CENSORSHIP,
               element: <HealthRecordCensorship />
             },
             {
-              path: 'profile',
+              path: path.NURSE_PROFILE,
               element: <NurseProfile />
             },
             {
-              path: 'schedule-vaccination',
+              path: path.SCHEDULE_VACCINATION,
               element: <ScheduleVaccination />
             },
             {
-              path: 'results-after-vaccination',
+              path: path.RESULTS_AFTER_VACCINATION,
               element: <ResultsAfterVaccination />
             },
             {
-              path: 'receive-medicine',
+              path: path.RECEIVE_MEDICINE,
               element: <ReceiveMedicine />
             },
             {
-              path: 'medical-report',
+              path: path.MEDICAL_REPORT,
               element: <MedicalReport />
             },
             {
-              path: 'medical-plan',
+              path: path.MEDICAL_PLAN,
               element: <MedicalPlan />
             },
             {
-              path: 'private-consultation',
+              path: path.PRIVATE_CONSULTATION,
               element: <PrivateConsultation />
             }
           ]
@@ -163,24 +165,32 @@ export default function useRouteElements() {
               element: <DashBoardAdmin />
             },
             {
-              path: 'censor-list',
+              path: path.CENSOR_LIST,
               element: <CensorList />
             },
             {
-              path: 'user-management',
+              path: path.USER_MANAGEMENT,
               element: <UserList />
             },
             {
-              path: 'student-management/grades',
+              path: path.GRADE_MANAGEMENT,
               element: <GradeList />
             },
             {
-              path: 'student-management/grades/:gradeId/classes',
+              path: path.CLASS_MANAGEMENT,
               element: <ClassList />
             },
             {
-              path: 'student-management/classes/:classId/students',
+              path: path.STUDENT_LIST,
               element: <StudentList />
+            },
+            {
+              path: path.CATEGORY_MANAGEMENT,
+              element: <CategoryList />
+            },
+            {
+              path: path.BLOG_LIST_BY_CATEGORY,
+              element: <BlogList />
             }
           ]
         }

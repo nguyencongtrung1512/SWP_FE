@@ -30,6 +30,11 @@ const Sidebar: React.FC = () => {
       key: path.GRADE_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,
       label: 'Quản lí học sinh'
+    },
+    {
+      key: path.CATEGORY_MANAGEMENT,
+      icon: <FileSearchOutlined className='text-lg' />,
+      label: 'Quản lí Blog'
     }
   ]
 

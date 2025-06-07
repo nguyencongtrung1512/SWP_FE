@@ -15,6 +15,7 @@ function BlogList() {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [categories] = useState<Category[]>([])
   const [isCreating, setIsCreating] = useState(false)
+  const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
 
   const fetchBlogs = async () => {
     if (!categoryId) return
@@ -22,12 +23,15 @@ function BlogList() {
       setLoading(true)
       const response = await categoryApi.getCategoryById(parseInt(categoryId))
       console.log('Category Response:', response.data)
-      if (response.data && response.data.blogs && response.data.blogs.$values) {
-        setBlogs(response.data.blogs.$values)
-        setCategoryName(response.data.name || '')
-      } else {
-        setBlogs([])
-        setCategoryName('Không tìm thấy danh mục')
+      if (response.data) {
+        setCurrentCategory(response.data)
+        if (response.data.blogs && response.data.blogs.$values) {
+          setBlogs(response.data.blogs.$values)
+          setCategoryName(response.data.name || '')
+        } else {
+          setBlogs([])
+          setCategoryName('Không tìm thấy danh mục')
+        }
       }
     } catch (error) {
       console.error('Error fetching blogs by category:', error)
@@ -167,7 +171,12 @@ function BlogList() {
       </Card>
 
       <Modal title='Thêm bài viết mới' visible={isModalVisible} onCancel={handleCancelModal} footer={null} width={800}>
-        <CreateBlogForm categories={categories} onSubmit={handleCreateBlogSubmit} loading={isCreating} />
+        <CreateBlogForm
+          categories={categories}
+          onSubmit={handleCreateBlogSubmit}
+          loading={isCreating}
+          initialCategory={currentCategory}
+        />
       </Modal>
     </div>
   )

@@ -1,173 +1,183 @@
 import React, { useEffect, useState } from 'react'
-import { Form, Input, Button, Select, Upload, message } from 'antd'
+import { Form, Input, Button, Upload, message, Typography, Select } from 'antd'
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface'
 import type { RcFile } from 'antd/es/upload'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { type CreateBlogRequest } from '../../../apis/blog.api'
 import { UploadOutlined } from '@ant-design/icons'
 
-// import { createBlog } from '../../../apis/blog.api' // Sẽ gọi API ở component cha
-
 interface CategoryOption {
-  id: number | string // Sử dụng id hoặc categoryID tùy thuộc dữ liệu thật
+  categoryID: number | string
   name: string
 }
 
 interface CreateBlogFormProps {
-  onSubmit: (values: FormData) => void // Thay đổi kiểu dữ liệu sang FormData
+  onSubmit: (values: FormData) => void
   loading?: boolean
   categories: CategoryOption[]
-  initialValues?: CreateBlogRequest // Sử dụng CreateBlogRequest
+  initialValues?: {
+    title?: string
+    description?: string
+    content?: string
+    image?: string
+    categoryID?: number
+  }
+  initialCategory?: CategoryOption | null
 }
 
-function CreateBlogForm({ onSubmit, loading = false, categories, initialValues }: CreateBlogFormProps) {
+const CreateBlogForm: React.FC<CreateBlogFormProps> = ({
+  onSubmit,
+  loading = false,
+  categories,
+  initialValues,
+  initialCategory
+}) => {
   const [form] = Form.useForm()
   const [content, setContent] = useState('')
-  const [fileList, setFileList] = useState<UploadFile<void>[]>([]) // Use UploadFile<void>
-
-
-  const handleFormSubmit = (values: { // Define type for form values
-    title: string;
-    description: string;
-    category: string | number; // Or number, depending on API
-    image: UploadFile<void>[]; // Use UploadFile<void>
-  }) => {
-    const formData = new FormData();
-
-    // Thêm các trường dữ liệu khác vào FormData
-    formData.append('title', values.title);
-    formData.append('description', values.description);
-    formData.append('content', content);
-    formData.append('category', values.category.toString());
-
-    // Thêm file ảnh vào FormData
-    if (fileList.length > 0) {
-      formData.append('imageFile', fileList[0].originFileObj as Blob); // Cast to Blob
-    } else if (initialValues?.image) {
-      // Nếu không có file mới upload nhưng có initialValues (trường hợp chỉnh sửa)
-      // Tùy thuộc API, có thể gửi lại URL hoặc bỏ qua trường file
-      // Ở đây tạm thời bỏ qua trường file nếu không có file mới
-      // Nếu API cần URL cũ, cần thêm logic xử lý tại đây
-    }
-
-    onSubmit(formData) // Gửi FormData đi
-  }
-
-  // Xử lý sự kiện change của Upload
-  const handleUploadChange: UploadProps['onChange'] = ({ fileList: newFileList }) => { // Use UploadProps['onChange'] type
-    setFileList(newFileList.slice(-1));
-  };
-
-  // Ngăn Upload tự động upload
-  const beforeUpload = (file: RcFile) => { // Use RcFile type
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('Bạn chỉ có thể upload file JPG/PNG!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Ảnh phải nhỏ hơn 2MB!');
-    }
-    // Trả về false để ngăn Ant Design tự upload
-    return isJpgOrPng && isLt2M ? false : Upload.LIST_IGNORE;
-  };
+  const [fileList, setFileList] = useState<UploadFile[]>([])
 
   useEffect(() => {
-    // Reset form và content khi modal đóng (loading chuyển từ true sang false)
     if (!loading) {
-      form.resetFields();
-      setContent('');
-      setFileList([]); // Reset file list
-      // Nếu có initialValues, set form values khi initialValues thay đổi và modal mở
+      form.resetFields()
+      setContent('')
+      setFileList([])
     } else if (initialValues) {
-      form.setFieldsValue(initialValues);
-      setContent(initialValues.content || '');
-      // Xử lý initial image nếu có (ví dụ hiển thị tên file cũ)
+      form.setFieldsValue({
+        ...initialValues,
+        categoryID: initialValues.categoryID ?? initialCategory?.categoryID
+      })
+      setContent(initialValues.content || '')
       if (initialValues.image) {
-        // Ant Design Upload cần object có uid, name, status, url
-        setFileList([{
-          uid: '-1',
-          name: initialValues.image.split('/').pop() || 'existing_image',
-          status: 'done',
-          url: initialValues.image,
-        }]);
-      } else {
-        setFileList([]);
+        setFileList([
+          {
+            uid: '-1',
+            name: initialValues.image.split('/').pop() || 'existing_image',
+            status: 'done',
+            url: initialValues.image
+          }
+        ])
       }
     }
-  }, [loading, form, initialValues]);
+    // Set initial category value when initialCategory changes
+    if (initialCategory && initialCategory.categoryID !== undefined && initialCategory.categoryID !== null) {
+      form.setFieldsValue({
+        categoryID: initialCategory.categoryID.toString()
+      })
+    }
+  }, [loading, form, initialValues, initialCategory])
 
-  useEffect(() => {
-    // Set initial content if initialValues are provided on first render
-    if (initialValues?.content) {
-      setContent(initialValues.content);
+  const handleUploadChange: UploadProps['onChange'] = ({ fileList: newList }) => {
+    setFileList(newList.slice(-1))
+  }
+
+  const beforeUpload = (file: RcFile) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+    const isLt2M = file.size / 1024 / 1024 < 2
+
+    if (!isJpgOrPng) message.error('Chỉ chấp nhận ảnh JPG/PNG!')
+    if (!isLt2M) message.error('Ảnh phải nhỏ hơn 2MB!')
+
+    return isJpgOrPng && isLt2M ? false : Upload.LIST_IGNORE
+  }
+
+  const handleFormSubmit = (values: {
+    title: string
+    description?: string
+    categoryID?: number | string
+    image?: UploadFile[]
+  }) => {
+    if (!content || content.trim() === '') {
+      message.error('Nội dung không được để trống!')
+      return
     }
-    // Xử lý initial image khi component render lần đầu
-    if (initialValues?.image && fileList.length === 0) {
-      setFileList([{
-        uid: '-1',
-        name: initialValues.image.split('/').pop() || 'existing_image',
-        status: 'done',
-        url: initialValues.image,
-      }]);
+
+    const formData = new FormData()
+    formData.append('title', values.title)
+    formData.append('description', values.description || '')
+    formData.append('content', content)
+
+    const categoryIdToSubmit = values.categoryID || initialCategory?.categoryID
+    if (categoryIdToSubmit !== undefined && categoryIdToSubmit !== null) {
+      formData.append('CategoryID', String(categoryIdToSubmit))
+    } else {
+      message.error('Vui lòng chọn danh mục!')
+      return
     }
-  }, [initialValues, fileList.length]); // Thêm fileList.length vào dependencies
+
+    if (fileList.length > 0 && fileList[0].originFileObj) {
+      formData.append('image', fileList[0].originFileObj)
+    }
+
+    onSubmit(formData)
+  }
 
   return (
-    <Form form={form} layout='vertical' onFinish={handleFormSubmit} initialValues={initialValues || { content: '' }}>
-      {' '}
-      {/* Pass initialValues to Form */}
-      {/* Trường Danh mục */}
+    <Form
+      form={form}
+      layout='vertical'
+      onFinish={handleFormSubmit}
+      initialValues={initialValues || (initialCategory ? { categoryID: initialCategory.categoryID } : {})}
+    >
+      {initialCategory && (
+        <Typography.Text type='secondary' style={{ marginBottom: '16px', display: 'block' }}>
+          Đang tạo blog cho danh mục: <Typography.Text strong>{initialCategory.name}</Typography.Text>
+        </Typography.Text>
+      )}
       <Form.Item
-        name='category' // Thay categoryId bằng category
+        name='categoryID'
         label='Danh mục'
-        
+        rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
+        initialValue={initialCategory?.name}
       >
-        <Select placeholder='Chọn danh mục'>
-          {categories.map((category) => (
-            // Sử dụng category.id hoặc category.categoryID tùy thuộc dữ liệu API
-            <Select.Option key={category.id} value={category.id?.toString()}>
-              {category.name}
-            </Select.Option>
-          ))}
+        <Select placeholder='Chọn danh mục' disabled={!!initialCategory}>
+          {categories.map((category) => {
+            if (category.categoryID === undefined || category.categoryID === null) {
+              return null
+            }
+            return (
+              <Select.Option key={category.categoryID} value={category.categoryID.toString()}>
+                {category.name}
+              </Select.Option>
+            )
+          })}
         </Select>
       </Form.Item>
-      {/* Trường Tiêu đề */}
       <Form.Item name='title' label='Tiêu đề' rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}>
         <Input placeholder='Nhập tiêu đề blog' />
       </Form.Item>
-      {/* Trường Mô tả */}
-      <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}>
+
+      <Form.Item name='description' label='Mô tả'>
         <Input.TextArea rows={4} placeholder='Nhập mô tả blog' />
       </Form.Item>
-      {/* Trường Nội dung */}
+
       <Form.Item
-        name='content' // ReactQuill sẽ tự cập nhật state content
         label='Nội dung'
-        rules={[{ required: true, message: 'Vui lòng nhập nội dung!' }]} // Áp dụng rule cho trường Form.Item
+        required
+        rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+        validateStatus={!content ? 'error' : ''}
       >
-        <ReactQuill theme='snow' value={content} onChange={setContent} style={{ height: '200px' }} />
+        <ReactQuill value={content} onChange={setContent} theme='snow' style={{ height: 200 }} />
       </Form.Item>
-      {/* Trường Ảnh (Upload) */}
+
       <Form.Item
-        name='image' // Tên trường để Form quản lý state, giá trị sẽ là file list
+        className='py-8'
+        name='image'
         label='Upload Ảnh'
-        valuePropName='fileList' // Form.Item sẽ lấy giá trị từ fileList
-        getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)} // Lấy fileList từ event
-        rules={[{ required: true, message: 'Vui lòng upload ảnh!' }]} // Rule required
+        valuePropName='fileList'
+        getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+        rules={[{ required: false }]}
       >
         <Upload
-          beforeUpload={beforeUpload} // Ngăn tự động upload và validate
-          onChange={handleUploadChange} // Xử lý khi file thay đổi
-          fileList={fileList} // Bind fileList state
-          listType="picture" // Hiển thị dạng ảnh
-          maxCount={1} // Chỉ cho phép upload 1 file
+          beforeUpload={beforeUpload}
+          onChange={handleUploadChange}
+          fileList={fileList}
+          listType='picture'
+          maxCount={1}
         >
           <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
         </Upload>
       </Form.Item>
-      <div style={{ marginBottom: '50px' }}></div>
+
       <Form.Item>
         <Button type='primary' htmlType='submit' loading={loading}>
           Tạo Blog

@@ -31,6 +31,7 @@ import MedicalEventParent from './pages/parent/medicalEvent/medicalEventParent'
 import ProtectedRoute from './components/ProtectedRoute'
 import CategoryList from './pages/admin/categoryManagement/List'
 import BlogList from './pages/admin/blogManagement/BlogList'
+import BlogDetail from './pages/admin/blogManagement/BlogDetail'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -191,6 +192,10 @@ export default function useRouteElements() {
             {
               path: path.BLOG_LIST_BY_CATEGORY,
               element: <BlogList />
+            },
+            {
+              path: path.BLOG_DETAIL,
+              element: <BlogDetail />
             }
           ]
         }

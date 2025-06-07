@@ -1,13 +1,13 @@
 import http from '../utils/http'
 
 export interface Blog {
-  id: number
+  blogID: number
   title: string
   description: string
   content: string
   image: string
   status: string
-  category: number // Đây là category ID
+  categoryID: number // Đã đổi tên từ category sang categoryID
   createdAt: string
   updatedAt: string
 }
@@ -17,7 +17,7 @@ export interface CreateBlogRequest {
   description: string
   content: string
   category: number
-  image: File // Hoặc string nếu bạn chỉ gửi URL ảnh
+  image: string // Đã thay đổi từ File sang string
 }
 
 interface ApiResponse<T> {
@@ -39,8 +39,16 @@ const blogApi = {
   getBlogById(id: string) {
     return http.get<Blog>(`/Blog/GetBlogById/${id}`)
   },
-  updateBlog(id: string, data: CreateBlogRequest) {
-    return http.put<Blog>(`/Blog/UpdateBlog/${id}`, data)
+  updateBlog(id: string, data: CreateBlogRequest | FormData) {
+    if (data instanceof FormData) {
+      return http.put<Blog>(`/Blog/UpdateBlog/${id}`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+    } else {
+      return http.put<Blog>(`/Blog/UpdateBlog/${id}`, data)
+    }
   },
   deleteBlog(id: string) {
     return http.delete<void>(`/Blog/DeleteBlog/${id}`)

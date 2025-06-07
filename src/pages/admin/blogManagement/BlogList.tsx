@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Card, Row, Col, Table, Button, Dropdown, message, Modal } from 'antd'
 import { FileTextOutlined, TagsOutlined, MoreOutlined } from '@ant-design/icons'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { MenuProps } from 'antd'
 import blogApi, { type Blog, type CreateBlogRequest } from '../../../apis/blog.api'
 import { categoryApi, type Category } from '../../../apis/category.api'
 import CreateBlogForm from './Create'
+import DeleteBlog from './Delete'
 
 function BlogList() {
   const { categoryId } = useParams<{ categoryId: string }>()
+  const navigate = useNavigate()
   const [blogs, setBlogs] = useState<Blog[]>([])
   const [loading, setLoading] = useState(false)
   const [categoryName, setCategoryName] = useState('')
@@ -16,6 +18,8 @@ function BlogList() {
   const [categories] = useState<Category[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null)
 
   const fetchBlogs = async () => {
     if (!categoryId) return
@@ -47,21 +51,23 @@ function BlogList() {
   }, [categoryId])
 
   const handleViewDetail = (record: Blog) => {
-    console.log('Xem chi tiết blog:', record.id)
+    navigate(`/admin/blog-detail/${record.blogID}`)
   }
 
-  const handleEdit = (record: Blog) => {
-    console.log('Chỉnh sửa blog:', record.id)
+  const handleDelete = (record: Blog) => {
+    setSelectedBlog(record)
+    setDeleteModalVisible(true)
   }
 
-  const handleDelete = async (record: Blog) => {
-    console.log('Xóa blog:', record.id)
-    try {
-      message.success('Xóa blog thành công (Chức năng chưa implement)')
-    } catch (error) {
-      message.error('Không thể xóa blog (Chức năng chưa implement)')
-      console.error('Error deleting blog:', error)
-    }
+  const handleDeleteSuccess = () => {
+    setDeleteModalVisible(false)
+    setSelectedBlog(null)
+    fetchBlogs()
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteModalVisible(false)
+    setSelectedBlog(null)
   }
 
   const getDropdownItems = (record: Blog): MenuProps['items'] => [
@@ -69,11 +75,6 @@ function BlogList() {
       key: 'view',
       label: 'Xem chi tiết',
       onClick: () => handleViewDetail(record)
-    },
-    {
-      key: 'edit',
-      label: 'Chỉnh sửa',
-      onClick: () => handleEdit(record)
     },
     {
       key: 'delete',
@@ -178,6 +179,13 @@ function BlogList() {
           initialCategory={currentCategory}
         />
       </Modal>
+
+      <DeleteBlog
+        blog={selectedBlog}
+        visible={deleteModalVisible}
+        onCancel={handleDeleteCancel}
+        onSuccess={handleDeleteSuccess}
+      />
     </div>
   )
 }

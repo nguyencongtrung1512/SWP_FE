@@ -5,21 +5,28 @@ import Sidebar from './SideBar'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
 import path from '../../constants/path'
+import ProfileModal from '../../components/Profile/ProfileModal'
 
 const { Header, Content } = Layout
 
 const AdminLayout: React.FC = () => {
   const [open, setOpen] = useState(false)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLDivElement>(null)
-  
+
   const handleLogout = () => {
     logout()
     setOpen(false)
     navigate(path.login)
   }
-  
+
+  const handleProfileClick = () => {
+    setIsProfileModalOpen(true)
+    setOpen(false)
+  }
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -27,7 +34,7 @@ const AdminLayout: React.FC = () => {
         setOpen(false)
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
@@ -41,20 +48,26 @@ const AdminLayout: React.FC = () => {
         <Header className='bg-white px-8 py-4 shadow-sm flex items-center justify-between'>
           <div className='text-2xl font-bold text-gray-800'>Admin Dashboard</div>
           <div className='relative' ref={dropdownRef}>
-            <button 
+            <button
               className='flex items-center space-x-2 focus:outline-none rounded-full hover:bg-gray-100 p-1 transition-colors'
               onClick={() => setOpen(!open)}
             >
-              <img 
-                src={user?.avatar || 'https://i.pravatar.cc/150?img=8'} 
-                alt='avatar' 
+              <img
+                src={user?.avatar || 'https://i.pravatar.cc/150?img=8'}
+                alt='avatar'
                 className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
               />
               <span className='text-gray-700 font-medium'>{user?.name || 'Admin'}</span>
             </button>
-            
+
             {open && (
               <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200'>
+                <button
+                  className='w-full flex items-center px-3 py-2 text-gray-700 hover:bg-blue-50 transition-colors text-sm'
+                  onClick={handleProfileClick}
+                >
+                  Hồ sơ
+                </button>
                 <button
                   className='w-full flex items-center px-3 py-2 text-red-500 hover:bg-blue-50 transition-colors text-sm'
                   onClick={handleLogout}
@@ -70,6 +83,10 @@ const AdminLayout: React.FC = () => {
           <Outlet />
         </Content>
       </Layout>
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
     </Layout>
   )
 }

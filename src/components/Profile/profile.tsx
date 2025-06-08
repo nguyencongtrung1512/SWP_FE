@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { profileAdmin, Profile as ProfileType } from '../../api/auth.api'
 import { formatDate } from '../../utils/ulits'
+import type { Profile } from '../../apis/adminManageAcount'
+import { profileInfor } from '../../apis/adminManageAcount'
 
 const Profile = () => {
-  const [profile, setProfile] = useState<ProfileType | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -17,8 +18,7 @@ const Profile = () => {
           return
         }
 
-        const user = JSON.parse(userStr)
-        const response = await profileAdmin.getProfileAdmin(user.id)
+        const response = await profileInfor.getProfileInfor()
 
         if (response.data) {
           setProfile(response.data)

@@ -1,13 +1,6 @@
 import http from '../utils/http'
 
 const API_URL = `/accounts`
-export interface Profile {
-  email: string
-  fullname: string
-  address: string
-  dateOfBirth: string
-  phoneNumber: string
-}
 
 export const login = async (params: { email: string; password: string }) => {
   try {
@@ -94,11 +87,5 @@ export const resendOtp = async (params: { email: string }) => {
       message: error.response?.data?.message || 'Không thể gửi lại mã OTP!',
       data: null
     }
-  }
-}
-
-export const profileAdmin = {
-  getProfileAdmin(id: string) {
-    return http.get<Profile>(`${API_URL}/admin/${id}`)
   }
 }

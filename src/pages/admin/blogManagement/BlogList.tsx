@@ -148,17 +148,6 @@ function BlogList() {
             </div>
           </Card>
         </Col>
-        <Col span={12}>
-          <Card>
-            <div className='flex items-center'>
-              <TagsOutlined className='text-3xl text-green-500 mr-4' />
-              <div>
-                <p className='text-gray-500'>Tổng số danh mục</p>
-                <h2 className='text-2xl font-bold'>{new Set(blogs.map((blog) => blog.category)).size}</h2>
-              </div>
-            </div>
-          </Card>
-        </Col>
       </Row>
 
       <Card>

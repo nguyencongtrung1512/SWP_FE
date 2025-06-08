@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Layout } from 'antd'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './SideBar'
-import { LogoutOutlined } from '@ant-design/icons'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
 import path from '../../constants/path'
 import ProfileModal from '../../components/Profile/ProfileModal'
@@ -66,7 +66,8 @@ const AdminLayout: React.FC = () => {
                   className='w-full flex items-center px-3 py-2 text-gray-700 hover:bg-blue-50 transition-colors text-sm'
                   onClick={handleProfileClick}
                 >
-                  Hồ sơ
+                  <UserOutlined className='mr-2' />
+                  <span>Hồ sơ</span>
                 </button>
                 <button
                   className='w-full flex items-center px-3 py-2 text-red-500 hover:bg-blue-50 transition-colors text-sm'
@@ -83,10 +84,7 @@ const AdminLayout: React.FC = () => {
           <Outlet />
         </Content>
       </Layout>
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-      />
+      <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
     </Layout>
   )
 }

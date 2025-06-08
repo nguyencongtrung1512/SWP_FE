@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Form, Input, Button, Upload, message, Typography, Select } from 'antd'
+import { Form, Input, Button, Upload, message, Typography } from 'antd'
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface'
 import type { RcFile } from 'antd/es/upload'
 import ReactQuill from 'react-quill'
@@ -127,20 +127,15 @@ const CreateBlogForm: React.FC<CreateBlogFormProps> = ({
         name='categoryID'
         label='Danh mục'
         rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
-        initialValue={initialCategory?.name}
+        initialValue={initialCategory?.categoryID}
       >
-        <Select placeholder='Chọn danh mục' disabled={!!initialCategory}>
-          {categories.map((category) => {
-            if (category.categoryID === undefined || category.categoryID === null) {
-              return null
-            }
-            return (
-              <Select.Option key={category.categoryID} value={category.categoryID.toString()}>
-                {category.name}
-              </Select.Option>
-            )
-          })}
-        </Select>
+        <div>
+          <Typography.Text strong style={{ display: 'block' }}>
+            {initialCategory?.name ||
+              categories.find((cat) => cat.categoryID === form.getFieldValue('categoryID'))?.name}
+          </Typography.Text>
+          <input type='hidden' value={initialCategory?.categoryID} />
+        </div>
       </Form.Item>
       <Form.Item name='title' label='Tiêu đề' rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}>
         <Input placeholder='Nhập tiêu đề blog' />

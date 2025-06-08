@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { formatDate } from '../../utils/ulits'
-import type { Profile } from '../../apis/adminManageAcount'
-import { profileInfor } from '../../apis/adminManageAcount'
+import type { Profile } from '../../apis/adminManageAccount'
+import { profileInfor } from '../../apis/adminManageAccount'
 
 const Profile = () => {
   const [profile, setProfile] = useState<Profile | null>(null)

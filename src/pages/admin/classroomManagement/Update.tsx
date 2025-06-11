@@ -1,70 +1,67 @@
 import React, { useEffect } from 'react'
-import { Modal, Form, Input } from 'antd'
-
-interface Class {
-  id: string
-  gradeId: string
-  name: string
-  teacher: string
-  totalStudents: number
-  capacity: number
-  description: string
-  status: string
-}
+import { Modal, Form, Input, message } from 'antd'
+import { updateClass } from '../../../apis/class'
+import type { Class } from '../../../apis/class'
 
 interface UpdateClassProps {
   isModalVisible: boolean
   onCancel: () => void
-  onOk: (values: UpdateClassForm) => void
-  editingClass: Class | null
+  onSuccess: () => void
+  selectedClass: Class | null
 }
 
-interface UpdateClassForm {
-  name: string
-  teacher: string
-  capacity: number
-  description: string
-  status: string
-}
-
-const UpdateClass: React.FC<UpdateClassProps> = ({ isModalVisible, onCancel, onOk, editingClass }) => {
+const UpdateClass: React.FC<UpdateClassProps> = ({ isModalVisible, onCancel, onSuccess, selectedClass }) => {
   const [form] = Form.useForm()
+  const [loading, setLoading] = React.useState(false)
 
   useEffect(() => {
-    if (editingClass) {
-      form.setFieldsValue(editingClass)
+    if (selectedClass) {
+      form.setFieldsValue({
+        className: selectedClass.className
+      })
     }
-  }, [editingClass, form])
+  }, [selectedClass, form])
 
-  const handleOk = () => {
-    form.validateFields().then((values) => {
-      onOk({ ...editingClass, ...values })
+  const handleOk = async () => {
+    if (!selectedClass) return
+
+    try {
+      const values = await form.validateFields()
+      setLoading(true)
+      await updateClass(selectedClass.classId, values)
+      message.success('Cập nhật lớp thành công!')
       form.resetFields()
-    })
+      onSuccess()
+    } catch (error) {
+      console.error('Error updating class:', error)
+      message.error('Có lỗi xảy ra khi cập nhật lớp!')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <Modal
-      title='Sửa lớp'
+      title='Cập nhật lớp học'
       open={isModalVisible}
       onOk={handleOk}
       onCancel={() => {
         form.resetFields()
         onCancel()
       }}
+      confirmLoading={loading}
       width={600}
     >
       <Form form={form} layout='vertical'>
-        <Form.Item name='name' label='Tên lớp' rules={[{ required: true, message: 'Vui lòng nhập tên lớp!' }]}>
-          <Input placeholder='Nhập tên lớp' />
-        </Form.Item>
-
-        <Form.Item name='capacity' label='Sức chứa' rules={[{ required: true, message: 'Vui lòng nhập sức chứa!' }]}>
-          <Input type='number' min={1} placeholder='Nhập sức chứa lớp' />
-        </Form.Item>
-
-        <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}>
-          <Input.TextArea rows={4} placeholder='Nhập mô tả lớp' />
+        <Form.Item
+          name='className'
+          label='Tên lớp'
+          rules={[
+            { required: true, message: 'Vui lòng nhập tên lớp!' },
+            { pattern: /^\d+\/\d+$/, message: 'Tên lớp phải có định dạng số/số (ví dụ: 1/1)' }
+          ]}
+        >
+          <Input placeholder='Nhập tên lớp (ví dụ: 1/1)' />
         </Form.Item>
       </Form>
     </Modal>

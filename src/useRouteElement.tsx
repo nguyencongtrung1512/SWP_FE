@@ -24,7 +24,6 @@ import MedicalPlan from './pages/nurse/medicalPlan'
 import UserList from './pages/admin/userManagerment/UserList'
 import StudentList from './pages/admin/studentManagement/StudentList'
 import GradeList from './pages/admin/gradeManagement/GradeList'
-import ClassList from './pages/admin/classroomManagement/Classlist'
 import ParentLayout from './layouts/ParentLayout/ParentLayout'
 import VaccinationSchedule from './pages/parent/vaccinationSchedule/VaccinationSchedule'
 import MedicalEventParent from './pages/parent/medicalEvent/medicalEventParent'
@@ -176,10 +175,6 @@ export default function useRouteElements() {
             {
               path: path.GRADE_MANAGEMENT,
               element: <GradeList />
-            },
-            {
-              path: path.CLASS_MANAGEMENT,
-              element: <ClassList />
             },
             {
               path: path.STUDENT_LIST,

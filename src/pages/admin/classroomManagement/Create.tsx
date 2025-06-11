@@ -1,28 +1,35 @@
 import React from 'react'
-import { Modal, Form, Input } from 'antd'
+import { Modal, Form, Input, message } from 'antd'
+import { createClass } from '../../../apis/class'
 
 interface CreateClassProps {
   isModalVisible: boolean
   onCancel: () => void
-  onOk: (values: CreateClassForm) => void
+  onSuccess: () => void
 }
 
 interface CreateClassForm {
-  name: string
-  teacher: string
-  capacity: number
-  description: string
-  status: string
+  className: string
 }
 
-const CreateClass: React.FC<CreateClassProps> = ({ isModalVisible, onCancel, onOk }) => {
+const CreateClass: React.FC<CreateClassProps> = ({ isModalVisible, onCancel, onSuccess }) => {
   const [form] = Form.useForm()
+  const [loading, setLoading] = React.useState(false)
 
-  const handleOk = () => {
-    form.validateFields().then((values) => {
-      onOk(values)
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields()
+      setLoading(true)
+      await createClass(values)
+      message.success('Thêm lớp thành công!')
       form.resetFields()
-    })
+      onSuccess()
+    } catch (error) {
+      console.error('Error creating class:', error)
+      message.error('Có lỗi xảy ra khi thêm lớp!')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -34,19 +41,19 @@ const CreateClass: React.FC<CreateClassProps> = ({ isModalVisible, onCancel, onO
         form.resetFields()
         onCancel()
       }}
+      confirmLoading={loading}
       width={600}
     >
-      <Form form={form} layout='vertical' initialValues={{ status: 'active' }}>
-        <Form.Item name='name' label='Tên lớp' rules={[{ required: true, message: 'Vui lòng nhập tên lớp!' }]}>
-          <Input placeholder='Nhập tên lớp' />
-        </Form.Item>
-
-        <Form.Item name='capacity' label='Sức chứa' rules={[{ required: true, message: 'Vui lòng nhập sức chứa!' }]}>
-          <Input type='number' min={1} placeholder='Nhập sức chứa lớp' />
-        </Form.Item>
-
-        <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}>
-          <Input.TextArea rows={4} placeholder='Nhập mô tả lớp' />
+      <Form form={form} layout='vertical'>
+        <Form.Item
+          name='className'
+          label='Tên lớp'
+          rules={[
+            { required: true, message: 'Vui lòng nhập tên lớp!' },
+            { pattern: /^\d+\/\d+$/, message: 'Tên lớp phải có định dạng số/số (ví dụ: 1/1)' }
+          ]}
+        >
+          <Input placeholder='Nhập tên lớp (ví dụ: 1/1)' />
         </Form.Item>
       </Form>
     </Modal>

@@ -23,21 +23,17 @@ const Login: React.FC = () => {
   const onFinishLogin = async (values: { email: string; password: string }) => {
     try {
       setLoading(true)
-      const result : any = await login(values)
+      const result: any = await login(values)
 
       if (result.success) {
         toast.success('Đăng nhập thành công!')
-        const userData = result.data.account;
-        
+        const userData = result.data.account
+
         authLogin(userData)
-        
-        if (userData.roleName === 'Parent') 
-          navigate(path.healthRecord)
-        else if (userData.roleName === 'Nurse') 
-          navigate(path.NURSE_PROFILE);
-        else if (userData.roleName === 'Admin') 
-          navigate(path.CENSOR_LIST);
-        
+
+        if (userData.roleName === 'Parent') navigate(path.healthRecord)
+        else if (userData.roleName === 'Nurse') navigate(path.NURSE_PROFILE)
+        else if (userData.roleName === 'Admin') navigate(path.CENSOR_LIST)
       } else {
         toast.error(result.message)
       }
@@ -48,14 +44,14 @@ const Login: React.FC = () => {
     }
   }
 
-  const onFinishRegister = async (values: { 
-    phoneNumber: string; 
-    password: string; 
-    confirmPassword: string;
-    fullname: string; 
-    email: string;
-    address: string;
-    dateOfBirth: any;
+  const onFinishRegister = async (values: {
+    phoneNumber: string
+    password: string
+    confirmPassword: string
+    fullname: string
+    email: string
+    address: string
+    dateOfBirth: any
   }) => {
     try {
       setLoading(true)
@@ -64,35 +60,32 @@ const Login: React.FC = () => {
         setLoading(false)
         return
       }
-      
-      let formattedDate;
-      
+
+      let formattedDate
+
       try {
         if (typeof values.dateOfBirth === 'string') {
-          const parts = values.dateOfBirth.split('/');
-          if (parts.length === 3)
-            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}T00:00:00Z`;
-          else 
-            formattedDate = new Date(values.dateOfBirth).toISOString();
-          
+          const parts = values.dateOfBirth.split('/')
+          if (parts.length === 3) formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}T00:00:00Z`
+          else formattedDate = new Date(values.dateOfBirth).toISOString()
         } else if (values.dateOfBirth instanceof Date) {
-          formattedDate = values.dateOfBirth.toISOString();
+          formattedDate = values.dateOfBirth.toISOString()
         } else {
-          formattedDate = dayjs(values.dateOfBirth).format('YYYY-MM-DD') + 'T00:00:00Z';
+          formattedDate = dayjs(values.dateOfBirth).format('YYYY-MM-DD') + 'T00:00:00Z'
         }
       } catch (e) {
-        toast.error('Định dạng ngày sinh không hợp lệ!');
-        setLoading(false);
-        return;
+        toast.error('Định dạng ngày sinh không hợp lệ!')
+        setLoading(false)
+        return
       }
-      
+
       const formattedValues = {
         ...values,
         dateOfBirth: formattedDate
       }
-      
-      const result : any = await register(formattedValues)
-      
+
+      const result: any = await register(formattedValues)
+
       if (result && result.success) {
         setRegisteredEmail(values.email)
         setShowOtpVerification(true)
@@ -100,7 +93,6 @@ const Login: React.FC = () => {
       } else if (result) {
         toast.error(result.message)
       }
-
     } catch (error: any) {
       console.error('Registration error:', error)
       toast.error(error?.message || 'Đăng ký thất bại! Vui lòng thử lại.')
@@ -113,7 +105,7 @@ const Login: React.FC = () => {
     try {
       setLoading(true)
       const result = await verifyOtp({ email: registeredEmail, otp: otpValue })
-      
+
       if (result.success) {
         toast.success('Xác thực tài khoản thành công! Vui lòng đăng nhập.')
         setShowOtpVerification(false)
@@ -133,12 +125,9 @@ const Login: React.FC = () => {
     try {
       setLoading(true)
       const result = await resendOtp({ email: registeredEmail })
-      
-      if (result.success)
-        toast.success(result.message || 'Đã gửi lại mã OTP!')
-      else 
-        toast.error(result.message)
-      
+
+      if (result.success) toast.success(result.message || 'Đã gửi lại mã OTP!')
+      else toast.error(result.message)
     } catch (error: any) {
       toast.error(error?.message || 'Không thể gửi lại mã OTP!')
     } finally {
@@ -166,7 +155,9 @@ const Login: React.FC = () => {
         <p className='text-xl text-center max-w-xs'>Nền tảng y tế trực tuyến bảo vệ sức khỏe của con bạn!</p>
       </div>
       <div className='flex-1 flex items-center justify-center p-4'>
-        <div className={`bg-white rounded-lg shadow-lg p-6 md:p-8 w-full ${!isLogin ? 'max-w-[540px]' : 'max-w-[450px]'}`}>
+        <div
+          className={`bg-white rounded-lg shadow-lg p-6 md:p-8 w-full ${!isLogin ? 'max-w-[540px]' : 'max-w-[450px]'}`}
+        >
           <div className='flex items-center justify-center mb-6'>
             <span className='text-blue-500 mr-2'>
               <svg width='36' height='36' viewBox='0 0 36 36' fill='none'>
@@ -182,17 +173,13 @@ const Login: React.FC = () => {
           </div>
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-2xl font-semibold text-gray-800'>
-              {isLogin ? 'Đăng nhập' : (showOtpVerification ? '' : 'Đăng ký')}
+              {isLogin ? 'Đăng nhập' : showOtpVerification ? '' : 'Đăng ký'}
             </h2>
           </div>
-          
-          <AnimatePresence mode="wait">
+
+          <AnimatePresence mode='wait'>
             {isLogin ? (
-              <LoginForm 
-                onFinish={onFinishLogin} 
-                loading={loading} 
-                form={form} 
-              />
+              <LoginForm onFinish={onFinishLogin} loading={loading} form={form} />
             ) : showOtpVerification ? (
               <OtpVerification
                 onVerify={handleVerifyOtp}
@@ -201,23 +188,15 @@ const Login: React.FC = () => {
                 onResendOtp={handleResendOtp}
               />
             ) : (
-              <SignupForm 
-                onFinish={onFinishRegister} 
-                loading={loading} 
-                form={form} 
-              />
+              <SignupForm onFinish={onFinishRegister} loading={loading} form={form} />
             )}
           </AnimatePresence>
-          
+
           {!showOtpVerification && (
             <div className='mt-4 text-center'>
               <p className='text-gray-600'>
                 {isLogin ? 'Bạn chưa có tài khoản?' : 'Bạn đã có tài khoản?'}
-                <Button
-                  type='link'
-                  onClick={toggleForm}
-                  className='p-0 ml-1 font-medium'
-                >
+                <Button type='link' onClick={toggleForm} className='p-0 ml-1 font-medium'>
                   {isLogin ? 'Đăng ký' : 'Đăng nhập'}
                 </Button>
               </p>

@@ -5,7 +5,6 @@ export interface Category {
   id: number
   categoryID: number
   name: string
-  description?: string
   blogs: {
     $id: string;
     $values: Blog[];
@@ -23,6 +22,18 @@ export const categoryApi = {
   },
 
   getCategoryById(id: number) {
-    return http.get<Category>(`/Category/GetCateById${id}`)
+    return http.get<Category>(`/Category/GetCateById/${id}`)
+  },
+
+  updateCategoryById(id: number, data: Omit<Category, 'id' | 'categoryID' | 'blogs'>) {
+    return http.put<Category>(`/Category/UpdateCategory/${id}`, data)
+  },
+
+  deleteCategoryById(id: number) {
+    return http.delete<Category>(`/Category/DeleteCategory/${id}`)
+  },
+
+  createCategory(data: Omit<Category, 'id' | 'categoryID' | 'blogs'>) {
+    return http.post<Category>('/Category/CreateCategory', data)
   }
 }

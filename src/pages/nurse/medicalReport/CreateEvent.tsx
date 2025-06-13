@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { createMedicalEvent, CreateMedicalEventRequest } from '../../../apis/medicalEvent'
 import { getStudentByCode, Student } from '../../../apis/student'
+import { getAllMedications, Medication } from '../../../apis/medication'
 import { toast } from 'react-toastify'
 
 const { Title } = Typography
@@ -18,6 +19,31 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [studentCode, setStudentCode] = useState<string>('')
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
+  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
+
+  useEffect(() => {
+    const fetchMedications = async () => {
+      try {
+        const response = await getAllMedications()
+        if (response.data && response.data.$values) {
+          const options = response.data.$values.map((med: Medication) => ({
+            value: med.medicationId,
+            label: med.name,
+          }))
+          setMedicationOptions(options)
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Error fetching medications:', error)
+          toast.error(`Lỗi khi tải danh sách thuốc: ${error.message}`)
+        } else {
+          console.error('Unknown error fetching medications:', error)
+          toast.error('Lỗi khi tải danh sách thuốc.')
+        }
+      }
+    }
+    fetchMedications()
+  }, [])
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -179,11 +205,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             <Select
               mode='multiple'
               placeholder='Chọn thuốc'
-              options={[
-                { value: 1, label: 'Paracetamol' },
-                { value: 2, label: 'Ibuprofen' },
-                { value: 3, label: 'Amoxicillin' }
-              ]}
+              options={medicationOptions}
             />
           </Form.Item>
         </Form>

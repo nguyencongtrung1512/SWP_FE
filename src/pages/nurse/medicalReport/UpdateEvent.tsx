@@ -8,6 +8,7 @@ import {
   CreateMedicalEventRequest
 } from '../../../apis/medicalEvent'
 import { getStudentByCode, getStudentById, Student } from '../../../apis/student'
+import { getAllMedications, Medication } from '../../../apis/medication'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -24,6 +25,31 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
   const [loading, setLoading] = useState(false)
   const [studentCode, setStudentCode] = useState<string>('')
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
+  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
+
+  useEffect(() => {
+    const fetchMedications = async () => {
+      try {
+        const response = await getAllMedications()
+        if (response.data && response.data.$values) {
+          const options = response.data.$values.map((med: Medication) => ({
+            value: med.medicationId,
+            label: med.name
+          }))
+          setMedicationOptions(options)
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Error fetching medications:', error)
+          message.error(`Lỗi khi tải danh sách thuốc: ${error.message}`)
+        } else {
+          console.error('Unknown error fetching medications:', error)
+          message.error('Lỗi khi tải danh sách thuốc.')
+        }
+      }
+    }
+    fetchMedications()
+  }, [])
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -193,15 +219,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
           label='Thuốc sử dụng'
           rules={[{ required: true, message: 'Vui lòng chọn thuốc!' }]}
         >
-          <Select
-            mode='multiple'
-            placeholder='Chọn thuốc'
-            options={[
-              { value: 1, label: 'Paracetamol' },
-              { value: 2, label: 'Ibuprofen' },
-              { value: 3, label: 'Amoxicillin' }
-            ]}
-          />
+          <Select mode='multiple' placeholder='Chọn thuốc' options={medicationOptions} />
         </Form.Item>
 
         <Form.Item>

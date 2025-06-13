@@ -7,9 +7,10 @@ interface LoginFormProps {
   onFinish: (values: { email: string; password: string }) => Promise<void>
   loading: boolean
   form: any
+  onForgotPassword: () => void
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onFinish, loading, form }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onFinish, loading, form, onForgotPassword }) => {
   const formVariants = {
     hidden: { opacity: 0, x: -50 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
@@ -56,7 +57,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onFinish, loading, form }) => {
             className='py-2.5 px-4'
           />
         </Form.Item>
-        <Form.Item className='mb-0'>
+        <div className="flex justify-end mb-4">
+          <span className="text-gray-400 cursor-pointer hover:underline hover:text-gray-500" onClick={onForgotPassword}>
+            Quên mật khẩu?
+          </span>
+        </div>
+        <Form.Item className="mb-0">
           <Button
             type='primary'
             htmlType='submit'

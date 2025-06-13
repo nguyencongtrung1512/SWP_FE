@@ -1,18 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Form, Button, Input } from 'antd';
-import type { InputRef } from 'antd';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react'
+import { Form, Button, Input } from 'antd'
+import type { InputRef } from 'antd'
+import { motion } from 'framer-motion'
 
 interface OtpVerificationProps {
-  onVerify: (otp: string) => Promise<void>;
-  loading: boolean;
-  email: string;
-  onResendOtp: () => Promise<void>;
+  onVerify: (otp: string) => Promise<void>
+  loading: boolean
+  email: string
+  onResendOtp: () => Promise<void>
 }
 
 const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, email, onResendOtp }) => {
-  const [form] = Form.useForm();
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [form] = Form.useForm()
+  const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const inputRefs = [
     useRef<InputRef>(null),
     useRef<InputRef>(null),
@@ -20,23 +20,23 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
     useRef<InputRef>(null),
     useRef<InputRef>(null),
     useRef<InputRef>(null),
-  ];
-  const [countdown, setCountdown] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  ]
+  const [countdown, setCountdown] = useState(60)
+  const [canResend, setCanResend] = useState(false)
 
   useEffect(() => {
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+      return () => clearTimeout(timer)
     } else {
-      setCanResend(true);
+      setCanResend(true)
     }
-  }, [countdown]);
+  }, [countdown])
 
   const handleResendOtp = async () => {
-    await onResendOtp();
-    setCountdown(60);
-    setCanResend(false);
+    await onResendOtp()
+    setCountdown(60)
+    setCanResend(false)
   };
 
   const formVariants = {
@@ -47,30 +47,30 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length > 1) {
-      value = value[0];
+      value = value[0]
     }
     
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
     
     if (value && index < 5) {
-      inputRefs[index + 1].current?.focus();
+      inputRefs[index + 1].current?.focus()
     }
-  };
+  }
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs[index - 1].current?.focus();
+      inputRefs[index - 1].current?.focus()
     }
-  };
+  }
 
   const handleVerify = () => {
-    const otpValue = otp.join('');
+    const otpValue = otp.join('')
     if (otpValue.length === 6) {
-      onVerify(otpValue);
+      onVerify(otpValue)
     }
-  };
+  }
 
   return (
     <motion.div
@@ -137,7 +137,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
         </p>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default OtpVerification; 
+export default OtpVerification

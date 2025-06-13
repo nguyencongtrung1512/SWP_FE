@@ -15,6 +15,16 @@ class Http {
     })
 
     this.instance.interceptors.request.use(this.handleBefore.bind(this), this.handleError)
+    
+    this.instance.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response) {
+          console.error('Error data:', error.response.data);
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   private handleBefore(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {

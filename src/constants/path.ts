@@ -3,6 +3,7 @@ const path = {
   home: '/',
   login: '/login',
   signup: '/signup',
+  resetPassword: '/reset-password',
   blog: '/blog',
   blogDetail: '/blog/:id',
   // ============ Parent ============

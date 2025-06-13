@@ -1,13 +1,6 @@
 import React from 'react'
 import { Form, Input, Button, DatePicker, Row, Col, Alert } from 'antd'
-import {
-  UserOutlined,
-  LockOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  HomeOutlined,
-  CalendarOutlined
-} from '@ant-design/icons'
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import dayjs from 'dayjs'
 

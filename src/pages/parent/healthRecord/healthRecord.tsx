@@ -183,7 +183,7 @@ const HealthRecord = () => {
             className='bg-blue-500 hover:bg-blue-600 flex items-center'
             onClick={() => setIsAddModalOpen(true)}
           >
-            Đăng ký thông tin con
+            Đăng ký hồ sơ sức khỏe
           </Button>
         </div>
         <div className='flex justify-start mb-8 space-x-4'>
@@ -297,28 +297,10 @@ const HealthRecord = () => {
       >
         <Form form={form} layout='vertical' className='mt-4'>
           <div className='grid grid-cols-2 gap-4'>
-            <Form.Item name='name' label='Họ và tên' rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name='dob' label='Ngày sinh' rules={[{ required: true, message: 'Vui lòng nhập ngày sinh' }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name='gender' label='Giới tính' rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}>
-              <Select>
-                <Select.Option value='Nam'>Nam</Select.Option>
-                <Select.Option value='Nữ'>Nữ</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name='class' label='Lớp' rules={[{ required: true, message: 'Vui lòng nhập lớp' }]}>
-              <Input />
-            </Form.Item>
             <Form.Item name='height' label='Chiều cao'>
               <Input />
             </Form.Item>
             <Form.Item name='weight' label='Cân nặng'>
-              <Input />
-            </Form.Item>
-            <Form.Item name='studentCode' label='Mã học sinh'>
               <Input />
             </Form.Item>
             <Form.Item name='bmi' label='Chỉ số BMI'>
@@ -381,24 +363,6 @@ const AddHealthRecordModal: React.FC<AddHealthRecordModalProps> = ({ isOpen, onC
     >
       <Form form={form} layout='vertical' className='mt-4'>
         <div className='grid grid-cols-2 gap-4'>
-          <Form.Item name='name' label='Họ và tên' rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name='dob' label='Ngày sinh' rules={[{ required: true, message: 'Vui lòng nhập ngày sinh' }]}>
-            <Input placeholder='DD/MM/YYYY' />
-          </Form.Item>
-          <Form.Item name='gender' label='Giới tính' rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}>
-            <Select>
-              <Select.Option value='Nam'>Nam</Select.Option>
-              <Select.Option value='Nữ'>Nữ</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name='class' label='Lớp' rules={[{ required: true, message: 'Vui lòng nhập lớp' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name='bloodType' label='Nhóm máu'>
-            <Input />
-          </Form.Item>
           <Form.Item name='height' label='Chiều cao (cm)'>
             <Input type='number' />
           </Form.Item>

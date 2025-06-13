@@ -15,11 +15,9 @@ export const login = async (params: { email: string; password: string }) => {
       data: response.data
     }
   } catch (error: any) {
-    console.error('Login error:', error)
     return {
       success: false,
-      message: error.response?.data?.message || 'Đăng nhập thất bại!',
-      data: null
+      message: error.response.data || 'Đăng nhập thất bại!'
     }
   }
 }
@@ -37,15 +35,12 @@ export const register = async (params: {
     const response = await http.post(`${API_URL}/otp/register`, params)
     return {
       success: true,
-      message: response.data.message,
-      data: response.data
+      message: response.data.message
     }
   } catch (error: any) {
-    console.error('Register error:', error)
     return {
       success: false,
-      message: error.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.',
-      data: null
+      message: error.response.data || 'Đăng ký thất bại! Vui lòng thử lại.'
     }
   }
 }
@@ -59,15 +54,12 @@ export const verifyOtp = async (params: { email: string; otp: string }) => {
     const response = await http.post(`${API_URL}/otp/verify`, apiParams)
     return {
       success: true,
-      message: response.data.message,
-      data: response.data
+      message: response.data.message
     }
   } catch (error: any) {
-    console.error('Verify OTP error:', error)
     return {
       success: false,
-      message: error.response?.data?.message || 'Mã OTP không chính xác hoặc đã hết hạn!',
-      data: null
+      message: error.response.data || 'Mã OTP không chính xác hoặc đã hết hạn!'
     }
   }
 }
@@ -77,15 +69,52 @@ export const resendOtp = async (params: { email: string }) => {
     const response = await http.post(`${API_URL}/otp/resend`, params)
     return {
       success: true,
-      message: response.data.message,
-      data: response.data
+      message: response.data.message
     }
   } catch (error: any) {
-    console.error('Resend OTP error:', error)
     return {
       success: false,
-      message: error.response?.data?.message || 'Không thể gửi lại mã OTP!',
-      data: null
+      message: error.response.data || 'Không thể gửi lại mã OTP!'
+    }
+  }
+}
+
+export const forgotPassword = async (params: { email: string }) => {
+  try {
+    const response = await http.post(`${API_URL}/forgot-password`, params)
+    return {
+      success: true,
+      message: response.data.message
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response.data || 'Không thể gửi yêu cầu đặt lại mật khẩu!'
+    }
+  }
+}
+
+export const resetPassword = async (params: { email: string; token: string; newPassword: string }) => {
+  try {
+    const cleanToken = params.token.trim().replace(/^["'](.*)["']$/, '$1');
+    const requestData = {
+      email: params.email,
+      token: cleanToken,
+      newPassword: params.newPassword,
+      confirmNewPassword: params.newPassword
+    };
+    
+    console.log('Sending reset password request:', requestData);
+    const response = await http.post(`${API_URL}/reset-password`, requestData);
+    
+    return {
+      success: true,
+      message: response.data.message || "Mật khẩu đã được đặt lại thành công."
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response.data || 'Vui lòng thử lại.'
     }
   }
 }

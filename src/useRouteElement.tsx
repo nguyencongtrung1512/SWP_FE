@@ -31,6 +31,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import CategoryList from './pages/admin/categoryManagement/List'
 import BlogList from './pages/admin/blogManagement/BlogList'
 import BlogDetail from './pages/admin/blogManagement/BlogDetail'
+import MedicationList from './pages/nurse/Medication/MedicationList'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -114,6 +115,10 @@ export default function useRouteElements() {
             {
               path: path.HEALTH_RECORD_CENSORSHIP,
               element: <HealthRecordCensorship />
+            },
+            {
+              path: path.MEDICATION,
+              element: <MedicationList />
             },
             {
               path: path.NURSE_PROFILE,

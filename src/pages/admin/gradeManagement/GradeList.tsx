@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getAllClasses, deleteClass } from '../../../apis/class'
 import { Select, Card, List, Typography, Button, Popconfirm, message } from 'antd'
+import { useNavigate } from 'react-router-dom'
 import type { Class } from '../../../apis/class'
 import CreateClass from '../classroomManagement/Create'
 import UpdateClass from '../classroomManagement/Update'
@@ -8,6 +9,7 @@ import UpdateClass from '../classroomManagement/Update'
 const { Title } = Typography
 
 function GradeList() {
+  const navigate = useNavigate()
   const [classes, setClasses] = useState<Class[]>([])
   const [selectedGrade, setSelectedGrade] = useState<string>('1')
   const [loading, setLoading] = useState(false)
@@ -40,6 +42,10 @@ function GradeList() {
       console.error('Error deleting class:', error)
       message.error('Có lỗi xảy ra khi xóa lớp!')
     }
+  }
+
+  const handleViewStudents = (classId: number, className: string) => {
+    navigate(`/admin/students/${classId}`, { state: { className } })
   }
 
   const filteredClasses = classes.filter((cls) => cls.className.split('/')[0] === selectedGrade)
@@ -80,6 +86,12 @@ function GradeList() {
               <Card
                 title={`Lớp ${item.className}`}
                 actions={[
+                  <Button
+                    type='link'
+                    onClick={() => handleViewStudents(item.classId, item.className)}
+                  >
+                    Xem học sinh
+                  </Button>,
                   <Button
                     type='link'
                     onClick={() => {

@@ -27,6 +27,7 @@ const path = {
   RESULTS_AFTER_VACCINATION: '/nurse/results-after-vaccination', //khai báo kết quả tiêm chủng
   RECEIVE_MEDICINE: '/nurse/receive-medicine', //nhận thuốc
   MEDICAL_REPORT: '/nurse/medical-report', //báo cáo y tế
+  MEDICATION: '/nurse/medication',
   MEDICAL_PLAN: '/nurse/medical-plan', //kế hoạch khám bệnh
   PRIVATE_CONSULTATION: '/nurse/private-consultation', //tư vấn riêng
   //=============Admin============
@@ -36,7 +37,7 @@ const path = {
   USER_MANAGEMENT: '/admin/user-management',
   GRADE_MANAGEMENT: '/admin/student-management/grades',
   CLASS_MANAGEMENT: '/admin/student-management/grades/:gradeId/classes',
-  STUDENT_LIST: '/admin/student-management/classes/:classId/students',
+  STUDENT_LIST: '/admin/students/:classId',
   BLOG_MANAGEMENT: '/admin/blog/:id',
   CATEGORY_MANAGEMENT: '/admin/category-management',
   BLOG_LIST_BY_CATEGORY: '/admin/category/:categoryId/blogs',

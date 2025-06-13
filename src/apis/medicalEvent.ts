@@ -23,6 +23,7 @@ export interface MedicalEvent {
   description: string
   note: string
   date: string
+  studentCode: string
 }
 
 interface MedicalEventResponse {

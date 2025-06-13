@@ -40,7 +40,7 @@ export const getStudentById = (id: number) => {
   return http.get<Student>(`/Student/GetStudentById/${id}`)
 }
 
-export const getStudentByCode = (studentCode: number) => {
+export const getStudentByCode = (studentCode: string) => {
   return http.get<ApiResponse<Student>>(`/Student/GetStudentByCode/${studentCode}`)
 }
 

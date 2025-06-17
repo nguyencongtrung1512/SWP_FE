@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Form, Button } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { login, register, verifyOtp, resendOtp } from '../../api/auth.api'
+import { login, register, verifyOtp, resendOtp, forgotPassword } from '../../api/auth.api'
 import path from '../../constants/path'
 import LoginForm from './loginForm'
 import SignupForm from './signupForm'
 import OtpVerification from './otpVerification'
+import ForgotPasswordForm from './forgotPasswordForm'
 import { useAuth } from '../../contexts/auth.context'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
@@ -14,12 +15,24 @@ import dayjs from 'dayjs'
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const [isLogin, setIsLogin] = useState(true)
   const [showOtpVerification, setShowOtpVerification] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [registeredEmail, setRegisteredEmail] = useState('')
   const [form] = Form.useForm()
   const { login: authLogin } = useAuth()
 
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search)
+    const token = queryParams.get('token')
+    const email = queryParams.get('email')
+    
+    if (token && email) {
+      navigate(`/reset-password?token=${token}&email=${email}`)
+    }
+  }, [location, navigate])
+  
   const onFinishLogin = async (values: { email: string; password: string }) => {
     try {
       setLoading(true)
@@ -135,10 +148,41 @@ const Login: React.FC = () => {
     }
   }
 
+  const handleForgotPassword = async (values: { email: string }) => {
+    try {
+      setLoading(true)
+      const result = await forgotPassword(values)
+      
+      if (result.success) {
+        toast.success('Yêu cầu đặt lại mật khẩu đã được gửi đến email của bạn!')
+        setShowForgotPassword(false)
+        setIsLogin(true)
+        form.resetFields()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error: any) {
+      toast.error(error?.message || 'Không thể gửi yêu cầu đặt lại mật khẩu!')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const toggleForm = () => {
     setShowOtpVerification(false)
+    setShowForgotPassword(false)
     form.resetFields()
     setIsLogin(!isLogin)
+  }
+
+  const showForgotPasswordForm = () => {
+    setShowForgotPassword(true)
+    form.resetFields()
+  }
+
+  const backToLogin = () => {
+    setShowForgotPassword(false)
+    form.resetFields()
   }
 
   return (
@@ -173,13 +217,27 @@ const Login: React.FC = () => {
           </div>
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-2xl font-semibold text-gray-800'>
-              {isLogin ? 'Đăng nhập' : showOtpVerification ? '' : 'Đăng ký'}
+              {isLogin ? (showForgotPassword ? '' : 'Đăng nhập') : (showOtpVerification ? '' : 'Đăng ký')}
             </h2>
           </div>
 
           <AnimatePresence mode='wait'>
             {isLogin ? (
-              <LoginForm onFinish={onFinishLogin} loading={loading} form={form} />
+              showForgotPassword ? (
+                <ForgotPasswordForm
+                  onSubmit={handleForgotPassword}
+                  onBack={backToLogin}
+                  loading={loading}
+                  form={form}
+                />
+              ) : (
+                <LoginForm 
+                  onFinish={onFinishLogin} 
+                  loading={loading} 
+                  form={form}
+                  onForgotPassword={showForgotPasswordForm}
+                />
+              )
             ) : showOtpVerification ? (
               <OtpVerification
                 onVerify={handleVerifyOtp}
@@ -191,8 +249,8 @@ const Login: React.FC = () => {
               <SignupForm onFinish={onFinishRegister} loading={loading} form={form} />
             )}
           </AnimatePresence>
-
-          {!showOtpVerification && (
+          
+          {!showOtpVerification && !showForgotPassword && (
             <div className='mt-4 text-center'>
               <p className='text-gray-600'>
                 {isLogin ? 'Bạn chưa có tài khoản?' : 'Bạn đã có tài khoản?'}

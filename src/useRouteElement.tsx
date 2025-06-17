@@ -2,6 +2,7 @@ import { useRoutes } from 'react-router-dom'
 import path from './constants/path'
 import MainLayout from './layouts/MainLayout/MainLayout'
 import Login from './pages/login/login'
+import ResetPassword from './pages/login/resetPassword'
 import Home from './pages/home/home'
 import HealthRecord from './pages/parent/healthRecord/healthRecord'
 import SendMedicine from './pages/parent/sendMedicine/sendMedicine'
@@ -49,6 +50,10 @@ export default function useRouteElements() {
         {
           path: path.login,
           element: <Login />
+        },
+        {
+          path: path.resetPassword,
+          element: <ResetPassword />
         },
         {
           path: path.blog,

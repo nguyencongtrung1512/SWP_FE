@@ -173,6 +173,25 @@ const CreateBlogForm: React.FC<CreateBlogFormProps> = ({
         </Upload>
       </Form.Item>
 
+      <Form.Item
+        className='py-9'
+        name='imageBanner'
+        label='Upload Ảnh Banner'
+        valuePropName='fileList'
+        getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+        rules={[{ required: false }]}
+      >
+        <Upload
+          beforeUpload={beforeUpload}
+          onChange={handleUploadChange}
+          fileList={fileList}
+          listType='picture'
+          maxCount={1}
+        >
+          <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+        </Upload>
+      </Form.Item>
+
       <Form.Item>
         <Button type='primary' htmlType='submit' loading={loading}>
           Tạo Blog

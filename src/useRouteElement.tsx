@@ -32,6 +32,8 @@ import CategoryList from './pages/admin/categoryManagement/List'
 import BlogList from './pages/admin/blogManagement/BlogList'
 import BlogDetail from './pages/admin/blogManagement/BlogDetail'
 import MedicationList from './pages/nurse/Medication/MedicationList'
+import MedicalSuppliesList from './pages/nurse/medicalSupplies/medicalSupliesList'
+
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -144,6 +146,11 @@ export default function useRouteElements() {
               path: path.MEDICAL_PLAN,
               element: <MedicalPlan />
             },
+            {
+              path: path.MEDICAL_SUPPLIES,
+              element: <MedicalSuppliesList />
+            },
+
             {
               path: path.PRIVATE_CONSULTATION,
               element: <PrivateConsultation />

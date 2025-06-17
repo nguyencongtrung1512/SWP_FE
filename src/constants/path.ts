@@ -30,6 +30,9 @@ const path = {
   MEDICATION: '/nurse/medication',
   MEDICAL_PLAN: '/nurse/medical-plan', //kế hoạch khám bệnh
   PRIVATE_CONSULTATION: '/nurse/private-consultation', //tư vấn riêng
+  MEDICAL_SUPPLIES: '/nurse/medical-supplies',
+  MEDICAL_SUPPLIES_CREATE: '/nurse/medical-supplies/create',
+  MEDICAL_SUPPLIES_EDIT: '/nurse/medical-supplies/edit/:id',
   //=============Admin============
   BASE_ADMIN: '/admin',
   DASHBOARD_ADMIN: '/admin/dashboard',

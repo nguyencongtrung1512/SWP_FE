@@ -9,6 +9,7 @@ import {
 } from '../../../apis/medicalEvent'
 import { getStudentByCode, getStudentById, Student } from '../../../apis/student'
 import { getAllMedications, Medication } from '../../../apis/medication'
+import medicalSupplyApi, { MedicalSupply } from '../../../apis/medicalSupply'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -20,42 +21,55 @@ interface UpdateEventProps {
   onSuccess: () => void
 }
 
-const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, onSuccess }) => {
+const UpdateEvent: React.FC<UpdateEventProps> = ({
+  eventId,
+  visible,
+  onCancel,
+  onSuccess
+}) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [studentCode, setStudentCode] = useState<string>('')
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
+  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string }[]>([])
 
   useEffect(() => {
-    const fetchMedications = async () => {
+    const fetchOptions = async () => {
       try {
-        const response = await getAllMedications()
-        if (response.data && response.data.$values) {
-          const options = response.data.$values.map((med: Medication) => ({
+        // Fetch medications
+        const medResponse = await getAllMedications()
+        if (medResponse.data && medResponse.data.$values) {
+          const options = medResponse.data.$values.map((med: Medication) => ({
             value: med.medicationId,
             label: med.name
           }))
           setMedicationOptions(options)
         }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Error fetching medications:', error)
-          message.error(`Lỗi khi tải danh sách thuốc: ${error.message}`)
-        } else {
-          console.error('Unknown error fetching medications:', error)
-          message.error('Lỗi khi tải danh sách thuốc.')
+
+        // Fetch medical supplies
+        const supplyResponse = await medicalSupplyApi.getAll()
+        if (supplyResponse.data && supplyResponse.data.$values) {
+          const options = supplyResponse.data.$values.map((supply: MedicalSupply) => ({
+            value: supply.$id!,
+            label: supply.name
+          }))
+          setMedicalSupplyOptions(options)
         }
+      } catch (error: unknown) {
+        console.error('Error fetching options:', error)
+        message.error('Lỗi khi tải danh sách thuốc hoặc vật tư y tế.')
       }
     }
-    fetchMedications()
+
+    fetchOptions()
   }, [])
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       if (visible && eventId) {
+        setLoading(true)
         try {
-          setLoading(true)
           const response = await getMedicalEventById(eventId)
           const eventData: MedicalEvent = response.data
 
@@ -75,7 +89,8 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
             description: eventData.description,
             note: eventData.note,
             date: dayjs(eventData.date),
-            medicationIds: eventData.medicationIds.$values
+            medicationIds: eventData.medicationIds.$values,
+            medicalSupplyIds: eventData.medicalSupplyIds?.$values || []
           })
         } catch (error: unknown) {
           if (error instanceof Error) {
@@ -129,6 +144,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
     note: string
     date: string
     medicationIds: number[]
+    medicalSupplyIds: number[]
   }) => {
     if (!foundStudent) {
       message.error('Vui lòng nhập mã học sinh hợp lệ.')
@@ -142,7 +158,8 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
         description: values.description,
         note: values.note,
         date: values.date,
-        medicationIds: values.medicationIds
+        medicationIds: values.medicationIds,
+        medicalSupplyIds: values.medicalSupplyIds
       }
       await updateMedicalEvent(eventId, data)
       message.success('Cập nhật sự kiện y tế thành công!')
@@ -220,6 +237,14 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
           rules={[{ required: true, message: 'Vui lòng chọn thuốc!' }]}
         >
           <Select mode='multiple' placeholder='Chọn thuốc' options={medicationOptions} />
+        </Form.Item>
+
+        <Form.Item
+          name='medicalSupplyIds'
+          label='Vật tư y tế sử dụng'
+          rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế!' }]}
+        >
+          <Select mode='multiple' placeholder='Chọn vật tư y tế' options={medicalSupplyOptions} />
         </Form.Item>
 
         <Form.Item>

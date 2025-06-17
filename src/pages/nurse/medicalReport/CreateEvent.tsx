@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { createMedicalEvent, CreateMedicalEventRequest } from '../../../apis/medicalEvent'
 import { getStudentByCode, Student } from '../../../apis/student'
 import { getAllMedications, Medication } from '../../../apis/medication'
+import medicalSupplyApi, { MedicalSupply } from '../../../apis/medicalSupply'
 import { toast } from 'react-toastify'
 
 const { Title } = Typography
@@ -20,6 +21,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [studentCode, setStudentCode] = useState<string>('')
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
+  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string }[]>([])
 
   useEffect(() => {
     const fetchMedications = async () => {
@@ -43,6 +45,28 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
       }
     }
     fetchMedications()
+
+    const fetchMedicalSupplies = async () => {
+      try {
+        const response = await medicalSupplyApi.getAll()
+        if (response.data && response.data.$values) {
+          const options = response.data.$values.map((supply: MedicalSupply) => ({
+            value: supply.$id!,
+            label: supply.name,
+          }))
+          setMedicalSupplyOptions(options)
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Error fetching medical supplies:', error)
+          toast.error(`Lỗi khi tải danh sách vật tư y tế: ${error.message}`)
+        } else {
+          console.error('Unknown error fetching medical supplies:', error)
+          toast.error('Lỗi khi tải danh sách vật tư y tế.')
+        }
+      }
+    }
+    fetchMedicalSupplies()
   }, [])
 
   useEffect(() => {
@@ -83,6 +107,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
     note: string
     date: string
     medicationIds: number[]
+    medicalSupplyIds: number[]
   }) => {
     if (!foundStudent) {
       return
@@ -95,7 +120,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         description: values.description,
         note: values.note,
         date: values.date,
-        medicationIds: values.medicationIds
+        medicationIds: values.medicationIds,
+        medicalSupplyIds: values.medicalSupplyIds
       }
       await createMedicalEvent(data)
       toast.success('Tạo báo cáo sự kiện y tế thành công!')
@@ -206,6 +232,18 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
               mode='multiple'
               placeholder='Chọn thuốc'
               options={medicationOptions}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name='medicalSupplyIds'
+            label='Vật tư y tế sử dụng'
+            rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế!' }]}
+          >
+            <Select
+              mode='multiple'
+              placeholder='Chọn vật tư y tế'
+              options={medicalSupplyOptions}
             />
           </Form.Item>
         </Form>

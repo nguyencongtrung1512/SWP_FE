@@ -10,6 +10,16 @@ interface MedicationNames {
   $values: string[]
 }
 
+interface MedicalSupplyIds {
+  $id: string
+  $values: number[]
+}
+
+interface MedicalSupplyNames {
+  $id: string
+  $values: string[]
+}
+
 export interface MedicalEvent {
   $id: string
   medicalEventId: number
@@ -19,6 +29,8 @@ export interface MedicalEvent {
   nurseName: string
   medicationIds: MedicationIds
   medicationNames: MedicationNames
+  medicalSupplyIds: MedicalSupplyIds
+  medicalSupplyNames: MedicalSupplyNames
   type: string
   description: string
   note: string
@@ -38,6 +50,7 @@ export interface CreateMedicalEventRequest {
   note: string
   date: string
   medicationIds: number[]
+  medicalSupplyIds: number[]
 }
 
 export const getAllMedicalEvents = () => {

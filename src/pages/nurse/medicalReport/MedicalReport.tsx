@@ -122,6 +122,9 @@ const MedicalReport: React.FC = () => {
                 <Descriptions.Item label='Thuốc sử dụng'>
                   {selectedEvent.medicationNames.$values.join(', ')}
                 </Descriptions.Item>
+                <Descriptions.Item label='Vật tư y tế sử dụng'>
+                  {selectedEvent.medicalSupplyNames.$values.join(', ')}
+                </Descriptions.Item>
               </Descriptions>
             </div>
           )}

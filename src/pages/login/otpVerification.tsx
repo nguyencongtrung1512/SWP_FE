@@ -72,6 +72,16 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
     }
   }
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const pasteData = e.clipboardData.getData('Text').trim().slice(0, 6)
+    if (/^\d{6}$/.test(pasteData)) {
+      const newOtp = pasteData.split('')
+      setOtp(newOtp)
+      inputRefs[5].current?.focus()
+    }
+  }
+
   return (
     <motion.div
       key="otp-verification"
@@ -98,6 +108,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
               value={digit}
               onChange={(e) => handleInputChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
+              onPaste={handlePaste}
               maxLength={1}
               autoFocus={index === 0}
             />

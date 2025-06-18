@@ -1,171 +1,296 @@
-import React, { useState } from 'react'
-import { Modal, Form, Input, Select, Button, message } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Button, Spin } from 'antd'
 import {
   EditOutlined,
-  HeartOutlined,
   UserOutlined,
   CalendarOutlined,
   TeamOutlined,
   MedicineBoxOutlined,
   PlusOutlined
 } from '@ant-design/icons'
+import { getAccountInfo, getMyChildren, Student, addHealthRecord, getHealthRecordsByStudentId, editHealthRecord } from '../../../api/parent.api'
+import HealthRecordModal from './healthRecordModal'
+import dayjs from 'dayjs'
+import { translateMessage } from '../../../utils/message'
+import { toast } from 'react-toastify'
 
-interface Student {
-  id: number
-  healthRecordId: number
-  parentId: number
-  name: string
-  dob: string
-  gender: string
-  class: string
-  studentId: string
-  studentCode: string
-  healthInfo: string
+interface HealthRecordData {
+  weight: number
+  height: number
   note: string
-  bloodType: string
-  height: string
-  weight: string
-  bmi: string
-  nutritionalStatus:
-    | 'Suy dinh dưỡng'
-    | 'Bình thường'
-    | 'Thừa cân'
-    | 'Béo phì'
-    | 'Béo phì độ I'
-    | 'Béo phì độ II'
-    | 'Béo phì độ III'
+  parentID?: number
+  studentCode?: string
 }
 
-const initialStudents: Student[] = [
-  {
-    id: 1,
-    healthRecordId: 101,
-    parentId: 1,
-    name: 'Nguyễn Văn An',
-    dob: '15/05/2012',
-    gender: 'Nam',
-    class: '5A',
-    studentId: 'HS2024001',
-    studentCode: 'AN_2012_001',
-    healthInfo: 'Tiêm đủ vắc xin theo quy định. Dị ứng với tôm, cua. Cần theo dõi khi ăn hải sản.',
-    note: 'Học sinh năng động, sức khỏe tốt. Cần chú ý theo dõi dị ứng hải sản.',
-    bloodType: 'A+',
-    height: '145 cm',
-    weight: '35 kg',
-    bmi: '16.7',
-    nutritionalStatus: 'Bình thường'
-  },
-  {
-    id: 2,
-    healthRecordId: 102,
-    parentId: 2,
-    name: 'Nguyễn Thị Bình',
-    dob: '22/09/2014',
-    gender: 'Nữ',
-    class: '3B',
-    studentId: 'HS2024002',
-    studentCode: 'BINH_2014_002',
-    healthInfo: 'Hen suyễn nhẹ, cần mang theo ống hít dự phòng. Đã tiêm đầy đủ vắc xin.',
-    note: 'Cần chú ý theo dõi hen suyễn, mang theo thuốc dự phòng khi đi học.',
-    bloodType: 'O+',
-    height: '128 cm',
-    weight: '27 kg',
-    bmi: '16.4',
-    nutritionalStatus: 'Bình thường'
-  },
-  {
-    id: 3,
-    healthRecordId: 103,
-    parentId: 3,
-    name: 'Trần Văn Cường',
-    dob: '01/01/2013',
-    gender: 'Nam',
-    class: '4C',
-    studentId: 'HS2024003',
-    studentCode: 'CUONG_2013_003',
-    healthInfo: 'Sức khỏe tốt, không có tiền sử bệnh lý đặc biệt.',
-    note: 'Không có ghi chú đặc biệt.',
-    bloodType: 'B-',
-    height: '138 cm',
-    weight: '38 kg',
-    bmi: '20.0',
-    nutritionalStatus: 'Thừa cân'
-  },
-  {
-    id: 4,
-    healthRecordId: 104,
-    parentId: 4,
-    name: 'Lê Thị Diệu',
-    dob: '10/03/2015',
-    gender: 'Nữ',
-    class: '2A',
-    studentId: 'HS2024004',
-    studentCode: 'DIEU_2015_004',
-    healthInfo: 'Sức khỏe ổn định, đã tiêm phòng đầy đủ.',
-    note: 'Không có ghi chú đặc biệt.',
-    bloodType: 'AB+',
-    height: '115 cm',
-    weight: '20 kg',
-    bmi: '15.1',
-    nutritionalStatus: 'Bình thường'
-  }
-]
+interface HealthRecord {
+  weight: number
+  height: number
+  bmi: number
+  nutritionStatus: string
+  note: string
+}
+
+interface StudentWithHealthRecord extends Student {
+  studentId: number
+  healthRecord?: HealthRecord
+}
 
 const HealthRecord = () => {
-  const [students, setStudents] = useState<Student[]>(initialStudents)
-  const [selectedStudent, setSelectedStudent] = useState<Student>(initialStudents[0])
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [students, setStudents] = useState<StudentWithHealthRecord[]>([])
+  const [selectedStudent, setSelectedStudent] = useState<StudentWithHealthRecord | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [account, setAccount] = useState<{ accountID: number } | null>(null)
+  const [healthRecordIds, setHealthRecordIds] = useState<{[key: number]: number}>({})
 
-  const handleEdit = (student: Student) => {
-    form.setFieldsValue({
-      ...student,
-      height: student.height.replace(' cm', ''), // Remove " cm" for editing
-      weight: student.weight.replace(' kg', '') // Remove " kg" for editing
-    })
-    setIsModalOpen(true)
+  useEffect(() => {
+    fetchStudents()
+  }, [])
+
+  const fetchStudents = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const [accountRes, childrenRes] = await Promise.all([
+        getAccountInfo(),
+        getMyChildren()
+      ])
+
+      const account = accountRes?.data
+      const children = childrenRes?.data
+
+      if (!account || !children) {
+        throw new Error('Không tìm thấy thông tin học sinh hoặc phụ huynh.')
+      }
+
+      setAccount(account)
+
+      const studentsWithHealthRecords: StudentWithHealthRecord[] = []
+      const recordIds: { [key: number]: number } = {}
+
+      for (const student of children as StudentWithHealthRecord[]) {
+        try {
+          const healthRecordRes = await getHealthRecordsByStudentId(student.studentId)
+          const recordList = healthRecordRes?.data?.$values
+
+          if (recordList && recordList.length > 0) {
+            const record = recordList[0]
+
+            recordIds[student.studentId] = record.healthRecordId
+            
+            studentsWithHealthRecords.push({
+              ...student,
+              healthRecord: {
+                weight: record.weight,
+                height: record.height,
+                bmi: record.bmi,
+                nutritionStatus: record.nutritionStatus,
+                note: record.note
+              }
+            })
+            console.log(recordIds)
+          } else {
+            studentsWithHealthRecords.push({
+              ...student,
+              healthRecord: undefined
+            })
+          }
+        } catch (e) {
+          studentsWithHealthRecords.push({
+            ...student,
+            healthRecord: undefined
+          })
+        }
+      }
+
+      setHealthRecordIds(recordIds)
+      setStudents(studentsWithHealthRecords)
+
+      if (studentsWithHealthRecords.length > 0) {
+        setSelectedStudent(studentsWithHealthRecords[0])
+      }
+
+    } catch (err) {
+      console.log('Error fetching students:', err)
+      setError('Không thể tải thông tin học sinh. Vui lòng thử lại sau.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    form.validateFields().then((values) => {
-      const updatedStudents = students.map((s) =>
-        s.id === selectedStudent.id
-          ? {
-              ...s,
-              ...values,
-              height: `${values.height} cm`, // Add " cm" back for display
-              weight: `${values.weight} kg` // Add " kg" back for display
-            }
-          : s
-      )
-      setStudents(updatedStudents) // Update the main students state
-      setSelectedStudent(updatedStudents.find((s) => s.id === selectedStudent.id) || initialStudents[0])
-      message.success('Cập nhật thông tin thành công!')
-      setIsModalOpen(false)
-    })
-  }
-
-  const handleAddStudent = (newStudentData: Omit<Student, 'id' | 'healthRecordId' | 'parentId' | 'studentCode'>) => {
-    const newId = Math.max(...students.map((s) => s.id)) + 1
-    const newHealthRecordId = Math.max(...students.map((s) => s.healthRecordId)) + 1
-    const newParentId = Math.max(...students.map((s) => s.parentId)) + 1
-    const newStudentCode = `HS${new Date().getFullYear()}${String(newId).padStart(3, '0')}`
-
-    const newStudent: Student = {
-      id: newId,
-      healthRecordId: newHealthRecordId,
-      parentId: newParentId,
-      studentCode: newStudentCode,
-      ...newStudentData,
-      height: `${newStudentData.height} cm`,
-      weight: `${newStudentData.weight} kg`
+  const handleEditHealthRecord = async (healthRecordData: HealthRecordData) => {
+    if (!selectedStudent || !healthRecordIds[selectedStudent.studentId]) {
+      toast.error('Không tìm thấy thông tin hồ sơ sức khỏe!')
+      return
     }
 
-    setStudents([...students, newStudent])
-    setSelectedStudent(newStudent) // Select the newly added student
-    message.success('Đăng ký thông tin con thành công!')
-    setIsAddModalOpen(false)
+    try {
+      const healthRecordId = healthRecordIds[selectedStudent.studentId]
+      const response = await editHealthRecord(healthRecordId, healthRecordData)
+
+      if (response.message === "Health record updated successfully." && response.data) {
+        const updatedStudent: StudentWithHealthRecord = {
+          ...selectedStudent,
+          healthRecord: {
+            weight: response.data.weight,
+            height: response.data.height,
+            bmi: response.data.bmi,
+            nutritionStatus: response.data.nutritionStatus,
+            note: response.data.note
+          }
+        }
+
+        const updatedStudents = students.map(s => 
+          s.studentId === selectedStudent.studentId ? updatedStudent : s
+        )
+        
+        setStudents(updatedStudents)
+        setSelectedStudent(updatedStudent)
+        setIsEditModalOpen(false)
+        
+        toast.success('Cập nhật thông tin sức khỏe thành công!')
+        
+        await fetchStudents()
+      } else {
+        toast.error(translateMessage(response.message, 'healthRecord'))
+      }
+    } catch (error) {
+      console.error('Error updating health record:', error)
+      toast.error('Đã có lỗi xảy ra khi cập nhật hồ sơ sức khỏe!')
+    }
+  }
+
+  const handleAddHealthRecord = async (healthRecordData: HealthRecordData) => {
+    if (!selectedStudent || !account?.accountID) {
+      toast.error('Không tìm thấy thông tin phụ huynh và học sinh!')
+      return
+    }
+
+    try {
+      const response = await addHealthRecord({
+        parentID: account.accountID,
+        studentCode: selectedStudent.studentCode,
+        weight: healthRecordData.weight,
+        height: healthRecordData.height,
+        note: healthRecordData.note?.trim() ? healthRecordData.note : 'Không có'
+      })
+
+      if (response.success && response.data) {
+        const updatedStudent: StudentWithHealthRecord = {
+          ...selectedStudent,
+          healthRecord: {
+            weight: response.data.weight,
+            height: response.data.height,
+            bmi: response.data.bmi,
+            nutritionStatus: response.data.nutritionStatus,
+            note: response.data.note
+          }
+        }
+
+        const updatedStudents = students.map(s => 
+          s.studentId === selectedStudent.studentId ? updatedStudent : s
+        )
+        
+        setStudents(updatedStudents)
+        setSelectedStudent(updatedStudent)
+        setIsAddModalOpen(false)
+        
+        toast.success(translateMessage(response.message, 'healthRecord'))
+        
+        await fetchStudents()
+      } else {
+        toast.error(translateMessage(response.message, 'healthRecord'))
+      }
+    } catch (error) {
+      console.error('Error adding health record:', error)
+      toast.error('Đã có lỗi xảy ra khi tạo hồ sơ sức khỏe!')
+    }
+  }
+
+  const handleStudentSelect = (student: StudentWithHealthRecord) => {
+    setSelectedStudent(student)
+  }
+
+  const translateNutritionStatus = (status: string) => {
+    switch (status) {
+      case 'Underweight':
+        return 'Gầy (Thiếu cân)'
+      case 'Normal':
+        return 'Bình thường'
+      case 'Overweight':
+        return 'Thừa cân'
+      case 'Obese':
+        return 'Béo phì'
+      case 'ExtremlyObese':
+        return 'Béo phì nghiêm trọng'
+      default:
+        return 'Chưa xác định'
+    }
+  }
+
+  const getNutritionStatusColor = (status: string) => {
+    switch (status) {
+      case 'Underweight':
+        return 'text-yellow-600 bg-yellow-50'
+      case 'Normal':
+        return 'text-green-600 bg-green-50'
+      case 'Overweight':
+        return 'text-orange-600 bg-orange-50'
+      case 'Obese':
+      case 'ExtremlyObese':
+        return 'text-red-600 bg-red-50'
+      default:
+        return 'text-gray-600 bg-gray-50'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <Spin size='large' />
+          <p className='mt-4 text-gray-600'>Đang tải thông tin học sinh...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='text-red-500 text-lg mb-4'>{error}</div>
+          <Button onClick={fetchStudents} type='primary'>
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (students.length === 0) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-100'>
+        <div className='w-full mx-auto px-20'>
+          <div className='flex justify-between items-center mb-8'>
+            <div>
+              <h1 className='text-3xl font-bold text-gray-800'>Hồ Sơ Sức Khỏe Học Sinh</h1>
+              <p className='text-gray-600 text-lg mt-2'>Theo dõi và cập nhật thông tin sức khỏe của con bạn</p>
+            </div>
+          </div>
+          <div className='bg-white rounded-2xl shadow-xl p-8 text-center flex flex-col justify-center items-center'>
+            <div className='text-gray-500 text-xl font-medium'>Danh sách học sinh trống</div>
+            <p className='text-gray-400 mt-2 text-lg mb-6'>Vui lòng thêm thông tin con của bạn để bắt đầu theo dõi sức khỏe</p>
+            <a href='/parent/profile' className='px-6 py-3 border border-blue-500 text-blue-500 rounded-lg font-medium hover:bg-blue-50 transition-colors'>
+              Đi đến hồ sơ
+            </a>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -176,231 +301,178 @@ const HealthRecord = () => {
             <h1 className='text-3xl font-bold text-gray-800'>Hồ Sơ Sức Khỏe Học Sinh</h1>
             <p className='text-gray-600 text-lg mt-2'>Theo dõi và cập nhật thông tin sức khỏe của con bạn</p>
           </div>
-          <Button
-            type='primary'
-            size='large'
-            icon={<PlusOutlined />}
-            className='bg-blue-500 hover:bg-blue-600 flex items-center'
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            Đăng ký hồ sơ sức khỏe
-          </Button>
         </div>
+        
         <div className='flex justify-start mb-8 space-x-4'>
           {students.map((student) => (
             <button
-              key={student.id}
-              onClick={() => setSelectedStudent(student)}
-              className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2
+              key={student.studentId}
+              onClick={() => handleStudentSelect(student)}
+              className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap
                       ${
-                        selectedStudent.id === student.id
+                        selectedStudent?.studentId === student.studentId
                           ? 'bg-blue-500 text-white shadow-lg scale-105'
-                          : 'bg-white text-gray-600 hover:bg-blue-50'
+                          : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
                       }`}
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                        ${selectedStudent.id === student.id ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'}`}
+                        ${selectedStudent?.studentId === student.studentId ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'}`}
               >
-                {student.name.charAt(0)}
+                {student.fullname.charAt(0)}
               </div>
-              <span className='font-medium'>{student.name}</span>
+              <span className='font-medium text-md'>{student.fullname}</span>
             </button>
           ))}
         </div>
+        
         <div className='bg-white rounded-2xl shadow-xl overflow-hidden'>
           <div className='bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4'>
             <div className='flex justify-between items-center'>
-              <h2 className='text-2xl font-bold text-white'>{selectedStudent.name}</h2>
-              <Button
-                type='primary'
-                icon={<EditOutlined />}
-                onClick={() => handleEdit(selectedStudent)}
-                className='bg-white/20 border-none hover:bg-white/30'
-              >
-                Chỉnh sửa
-              </Button>
+              <div>
+                <h2 className='text-2xl font-bold text-white'>{selectedStudent?.fullname}</h2>
+                <p className='text-blue-100 mt-1'>Mã số: {selectedStudent?.studentCode}</p>
+              </div>
+              <div className='flex space-x-3'>
+                {selectedStudent?.healthRecord && (
+                  <Button
+                    type='primary'
+                    icon={<EditOutlined />}
+                    onClick={() => setIsEditModalOpen(true)}
+                    className='bg-white/20 border-none hover:bg-white/30'
+                  >
+                    Chỉnh sửa
+                  </Button>
+                )}
+              </div>
             </div>
-            <p className='text-blue-100 mt-1'>Mã số: {selectedStudent.studentCode}</p>
           </div>
 
           <div className='p-6 space-y-6'>
-            <div className='grid grid-cols-2 gap-6'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
               <InfoItem
                 icon={<CalendarOutlined className='text-blue-500' />}
                 label='Ngày sinh'
-                value={selectedStudent.dob}
+                value={
+                  selectedStudent?.dateOfBirth
+                    ? dayjs(selectedStudent.dateOfBirth).format('DD/MM/YYYY')
+                    : '—'
+                }
               />
               <InfoItem
                 icon={<UserOutlined className='text-blue-500' />}
                 label='Giới tính'
-                value={selectedStudent.gender}
+                value={
+                  selectedStudent?.gender === 'Male'
+                    ? 'Nam'
+                    : selectedStudent?.gender === 'Female'
+                    ? 'Nữ'
+                    : 'Khác'
+                }
               />
-              <InfoItem icon={<TeamOutlined className='text-blue-500' />} label='Lớp' value={selectedStudent.class} />
-              <InfoItem
-                icon={<HeartOutlined className='text-blue-500' />}
-                label='Nhóm máu'
-                value={selectedStudent.bloodType}
-              />
-              <InfoItem
-                icon={<UserOutlined className='text-blue-500' />}
-                label='Mã học sinh'
-                value={selectedStudent.studentId}
-              />
-              <InfoItem
-                icon={<MedicineBoxOutlined className='text-blue-500' />}
-                label='Mã hồ sơ sức khỏe'
-                value={selectedStudent.healthRecordId.toString()}
+              <InfoItem 
+                icon={<TeamOutlined className='text-blue-500' />} 
+                label='Lớp' 
+                value={selectedStudent?.className} 
               />
             </div>
 
             <div className='bg-blue-50 rounded-xl p-6'>
-              <h3 className='text-lg font-semibold text-gray-800 mb-3 flex items-center'>
+              <h3 className='text-lg font-semibold text-gray-800 mb-4 flex items-center'>
                 <MedicineBoxOutlined className='text-blue-500 mr-2' />
                 Thông tin sức khỏe
               </h3>
-              <p className='text-gray-600 mb-4'>{selectedStudent.healthInfo}</p>
-              <div className='grid grid-cols-3 gap-4'>
-                <div className='bg-white rounded-lg p-3'>
-                  <span className='text-gray-500 text-sm'>Chiều cao</span>
-                  <p className='font-medium text-gray-900 text-lg'>{selectedStudent.height}</p>
+              
+              {selectedStudent?.healthRecord ? (
+                <>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                    <div className='bg-white rounded-lg p-4 shadow-sm'>
+                      <span className='text-gray-500 text-sm block mb-1'>Chiều cao</span>
+                      <p className='font-semibold text-gray-900 text-lg'>
+                        {selectedStudent.healthRecord.height} cm
+                      </p>
+                    </div>
+                    <div className='bg-white rounded-lg p-4 shadow-sm'>
+                      <span className='text-gray-500 text-sm block mb-1'>Cân nặng</span>
+                      <p className='font-semibold text-gray-900 text-lg'>
+                        {selectedStudent.healthRecord.weight} kg
+                      </p>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                    <div className='bg-white rounded-lg p-4 shadow-sm'>
+                      <span className='text-gray-500 text-sm block mb-1'>Chỉ số BMI</span>
+                      <p className='font-semibold text-gray-900 text-lg'>
+                        {selectedStudent.healthRecord.bmi}
+                      </p>
+                    </div>
+                    <div className='bg-white rounded-lg p-4 shadow-sm'>
+                      <span className='text-gray-500 text-sm block mb-1'>Tình trạng dinh dưỡng</span>
+                      <p className={`font-semibold text-lg px-3 py-1 rounded-full inline-block ${getNutritionStatusColor(selectedStudent.healthRecord.nutritionStatus)}`}>
+                        {translateNutritionStatus(selectedStudent.healthRecord.nutritionStatus)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='bg-white rounded-lg p-4 shadow-sm'>
+                    <span className='text-gray-500 text-sm block mb-1'>Ghi chú</span>
+                    <p className='font-medium text-gray-900 text-lg leading-relaxed'>
+                      {selectedStudent.healthRecord.note || 'Chưa có ghi chú'}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className='text-center py-12'>
+                  <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                    <MedicineBoxOutlined className='text-gray-400 text-2xl' />
+                  </div>
+                  <p className='text-gray-500 mb-4 text-lg'>Chưa có hồ sơ sức khỏe</p>
+                  <p className='text-gray-400 mb-6 text-sm'>Tạo hồ sơ sức khỏe để theo dõi tình trạng dinh dưỡng của con bạn</p>
+                  <Button
+                    type='primary'
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsAddModalOpen(true)}
+                    className='bg-blue-500 hover:bg-blue-600'
+                    size='large'
+                  >
+                    Tạo hồ sơ sức khỏe
+                  </Button>
                 </div>
-                <div className='bg-white rounded-lg p-3'>
-                  <span className='text-gray-500 text-sm'>Cân nặng</span>
-                  <p className='font-medium text-gray-900 text-lg'>{selectedStudent.weight}</p>
-                </div>
-                <div className='bg-white rounded-lg p-3'>
-                  <span className='text-gray-500 text-sm'>Chỉ số BMI</span>
-                  <p className='font-medium text-gray-900 text-lg'>{selectedStudent.bmi}</p>
-                </div>
-              </div>
-              <div className='mt-4 bg-white rounded-lg p-3'>
-                <span className='text-gray-500 text-sm'>Tình trạng dinh dưỡng</span>
-                <p className='font-medium text-gray-900 text-lg'>{selectedStudent.nutritionalStatus}</p>
-              </div>
-              <div className='mt-4 bg-white rounded-lg p-3'>
-                <span className='text-gray-500 text-sm'>Ghi chú</span>
-                <p className='font-medium text-gray-900 text-lg'>{selectedStudent.note}</p>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <Modal
-        title={<div className='text-xl font-bold'>Chỉnh sửa thông tin học sinh</div>}
-        open={isModalOpen}
-        onOk={handleSave}
-        onCancel={() => setIsModalOpen(false)}
-        width={600}
-        okText='Lưu thay đổi'
-        cancelText='Hủy'
-      >
-        <Form form={form} layout='vertical' className='mt-4'>
-          <div className='grid grid-cols-2 gap-4'>
-            <Form.Item name='height' label='Chiều cao'>
-              <Input />
-            </Form.Item>
-            <Form.Item name='weight' label='Cân nặng'>
-              <Input />
-            </Form.Item>
-            <Form.Item name='bmi' label='Chỉ số BMI'>
-              <Input />
-            </Form.Item>
-            <Form.Item name='nutritionalStatus' label='Tình trạng dinh dưỡng'>
-              <Select>
-                <Select.Option value='Suy dinh dưỡng'>Suy dinh dưỡng</Select.Option>
-                <Select.Option value='Bình thường'>Bình thường</Select.Option>
-                <Select.Option value='Thừa cân'>Thừa cân</Select.Option>
-                <Select.Option value='Béo phì'>Béo phì</Select.Option>
-                <Select.Option value='Béo phì độ I'>Béo phì độ I</Select.Option>
-                <Select.Option value='Béo phì độ II'>Béo phì độ II</Select.Option>
-                <Select.Option value='Béo phì độ III'>Béo phì độ III</Select.Option>
-              </Select>
-            </Form.Item>
-          </div>
-          <Form.Item name='healthInfo' label='Thông tin sức khỏe'>
-            <Input.TextArea rows={4} />
-          </Form.Item>
-          <Form.Item name='note' label='Ghi chú'>
-            <Input.TextArea rows={2} />
-          </Form.Item>
-        </Form>
-      </Modal>
-      <AddHealthRecordModal
+
+      <HealthRecordModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleEditHealthRecord}
+        student={selectedStudent}
+        mode="edit"
+        initialData={selectedStudent?.healthRecord ? {
+          weight: selectedStudent.healthRecord.weight,
+          height: selectedStudent.healthRecord.height,
+          note: selectedStudent.healthRecord.note
+        } : undefined}
+      />
+
+      <HealthRecordModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddStudent}
+        onSave={handleAddHealthRecord}
+        student={selectedStudent}
+        mode="add"
       />
     </div>
   )
 }
 
-interface AddHealthRecordModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (values: Omit<Student, 'id' | 'healthRecordId' | 'parentId' | 'studentCode'>) => void
-}
-
-const AddHealthRecordModal: React.FC<AddHealthRecordModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [form] = Form.useForm()
-
-  const handleOk = () => {
-    form.validateFields().then((values) => {
-      onSave(values)
-      form.resetFields()
-    })
-  }
-
-  return (
-    <Modal
-      title={<div className='text-xl font-bold'>Đăng ký thông tin con mới</div>}
-      open={isOpen}
-      onOk={handleOk}
-      onCancel={onClose}
-      width={600}
-      okText='Thêm hồ sơ'
-      cancelText='Hủy'
-    >
-      <Form form={form} layout='vertical' className='mt-4'>
-        <div className='grid grid-cols-2 gap-4'>
-          <Form.Item name='height' label='Chiều cao (cm)'>
-            <Input type='number' />
-          </Form.Item>
-          <Form.Item name='weight' label='Cân nặng (kg)'>
-            <Input type='number' />
-          </Form.Item>
-          <Form.Item name='bmi' label='Chỉ số BMI'>
-            <Input />
-          </Form.Item>
-          <Form.Item name='nutritionalStatus' label='Tình trạng dinh dưỡng'>
-            <Select>
-              <Select.Option value='Suy dinh dưỡng'>Suy dinh dưỡng</Select.Option>
-              <Select.Option value='Bình thường'>Bình thường</Select.Option>
-              <Select.Option value='Thừa cân'>Thừa cân</Select.Option>
-              <Select.Option value='Béo phì'>Béo phì</Select.Option>
-              <Select.Option value='Béo phì độ I'>Béo phì độ I</Select.Option>
-              <Select.Option value='Béo phì độ II'>Béo phì độ II</Select.Option>
-              <Select.Option value='Béo phì độ III'>Béo phì độ III</Select.Option>
-            </Select>
-          </Form.Item>
-        </div>
-        <Form.Item name='healthInfo' label='Thông tin sức khỏe'>
-          <Input.TextArea rows={4} />
-        </Form.Item>
-        <Form.Item name='note' label='Ghi chú'>
-          <Input.TextArea rows={2} />
-        </Form.Item>
-      </Form>
-    </Modal>
-  )
-}
-
-const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
-  <div className='bg-gray-50 rounded-lg p-4 flex items-start space-x-3'>
-    {icon}
-    <div>
-      <p className='text-gray-500 text-sm'>{label}</p>
-      <p className='font-medium text-gray-900'>{value}</p>
+const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | undefined }) => (
+  <div className='bg-gray-50 rounded-lg p-4 flex items-start space-x-3 shadow-sm'>
+    <div className='mt-1'>{icon}</div>
+    <div className='flex-1'>
+      <p className='text-gray-500 text-sm mb-1'>{label}</p>
+      <p className='font-medium text-gray-900'>{value || 'N/A'}</p>
     </div>
   </div>
 )

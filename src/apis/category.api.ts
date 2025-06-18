@@ -22,7 +22,7 @@ export const categoryApi = {
   },
 
   getCategoryById(id: number) {
-    return http.get<Category>(`/Category/GetCateById/${id}`)
+    return http.get<Category>(`/Category/GetCateById${id}`)
   },
 
   updateCategoryById(id: number, data: Omit<Category, 'id' | 'categoryID' | 'blogs'>) {

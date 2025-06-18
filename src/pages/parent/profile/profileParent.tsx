@@ -122,11 +122,7 @@ const ProfileParent = () => {
           {/* Avatar */}
           <div className='w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center mb-2 text-gray-400 text-2xl relative overflow-hidden'>
             {accountInfo?.avatarUrl ? (
-              <img
-                src={accountInfo.avatarUrl}
-                alt='avatar'
-                className='w-full h-full object-cover'
-              />
+              <img src={accountInfo.avatarUrl} alt='avatar' className='w-full h-full object-cover' />
             ) : (
               <>
                 <UserOutlined style={{ fontSize: 48 }} />

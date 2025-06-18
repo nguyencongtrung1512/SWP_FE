@@ -171,3 +171,27 @@ export const getAccountInfo = async () => {
   }
 }
 
+export const getStudentInfo = async (studentCode: string) => {
+  try {
+    const response = await http.get(`/Parent/student-info/${studentCode}`)
+    return {
+      success: true,
+      data: response.data
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Lấy thông tin học sinh thất bại!',
+        data: null
+      }
+    }
+    console.error('Get student info error:', error)
+    return {
+      success: false,
+      message: 'Lấy thông tin học sinh thất bại!',
+      data: null
+    }
+  }
+}
+

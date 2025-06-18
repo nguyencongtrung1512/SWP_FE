@@ -8,53 +8,63 @@ import {
   UserAddOutlined,
   TeamOutlined
 } from '@ant-design/icons'
-import { getAccountInfo } from '../../../api/parent.api'
+import { getAccountInfo, getMyChildren, Student } from '../../../api/parent.api'
 import UpdateProfileModal from './updateProfile'
 import ChangePasswordModal from '../../../components/Profile/ChangePasswordModal'
 import AddStudentModal from '../../../components/Profile/AddStudentModal'
 
-interface StudentInfo {
-  fullname: string
-  studentCode: string
-}
-
 interface AccountInfo {
-  accountID: number
-  email: string
+  $id: string
+  id: number
   fullname: string
-  address: string
+  email: string
   phoneNumber: string
-  student: StudentInfo[]
+  address: string
+  role: string
+  status: boolean
+  parent: null
+  nurse: null
+  admin: null
 }
 
 const ProfileParent = () => {
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null)
+  const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false)
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
 
-  const fetchAccountInfo = async () => {
+  const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await getAccountInfo()
-      if (response.success) {
-        setAccountInfo(response.data)
-        console.log("Fetched account info:", response.data)
+      const [accountRes, childrenRes] = await Promise.all([
+        getAccountInfo(),
+        getMyChildren()
+      ])
+
+      if (accountRes.success && accountRes.data) {
+        setAccountInfo(accountRes.data)
       } else {
-        setError(response.message || 'Không thể lấy thông tin tài khoản')
+        setError(accountRes.message || 'Không thể lấy thông tin tài khoản')
+      }
+
+      if (childrenRes.success && childrenRes.data) {
+        setStudents(childrenRes.data)
+      } else {
+        setError(childrenRes.message || 'Không thể lấy danh sách con')
       }
     } catch (error) {
       setError('Đã xảy ra lỗi khi tải thông tin')
-      console.error('Error fetching account info:', error)
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchAccountInfo()
+    fetchData()
   }, [])
 
   const handleOpenEditModal = () => {
@@ -66,7 +76,7 @@ const ProfileParent = () => {
   }
 
   const handleUpdateSuccess = () => {
-    fetchAccountInfo() // Re-fetch account info after successful update
+    fetchData() // Re-fetch data after successful update
   }
 
   const handleOpenChangePasswordModal = () => {
@@ -86,7 +96,7 @@ const ProfileParent = () => {
   }
 
   const handleAddStudentSuccess = () => {
-    fetchAccountInfo() // Re-fetch account info after successful addition
+    fetchData() // Re-fetch data after successful addition
   }
 
   if (loading) {
@@ -160,16 +170,17 @@ const ProfileParent = () => {
           <div className='bg-white rounded-2xl shadow p-6'>
             <div className='flex justify-between items-center mb-4'>
               <div className='text-lg font-semibold'>Danh sách con</div>
-              <button className='flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium'
+              <button
+                className='flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium'
                 onClick={handleOpenAddStudentModal}
               >
                 <UserAddOutlined /> Thêm con
               </button>
             </div>
-            {accountInfo?.student && accountInfo.student.length > 0 ? (
+            {students && students.length > 0 ? (
               <div className='flex gap-4'>
-                {accountInfo.student.map((child, idx) => (
-                  <div key={idx} className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 flex-1 min-w-[220px]'>
+                {students.map((child) => (
+                  <div key={child.id} className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 flex-1 min-w-[220px]'>
                     <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold text-lg'>
                       {child.fullname?.split(' ').slice(-2).join(' ') || 'HS'}
                     </div>
@@ -201,10 +212,7 @@ const ProfileParent = () => {
           onUpdateSuccess={handleUpdateSuccess}
         />
       )}
-      <ChangePasswordModal
-        isOpen={isChangePasswordModalOpen}
-        onClose={handleCloseChangePasswordModal}
-      />
+      <ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={handleCloseChangePasswordModal} />
       <AddStudentModal
         isOpen={isAddStudentModalOpen}
         onClose={handleCloseAddStudentModal}

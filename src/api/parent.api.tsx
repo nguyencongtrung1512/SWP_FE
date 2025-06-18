@@ -4,6 +4,49 @@ import { AxiosError } from 'axios'
 const API_URL = `/Parent`
 const API_ACCOUNT = `/accounts`
 
+export interface Student {
+  $id: string
+  id: number
+  fullname: string
+  studentCode: string
+  dateOfBirth: string
+  gender: string
+  address: string
+  parentID: number
+  parent: null
+  classID: number
+  _class: null
+  healthRecords: any[]
+  medicalEvents: any[]
+  vaccinationSchedules: any[]
+  medicalReports: any[]
+}
+
+export const getMyChildren = async () => {
+  try {
+    const response = await http.get<{ $id: string; $values: Student[] }>(`${API_URL}/MyChildren`)
+    return {
+      success: true,
+      data: response.data.$values,
+      message: 'Lấy danh sách con thành công!'
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Lấy danh sách con thất bại!',
+        data: null
+      }
+    }
+    console.error('Get my children error:', error)
+    return {
+      success: false,
+      message: 'Lấy danh sách con thất bại!',
+      data: null
+    }
+  }
+}
+
 export const addStudent = async (params: { studentCode: string }) => {
   try {
     const response = await http.post(`${API_URL}/add-student`, params)

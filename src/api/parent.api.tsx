@@ -76,16 +76,15 @@ export const addStudent = async (params: { studentCode: string }) => {
   }
 }
 
-interface UpdateAccountParams {
-  email: string
-  fullname: string
-  address: string
-  phoneNumber: string
-}
-
-export const updateAccount = async (params: UpdateAccountParams) => {
+export const updateAccount = async (params: any) => {
   try {
-    const response = await http.patch(`${API_ACCOUNT}/update`, params)
+    let config = {}
+    if (params instanceof FormData) {
+      config = { headers: { 'Content-Type': 'multipart/form-data' } }
+    }
+    console.log('Sending update request with params:', params)
+    const response = await http.patch(`${API_ACCOUNT}/update`, params, config)
+    console.log('Update response:', response.data)
     return {
       success: true,
       message: response.data.message,
@@ -93,6 +92,11 @@ export const updateAccount = async (params: UpdateAccountParams) => {
     }
   } catch (error) {
     if (error instanceof AxiosError) {
+      console.error('Update account error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      })
       return {
         success: false,
         message: error.response?.data?.message || 'Cập nhật thông tin thất bại!',

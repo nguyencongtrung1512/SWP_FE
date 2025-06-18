@@ -25,6 +25,7 @@ interface AccountInfo {
   parent: null
   nurse: null
   admin: null
+  avatarUrl?: string
 }
 
 const ProfileParent = () => {
@@ -119,11 +120,21 @@ const ProfileParent = () => {
         {/* Thông tin phụ huynh bên trái */}
         <div className='bg-white rounded-2xl shadow p-8 w-[350px] flex flex-col items-center'>
           {/* Avatar */}
-          <div className='w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center mb-2 text-gray-400 text-2xl relative'>
-            <UserOutlined style={{ fontSize: 48 }} />
-            <span className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-gray-400 select-none'>
-              Profile
-            </span>
+          <div className='w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center mb-2 text-gray-400 text-2xl relative overflow-hidden'>
+            {accountInfo?.avatarUrl ? (
+              <img
+                src={accountInfo.avatarUrl}
+                alt='avatar'
+                className='w-full h-full object-cover'
+              />
+            ) : (
+              <>
+                <UserOutlined style={{ fontSize: 48 }} />
+                <span className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-gray-400 select-none'>
+                  Profile
+                </span>
+              </>
+            )}
           </div>
           <div className='text-xl font-bold mt-2'>{accountInfo?.fullname || 'Chưa có tên'}</div>
           <div className='text-gray-500 mb-4'>Phụ huynh</div>

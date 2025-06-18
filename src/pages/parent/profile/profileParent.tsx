@@ -39,10 +39,7 @@ const ProfileParent = () => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [accountRes, childrenRes] = await Promise.all([
-        getAccountInfo(),
-        getMyChildren()
-      ])
+      const [accountRes, childrenRes] = await Promise.all([getAccountInfo(), getMyChildren()])
 
       if (accountRes.success && accountRes.data) {
         setAccountInfo(accountRes.data)
@@ -180,7 +177,10 @@ const ProfileParent = () => {
             {students && students.length > 0 ? (
               <div className='flex gap-4'>
                 {students.map((child) => (
-                  <div key={child.id} className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 flex-1 min-w-[220px]'>
+                  <div
+                    key={child.id}
+                    className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 flex-1 min-w-[220px]'
+                  >
                     <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold text-lg'>
                       {child.fullname?.split(' ').slice(-2).join(' ') || 'HS'}
                     </div>

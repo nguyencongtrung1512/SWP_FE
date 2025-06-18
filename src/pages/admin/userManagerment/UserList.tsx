@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Typography, Space, Tag, Button, Popconfirm, Row, Col, Statistic, Modal, Descriptions, Spin } from 'antd'
+import {
+  Card,
+  Table,
+  Typography,
+  Space,
+  Tag,
+  Button,
+  Popconfirm,
+  Row,
+  Col,
+  Statistic,
+  Modal,
+  Descriptions,
+  Spin,
+  Select
+} from 'antd'
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
 import { getAllUser, deleteUser, User } from '../../../apis/adminManageAccount'
@@ -8,10 +23,12 @@ const { Title } = Typography
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedRole, setSelectedRole] = useState<string>('all')
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -20,11 +37,14 @@ const UserList: React.FC = () => {
         const token = localStorage.getItem('token')
         if (token) {
           const data = await getAllUser.getAllUsers()
-          const transformedData = data.map((user: User) => ({
-            ...user,
-            status: (user.status === 'Active' ? 'Active' : 'Inactive') as 'Active' | 'Inactive'
-          }))
+          const transformedData = data
+            .filter((user: User) => user.role?.roleName === 'Parent' || user.role?.roleName === 'Nurse')
+            .map((user: User) => ({
+              ...user,
+              status: (user.status === 'Active' ? 'Active' : 'Inactive') as 'Active' | 'Inactive'
+            }))
           setUsers(transformedData)
+          setFilteredUsers(transformedData)
         } else {
           setError('Không tìm thấy token xác thực.')
           toast.error('Không tìm thấy token xác thực.')
@@ -40,6 +60,15 @@ const UserList: React.FC = () => {
 
     fetchUsers()
   }, [])
+
+  useEffect(() => {
+    if (selectedRole === 'all') {
+      setFilteredUsers(users)
+    } else {
+      const filtered = users.filter((user) => user.role?.roleName === selectedRole)
+      setFilteredUsers(filtered)
+    }
+  }, [selectedRole, users])
 
   const handleDeleteUser = async (user: User) => {
     try {
@@ -87,7 +116,19 @@ const UserList: React.FC = () => {
       title: 'Vai trò',
       dataIndex: 'role.roleName',
       key: 'role',
-      render: (text: string, record: User) => (record.role ? record.role.roleName : 'N/A')
+      render: (text: string, record: User) => {
+        if (!record.role) return 'N/A'
+        switch (record.role.roleName) {
+          case 'Parent':
+            return 'Phụ huynh'
+          case 'Nurse':
+            return 'Y tá'
+          case 'Admin':
+            return 'Quản trị viên'
+          default:
+            return record.role.roleName
+        }
+      }
     },
     {
       title: 'Trạng thái',
@@ -130,7 +171,7 @@ const UserList: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Spin spinning={loading} tip="Đang tải dữ liệu...">
+      <Spin spinning={loading} tip='Đang tải dữ liệu...'>
         <Space direction='vertical' size='large' style={{ width: '100%' }}>
           <Card>
             <Title level={4}>Quản lý người dùng</Title>
@@ -154,10 +195,22 @@ const UserList: React.FC = () => {
           </Card>
 
           <Card title='Danh sách người dùng' style={{ marginTop: '20px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <Select
+                style={{ width: 200 }}
+                value={selectedRole}
+                onChange={setSelectedRole}
+                options={[
+                  { value: 'all', label: 'Tất cả vai trò' },
+                  { value: 'Parent', label: 'Phụ huynh' },
+                  { value: 'Nurse', label: 'Y tá' }
+                ]}
+              />
+            </div>
             {error ? (
               <Typography.Text type='danger'>{error}</Typography.Text>
             ) : (
-              <Table columns={columns} dataSource={users} rowKey='accountID' pagination={{ pageSize: 10 }} />
+              <Table columns={columns} dataSource={filteredUsers} rowKey='accountID' pagination={{ pageSize: 10 }} />
             )}
           </Card>
         </Space>

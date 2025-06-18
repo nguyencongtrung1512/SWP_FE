@@ -72,3 +72,7 @@ export const updateMedicalEvent = (id: number, data: CreateMedicalEventRequest) 
 export const deleteMedicalEvent = (id: number) => {
   return http.delete(`MedicalEvent/DeleteMedicalEvent/${id}`)
 }
+
+export const getMedicalEventByParentId = (parentId: number) => {
+  return http.get<MedicalEventResponse>(`MedicalEvent/GetMedicalEventByParent/${parentId}`)
+}

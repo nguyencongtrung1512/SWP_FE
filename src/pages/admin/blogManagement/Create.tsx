@@ -173,7 +173,7 @@ const CreateBlogForm: React.FC<CreateBlogFormProps> = ({
         </Upload>
       </Form.Item>
 
-      <Form.Item
+      {/* <Form.Item
         className='py-9'
         name='imageBanner'
         label='Upload Ảnh Banner'
@@ -190,7 +190,7 @@ const CreateBlogForm: React.FC<CreateBlogFormProps> = ({
         >
           <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
         </Upload>
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item>
         <Button type='primary' htmlType='submit' loading={loading}>

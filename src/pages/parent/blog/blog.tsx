@@ -1,95 +1,58 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import { Button } from 'antd'
-import BlogEditor from './blogEditor'
-import { ReadOutlined, PlusOutlined } from '@ant-design/icons'
-import { useAuth } from '../../../contexts/auth.context'
+import { useState, useEffect } from 'react'
+import { ReadOutlined } from '@ant-design/icons'
+import { Spin } from 'antd'
+import blogApi from '../../../apis/blog.api'
+import type { Blog } from '../../../apis/blog.api'
+import type { Category } from '../../../apis/category.api'
+import { categoryApi } from '../../../apis/category.api'
+import BlogCard from './blogCard'
 
-const Blog: React.FC = () => {
+const BlogPage: React.FC = () => {
   const navigate = useNavigate()
+  const [blogs, setBlogs] = useState<Blog[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-  const [showWriteForm, setShowWriteForm] = useState(false)
-  const { isAuthenticated } = useAuth()
+  const [loading, setLoading] = useState(true)
   
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'Chức năng chính của phòng y tế học đường',
-      excerpt: 'Phòng y tế học đường đóng vai trò quan trọng trong việc chăm sóc sức khỏe học sinh, từ sơ cứu đến phòng ngừa dịch bệnh và tư vấn dinh dưỡng...',
-      date: 'Ngày 14 tháng 10, 2023',
-      comments: 0,
-      category: 'SỨC KHỎE',
-      image: 'https://healthhub.ancorathemes.com/wp-content/uploads/elementor/thumbs/home1-image2-copyright-qubyhfh92a3ga1pgab9h06kzbrkux6tawleu2pux9s.jpg'
-    },
-    {
-      id: 2,
-      title: 'Giải thích quy trình xét nghiệm y tế học đường',
-      excerpt: 'Hiểu rõ các quy trình xét nghiệm y tế tại trường học giúp phụ huynh và học sinh an tâm hơn khi tham gia các chương trình khám sức khỏe định kỳ...',
-      date: 'Ngày 14 tháng 10, 2023',
-      comments: 0,
-      category: 'SỨC KHỎE',
-      image: 'https://getwallpapers.com/wallpaper/full/2/8/5/7336.jpg'
-    },
-    {
-      id: 3,
-      title: 'Tầm quan trọng của việc kiểm tra sức khỏe định kỳ tại trường',
-      excerpt: 'Kiểm tra sức khỏe định kỳ tại trường giúp phát hiện sớm các vấn đề sức khỏe, đảm bảo sự phát triển toàn diện của học sinh trong môi trường học tập...',
-      date: 'Ngày 14 tháng 10, 2023',
-      comments: 2,
-      category: 'SỨC KHỎE',
-      image: 'https://vigour360.com/blog/wp-content/uploads/2023/04/Blog-image-5.4.2023.png'
-    },
-    {
-      id: 4,
-      title: 'Tiến bộ công nghệ y tế trong trường học',
-      excerpt: 'Công nghệ y tế hiện đại đang được áp dụng trong các phòng y tế học đường, nâng cao hiệu quả chăm sóc sức khỏe và phòng ngừa dịch bệnh cho học sinh...',
-      date: 'Ngày 14 tháng 10, 2023',
-      comments: 1,
-      category: 'SỨC KHỎE',
-      image: 'https://wallpaperaccess.com/full/136934.jpg'
-    },
-    {
-      id: 5,
-      title: 'Khoa học đằng sau liệu pháp hành vi nhận thức cho học sinh',
-      excerpt: 'Liệu pháp hành vi nhận thức đang được áp dụng hiệu quả để hỗ trợ học sinh đối mặt với các vấn đề tâm lý trong môi trường học đường...',
-      date: 'Ngày 15 tháng 10, 2023',
-      comments: 1,
-      category: 'TÂM LÝ',
-      image: 'https://getwallpapers.com/wallpaper/full/e/f/7/7182.jpg',
-      author: 'Nguyễn Văn A'
-    },
-    {
-      id: 6,
-      title: 'Kể câu chuyện mới cho giáo dục mầm non',
-      excerpt: 'Phương pháp tiếp cận mới trong chăm sóc sức khỏe tâm lý cho trẻ mầm non, giúp xây dựng nền tảng vững chắc cho sự phát triển toàn diện...',
-      date: 'Ngày 15 tháng 10, 2023',
-      comments: 0,
-      category: 'TÂM LÝ',
-      image: 'https://studiomedicozucchimartina.it/wp-content/uploads/2021/10/Children-Healthcare-1920x1080-1.jpg',
-      author: 'Nguyễn Văn A'
+  useEffect(() => {
+    fetchCategories()
+    fetchBlogs()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoryApi.getAllCategories()
+      if (response.data && response.data.$values) {
+        setCategories(response.data.$values)
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
     }
-  ]
+  }
 
-  const categories = [
-    { name: 'Sức khỏe', count: 3 },
-    { name: 'Dinh dưỡng', count: 4 },
-    { name: 'Tâm lý', count: 9 },
-    { name: 'Tiêm chủng', count: 4 },
-    { name: 'Tư vấn', count: 9 }
-  ]
-
-  const recentPosts = blogPosts.slice(4, 6)
+  const fetchBlogs = async () => {
+    try {
+      const response = await blogApi.getAllBlogs()
+      if (response.data && response.data.$values) {
+        setBlogs(response.data.$values)
+      }
+    } catch (error) { 
+      console.error('Error fetching blogs:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const postsPerPage = 3
   
   const filteredPosts = searchTerm 
-    ? blogPosts.filter(post => 
+    ? blogs.filter(post => 
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+        post.description.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : blogPosts
+    : blogs
     
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
   
@@ -112,9 +75,15 @@ const Blog: React.FC = () => {
     setCurrentPage(1)
   }
 
-  const handleSubmitBlog = (blogData: any) => {
-    console.log('Blog submitted:', blogData)
-    setShowWriteForm(false)
+  const recentPosts = blogs.slice(0, 2)
+
+  if (loading) {
+    return (
+      <div className='bg-white rounded-2xl shadow-sm p-8 text-center flex items-center justify-center'>
+        <Spin size='large' />
+        <div className='text-xl font-semibold text-gray-600'>Loading...</div>
+      </div>
+    )
   }
 
   return (
@@ -127,55 +96,11 @@ const Blog: React.FC = () => {
           </div>
         </div>
         
-        {/* {isAuthenticated && (
-          <div className='flex justify-center mb-12'>
-            <Button 
-              type="primary"
-              size="large"
-              onClick={() => setShowWriteForm(true)}
-              className='bg-blue-500 hover:bg-blue-600 flex items-center gap-2 px-6'
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-              </svg>
-              Tạo bài viết
-            </Button>
-          </div>
-        )} */}
-        
-        <BlogEditor 
-          visible={showWriteForm}
-          onClose={() => setShowWriteForm(false)}
-          onSubmit={handleSubmitBlog}
-          categories={categories}
-        />
-        
         <div className='flex flex-col lg:flex-row gap-8'>
           <div className='w-full lg:w-2/3 space-y-12'>
             {displayedPosts.length > 0 ? (
               displayedPosts.map((post) => (
-                <div key={post.id} className='bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer' onClick={() => handlePostClick(post.id)}>
-                  <div className='flex flex-col md:flex-row h-auto min-h-[300px]'>
-                    <div className='w-full md:w-1/2 h-64 md:h-auto relative overflow-hidden'>
-                      <img 
-                        src={post.image}
-                        alt={post.title}
-                        className='w-full h-full object-cover absolute inset-0 transition-transform duration-500 hover:scale-110'
-                      />
-                    </div>
-                    <div className='w-full md:w-1/2 p-6 overflow-hidden'>
-                      <div className='bg-green-500 hover:bg-[#001a33] text-white inline-block px-4 py-1.5 rounded-md mb-4 text-sm font-medium transition-colors duration-200 cursor-pointer'>
-                        {post.category}
-                      </div>
-                      <h2 className='text-lg md:text-2xl font-bold mb-3 text-gray-900 line-clamp-2'>{post.title}</h2>
-                      <p className='text-gray-600 mb-3 text-sm line-clamp-3'>
-                        {post.excerpt}
-                      </p>
-                      <div className='text-gray-500 text-xs'>{post.date} • {post.comments} Bình luận</div>
-                    </div>
-                  </div>
-                </div>
+                <BlogCard key={post.blogID} post={post} />
               ))
             ) : (
               <div className='bg-white rounded-2xl shadow-sm p-8 text-center'>
@@ -249,7 +174,7 @@ const Blog: React.FC = () => {
                 {categories.map((category, index) => (
                   <li key={index} className='flex items-center'>
                     <span className='w-2 h-2 bg-blue-500 rounded-full mr-3'></span>
-                    <span className='text-gray-700 hover:text-blue-500 cursor-pointer'>{category.name} ({category.count})</span>
+                    <span className='text-gray-700 hover:text-blue-500 cursor-pointer'>{category.name}</span>
                   </li>
                 ))}
               </ul>
@@ -260,16 +185,15 @@ const Blog: React.FC = () => {
               <h3 className='text-xl font-bold mb-4 text-gray-900'>Bài viết gần đây</h3>
               <div className='space-y-4'>
                 {recentPosts.map(post => (
-                  <div key={post.id} className='flex gap-3 cursor-pointer' onClick={() => handlePostClick(post.id)}>
+                  <div key={post.blogID} className='flex gap-3 cursor-pointer' onClick={() => handlePostClick(post.blogID)}>
                     <div className='w-20 h-20 min-w-[80px] rounded overflow-hidden relative'>
                       <img 
-                        src={post.image} 
-                        alt={post.title}
+                        src={`data:image/png;base64,${post.image}`}
+                        alt=''
                         className='w-full h-full object-cover absolute inset-0 transition-transform duration-500 hover:scale-110'
                       />
                     </div>
                     <div className='flex flex-col justify-center'>
-                      <div className='text-xs text-gray-500 mb-1'>{post.date.split(',')[0]}</div>
                       <h4 className='font-medium text-gray-800 leading-tight hover:text-blue-500 line-clamp-2'>{post.title}</h4>
                     </div>
                   </div>
@@ -283,4 +207,4 @@ const Blog: React.FC = () => {
   )
 }
 
-export default Blog 
+export default BlogPage 

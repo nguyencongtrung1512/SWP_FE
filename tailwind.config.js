@@ -14,6 +14,7 @@ export default {
     }
   },
   plugins: [
+    require('@tailwindcss/typography'),
     plugin(function ({ addComponents, theme }) {
       addComponents({
         '.container': {

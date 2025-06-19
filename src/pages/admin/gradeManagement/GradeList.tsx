@@ -114,7 +114,6 @@ function GradeList() {
                   </Popconfirm>
                 ]}
               >
-                <p>ID: {item.classId}</p>
               </Card>
             </List.Item>
           )}

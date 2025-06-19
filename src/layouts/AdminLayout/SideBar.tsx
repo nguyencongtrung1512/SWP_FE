@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
     {
       key: path.GRADE_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Quản lí học sinh'
+      label: 'Quản lí lớp học'
     },
     {
       key: path.CATEGORY_MANAGEMENT,

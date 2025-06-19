@@ -19,6 +19,7 @@ interface FormValues {
   fullname: string
   address: string
   phoneNumber: string
+  image?: FileList
 }
 
 const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose, initialData, onUpdateSuccess }) => {
@@ -34,7 +35,17 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose
   const handleFinish = async (values: FormValues) => {
     setLoading(true)
     try {
-      const response = await updateAccount(values)
+      const formData = new FormData()
+      formData.append('email', values.email)
+      formData.append('fullname', values.fullname)
+      formData.append('address', values.address)
+      formData.append('phoneNumber', values.phoneNumber)
+      if (values.image && values.image.length > 0) {
+        formData.append('image', values.image[0])
+      }
+      console.log('Submitting form with FormData:', formData)
+      const response = await updateAccount(formData)
+      console.log('Update account response:', response)
       if (response.success) {
         message.success(response.message || 'Cập nhật thông tin thành công!')
         onUpdateSuccess()
@@ -91,6 +102,14 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose
             rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item
+            name='image'
+            label='Ảnh đại diện'
+            valuePropName='fileList'
+            getValueFromEvent={e => e.target.files}
+          >
+            <Input type='file' accept='image/*' />
           </Form.Item>
           <Form.Item>
             <button type='submit' className='w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium'>

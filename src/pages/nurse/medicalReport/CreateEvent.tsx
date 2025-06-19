@@ -30,7 +30,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         if (response.data && response.data.$values) {
           const options = response.data.$values.map((med: Medication) => ({
             value: med.medicationId,
-            label: med.name,
+            label: med.name
           }))
           setMedicationOptions(options)
         }
@@ -52,7 +52,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         if (response.data && response.data.$values) {
           const options = response.data.$values.map((supply: MedicalSupply) => ({
             value: supply.$id!,
-            label: supply.name,
+            label: supply.name
           }))
           setMedicalSupplyOptions(options)
         }
@@ -147,11 +147,6 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
           <Col>
             <Title level={4}>Tạo báo cáo sự kiện y tế</Title>
           </Col>
-          <Col>
-            <Button type='primary' icon={<PlusOutlined />} onClick={() => form.submit()} loading={isSubmitting}>
-              Tạo báo cáo
-            </Button>
-          </Col>
         </Row>
 
         <Form
@@ -228,11 +223,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             label='Thuốc sử dụng'
             rules={[{ required: true, message: 'Vui lòng chọn thuốc!' }]}
           >
-            <Select
-              mode='multiple'
-              placeholder='Chọn thuốc'
-              options={medicationOptions}
-            />
+            <Select mode='multiple' placeholder='Chọn thuốc' options={medicationOptions} />
           </Form.Item>
 
           <Form.Item
@@ -240,14 +231,17 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             label='Vật tư y tế sử dụng'
             rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế!' }]}
           >
-            <Select
-              mode='multiple'
-              placeholder='Chọn vật tư y tế'
-              options={medicalSupplyOptions}
-            />
+            <Select mode='multiple' placeholder='Chọn vật tư y tế' options={medicalSupplyOptions} />
           </Form.Item>
         </Form>
       </Space>
+      <Row justify='space-between' align='middle'>
+        <Col>
+          <Button type='primary' icon={<PlusOutlined />} onClick={() => form.submit()} loading={isSubmitting}>
+            Tạo báo cáo
+          </Button>
+        </Col>
+      </Row>
     </Card>
   )
 }

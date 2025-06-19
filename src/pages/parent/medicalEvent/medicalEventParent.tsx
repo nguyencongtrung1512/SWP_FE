@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Table, Tag, Typography, Button, Modal, Descriptions, Timeline, Row, Col, Statistic } from 'antd'
+import { Card, Table, Tag, Typography, Button, Modal, Timeline, Row, Col, Statistic } from 'antd'
 import {
   FileTextOutlined,
   ExclamationCircleOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
   AlertOutlined,
   HistoryOutlined
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { getAccountInfo } from '../../../api/parent.api'
-import { getAllMedicalEvents, MedicalEvent } from '../../../apis/medicalEvent'
+import { getMedicalEventByParentId, MedicalEvent } from '../../../apis/medicalEvent'
+import { getStudentById } from '../../../apis/student'
+import MedicalEventDetail from './medicalEventDetail'
 
 const { Text } = Typography
 
@@ -55,30 +56,27 @@ const MedicalEventParent: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null)
+  const [studentDetail, setStudentDetail] = useState<any>(null)
 
   useEffect(() => {
     const fetchAccountInfoAndMedicalEvents = async () => {
       setLoading(true)
       try {
         const accountRes = await getAccountInfo()
+
         if (accountRes.success && accountRes.data) {
           setAccountInfo(accountRes.data)
-          if (accountRes.data.student && accountRes.data.student.length > 0) {
-            const studentId = accountRes.data.student[0].id
-            const medicalEventsRes = await getAllMedicalEvents()
-            if (medicalEventsRes.status === 200) {
-              const filteredEvents = medicalEventsRes.data.$values.filter(
-                (event: MedicalEvent) => event.studentId === studentId
-              )
-              setMedicalEvents(filteredEvents)
-            } else {
-              setError('Failed to fetch medical events.')
-            }
+          const parentId = accountRes.data.accountID
+          const medicalEventsRes = await getMedicalEventByParentId(parentId)
+          if (medicalEventsRes.data && Array.isArray(medicalEventsRes.data.$values)) {
+            setMedicalEvents(medicalEventsRes.data.$values)
+            console.log('téttét', medicalEventsRes.data)
+            setError(null)
           } else {
-            setMedicalEvents([])
+            setError('Failed to fetch medical events.')
           }
         } else {
-          setError(accountRes.message || 'Failed to fetch account info.')
+          setError(accountRes.message || 'Failed to fetch account info ấấ.')
         }
       } catch (err) {
         setError('An unexpected error occurred.')
@@ -90,9 +88,19 @@ const MedicalEventParent: React.FC = () => {
     fetchAccountInfoAndMedicalEvents()
   }, [])
 
-  const handleViewDetails = (record: MedicalEvent) => {
+  const handleViewDetails = async (record: MedicalEvent) => {
     setSelectedEvent(record)
     setIsModalVisible(true)
+    try {
+      if (record.studentId) {
+        const studentRes = await getStudentById(record.studentId)
+        setStudentDetail(studentRes.data)
+      } else {
+        setStudentDetail(null)
+      }
+    } catch {
+      setStudentDetail(null)
+    }
   }
 
   const columns: ColumnsType<MedicalEvent> = [
@@ -140,9 +148,13 @@ const MedicalEventParent: React.FC = () => {
     }
   ]
 
-  const currentEvents = medicalEvents // Since status is not directly in MedicalEvent, show all fetched events
-  const historyEvents = medicalEvents // For now, all events are history events
+  const currentEvents = medicalEvents
+  const historyEvents = medicalEvents
 
+  const feverCount = medicalEvents.filter((e) => e.type === 'Sốt').length
+  const accidentCount = medicalEvents.filter((e) => e.type === 'Tai nạn').length
+  const pandemicCount = medicalEvents.filter((e) => e.type === 'Dịch bệnh').length
+  const diferentCount = medicalEvents.filter((e) => e.type !== 'Sốt' && e.type !== 'Tai nạn' && e.type !== 'Dịch bệnh').length
   if (loading) {
     return <div className='p-6 text-center'>Đang tải dữ liệu...</div>
   }
@@ -160,33 +172,43 @@ const MedicalEventParent: React.FC = () => {
         </div>
 
         <Row gutter={[16, 16]} className='mb-6'>
-          <Col span={8}>
+          <Col span={6}>
             <Card className='bg-red-50'>
               <Statistic
                 title='Sốt'
-                value={currentEvents.filter((e) => e.type === 'fever').length}
+                value={feverCount}
                 valueStyle={{ color: '#cf1322' }}
                 prefix={<ExclamationCircleOutlined />}
               />
             </Card>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Card className='bg-orange-50'>
               <Statistic
                 title='Tai nạn'
-                value={currentEvents.filter((e) => e.type === 'accident').length}
+                value={accidentCount}
                 valueStyle={{ color: '#fa8c16' }}
                 prefix={<ExclamationCircleOutlined />}
               />
             </Card>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
+            <Card className='bg-green-50'>
+              <Statistic
+                title='Dịch bệnh'
+                value={pandemicCount}
+                valueStyle={{ color: '#52c41a' }}
+                prefix={<ExclamationCircleOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
             <Card className='bg-blue-100'>
               <Statistic
-                title='Tổng sự kiện'
-                value={currentEvents.length}
+                title='Khác'
+                value={diferentCount}
                 valueStyle={{ color: '#0066cc' }}
-                prefix={<ClockCircleOutlined />}
+                prefix={<ExclamationCircleOutlined />}
               />
             </Card>
           </Col>
@@ -211,11 +233,11 @@ const MedicalEventParent: React.FC = () => {
                 <div className='flex justify-between items-start'>
                   <div>
                     <Text strong className='text-lg'>
-                      {event.type === 'fever'
+                      {event.type === 'Sốt'
                         ? 'Sốt'
-                        : event.type === 'accident'
+                        : event.type === 'Tai nạn'
                           ? 'Tai nạn'
-                          : event.type === 'epidemic'
+                          : event.type === 'Dịch bệnh'
                             ? 'Dịch bệnh'
                             : 'Khác'}
                     </Text>
@@ -244,43 +266,7 @@ const MedicalEventParent: React.FC = () => {
           </Button>
         ]}
       >
-        {selectedEvent && (
-          <div className='space-y-6'>
-            <Descriptions bordered>
-              <Descriptions.Item label='Thời gian' span={3}>
-                {new Date(selectedEvent.date).toLocaleString()}
-              </Descriptions.Item>
-              <Descriptions.Item label='Loại sự kiện' span={3}>
-                {selectedEvent.type === 'fever'
-                  ? 'Sốt'
-                  : selectedEvent.type === 'accident'
-                    ? 'Tai nạn'
-                    : selectedEvent.type === 'epidemic'
-                      ? 'Dịch bệnh'
-                      : 'Khác'}
-              </Descriptions.Item>
-              <Descriptions.Item label='Mô tả' span={3}>
-                {selectedEvent.description}
-              </Descriptions.Item>
-              <Descriptions.Item label='Ghi chú' span={3}>
-                {selectedEvent.note}
-              </Descriptions.Item>
-              <Descriptions.Item label='Người tạo' span={3}>
-                {selectedEvent.nurseName}
-              </Descriptions.Item>
-              <Descriptions.Item label='Thuốc' span={3}>
-                {selectedEvent.medicationNames.$values && selectedEvent.medicationNames.$values.length > 0
-                  ? selectedEvent.medicationNames.$values.join(', ')
-                  : 'Không có'}
-              </Descriptions.Item>
-              <Descriptions.Item label='Vật tư y tế' span={3}>
-                {selectedEvent.medicalSupplyNames.$values && selectedEvent.medicalSupplyNames.$values.length > 0
-                  ? selectedEvent.medicalSupplyNames.$values.join(', ')
-                  : 'Không có'}
-              </Descriptions.Item>
-            </Descriptions>
-          </div>
-        )}
+        {selectedEvent && <MedicalEventDetail selectedEvent={selectedEvent} studentDetail={studentDetail} />}
       </Modal>
     </div>
   )

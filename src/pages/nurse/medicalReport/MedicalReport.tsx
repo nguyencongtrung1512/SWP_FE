@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Table, Card, Typography, Space, Modal, Descriptions, Tag } from 'antd'
+import { Button, Table, Card, Typography, Space, Modal, Descriptions, Tag, Tooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { getAllMedicalEvents, MedicalEvent } from '../../../apis/medicalEvent'
+import { getAllMedicalEvents, MedicalEvent, deleteMedicalEvent } from '../../../apis/medicalEvent'
 import CreateEvent from './CreateEvent'
 import UpdateEvent from './UpdateEvent'
+import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons'
 
 const { Title } = Typography
 
@@ -29,6 +30,23 @@ const MedicalReport: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleDelete = async (eventId: number) => {
+    Modal.confirm({
+      title: 'Bạn có chắc chắn muốn xóa sự kiện này?',
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          await deleteMedicalEvent(eventId)
+          fetchMedicalEvents()
+        } catch (error) {
+          Modal.error({ title: 'Xóa thất bại', content: 'Đã có lỗi xảy ra khi xóa sự kiện.' })
+        }
+      }
+    })
   }
 
   const columns: ColumnsType<MedicalEvent> = [
@@ -66,12 +84,17 @@ const MedicalReport: React.FC = () => {
       key: 'action',
       render: (_, record) => (
         <Space>
-          <Button type='link' onClick={() => handleViewDetails(record)}>
-            Xem chi tiết
-          </Button>
-          <Button type='link' onClick={() => handleEdit(record)}>
-            Chỉnh sửa
-          </Button>
+          <Tooltip title='Xem chi tiết'>
+            <Button type='link' icon={<EyeOutlined />} onClick={() => handleViewDetails(record)} />
+          </Tooltip>
+
+          <Tooltip title='Chỉnh sửa'>
+            <Button type='link' icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+          </Tooltip>
+
+          <Tooltip title='Xóa'>
+            <Button type='link' danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.medicalEventId)} />
+          </Tooltip>
         </Space>
       )
     }

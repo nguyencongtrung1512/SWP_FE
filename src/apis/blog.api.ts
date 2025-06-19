@@ -7,7 +7,10 @@ export interface Blog {
   content: string
   image: string
   status: string
-  categoryID: number // Đã đổi tên từ category sang categoryID
+  categoryID: number
+  categoryName: string
+  accountID: number
+  authorName: string
   createdAt: string
   updatedAt: string
 }
@@ -17,7 +20,7 @@ export interface CreateBlogRequest {
   description: string
   content: string
   category: number
-  image: string // Đã thay đổi từ File sang string
+  image: string
 }
 
 interface ApiResponse<T> {
@@ -27,7 +30,7 @@ interface ApiResponse<T> {
 
 const blogApi = {
   getAllBlogs() {
-    return http.get<ApiResponse<Blog[]>>('/Blog/GetAllBlog')
+    return http.get<ApiResponse<Blog[]>>('/Blog/GetAllBlogs')
   },
   createBlog(formData: FormData) {
     return http.post<Blog>('/Blog/CreateBlog', formData, {

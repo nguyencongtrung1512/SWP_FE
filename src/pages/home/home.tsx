@@ -114,7 +114,7 @@ function Home() {
         </div>
 
         {/* Thống kê */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-12'>
+        {/* <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-12'>
           <div className='bg-white p-6 rounded-xl shadow-sm flex items-center'>
             <div className='w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mr-4'>
               <svg width='28' height='28' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -148,7 +148,7 @@ function Home() {
               <p className='text-2xl font-bold text-gray-900'>14/05/2024</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Tính năng */}
         <div className='mb-12'>

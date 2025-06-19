@@ -17,7 +17,7 @@ export const login = async (params: { email: string; password: string }) => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.response.data || 'Đăng nhập thất bại!'
+      message: error?.response?.data || 'Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.'
     }
   }
 }
@@ -40,7 +40,7 @@ export const register = async (params: {
   } catch (error: any) {
     return {
       success: false,
-      message: error.response.data || 'Đăng ký thất bại! Vui lòng thử lại.'
+      message: error?.response?.data || 'Đăng ký thất bại! Vui lòng kiểm tra lại thông tin.'
     }
   }
 }
@@ -59,7 +59,7 @@ export const verifyOtp = async (params: { email: string; otp: string }) => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.response.data || 'Mã OTP không chính xác hoặc đã hết hạn!'
+      message: error?.response?.data || 'Mã OTP không chính xác hoặc đã hết hạn!'
     }
   }
 }
@@ -74,7 +74,7 @@ export const resendOtp = async (params: { email: string }) => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.response.data || 'Không thể gửi lại mã OTP!'
+      message: error?.response?.data || 'Không thể gửi lại mã OTP!'
     }
   }
 }
@@ -89,7 +89,7 @@ export const forgotPassword = async (params: { email: string }) => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.response.data || 'Không thể gửi yêu cầu đặt lại mật khẩu!'
+      message: error?.response?.data || 'Không thể gửi yêu cầu đặt lại mật khẩu!'
     }
   }
 }
@@ -114,7 +114,7 @@ export const resetPassword = async (params: { email: string; token: string; newP
   } catch (error: any) {
     return {
       success: false,
-      message: error.response.data || 'Vui lòng thử lại.'
+      message: error?.response?.data || 'Vui lòng thử lại.'
     }
   }
 }

@@ -11,6 +11,7 @@ import ForgotPasswordForm from './forgotPasswordForm'
 import { useAuth } from '../../contexts/auth.context'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
+import { translateMessage } from '../../utils/message'
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -44,11 +45,11 @@ const Login: React.FC = () => {
 
         authLogin(userData)
 
-        if (userData.roleName === 'Parent') navigate(path.healthRecord)
+        if (userData.roleName === 'Parent') navigate(path.home)
         else if (userData.roleName === 'Nurse') navigate(path.NURSE_PROFILE)
         else if (userData.roleName === 'Admin') navigate(path.CENSOR_LIST)
       } else {
-        toast.error(result.message)
+        toast.error(translateMessage(result.message, 'login'))
       }
     } catch (error) {
       console.log('Login error:', error)
@@ -104,7 +105,7 @@ const Login: React.FC = () => {
         setShowOtpVerification(true)
         toast.success('Đăng ký thành công! Vui lòng nhập mã OTP để xác thực tài khoản.')
       } else if (result) {
-        toast.error(result.message)
+        toast.error(translateMessage(result.message, 'register'))
       }
     } catch (error: any) {
       console.error('Registration error:', error)
@@ -125,7 +126,7 @@ const Login: React.FC = () => {
         setIsLogin(true)
         form.resetFields()
       } else {
-        toast.error(result.message)
+        toast.error(translateMessage(result.message, 'otp'))
       }
     } catch (error: any) {
       toast.error(error?.message || 'Xác thực thất bại! Vui lòng thử lại.')
@@ -139,8 +140,9 @@ const Login: React.FC = () => {
       setLoading(true)
       const result = await resendOtp({ email: registeredEmail })
 
-      if (result.success) toast.success(result.message || 'Đã gửi lại mã OTP!')
-      else toast.error(result.message)
+      if (result.success) toast.info(translateMessage(result.message, 'otp'))
+      else toast.error(translateMessage(result.message, 'otp'))
+    
     } catch (error: any) {
       toast.error(error?.message || 'Không thể gửi lại mã OTP!')
     } finally {
@@ -159,7 +161,7 @@ const Login: React.FC = () => {
         setIsLogin(true)
         form.resetFields()
       } else {
-        toast.error(result.message)
+        toast.error(translateMessage(result.message, 'forgotPassword'))
       }
     } catch (error: any) {
       toast.error(error?.message || 'Không thể gửi yêu cầu đặt lại mật khẩu!')

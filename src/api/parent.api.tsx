@@ -1,8 +1,9 @@
 import http from '../utils/http'
 import { AxiosError } from 'axios'
 
-const API_URL = `/Parent`
-const API_ACCOUNT = `/accounts`
+const API_URL = '/Parent'
+const API_ACCOUNT = '/accounts'
+const API_HEALTH_RECORD = '/HealthRecord'
 
 export interface Student {
   $id: string
@@ -195,3 +196,107 @@ export const getStudentInfo = async (studentCode: string) => {
   }
 }
 
+interface HealthRecordParams {
+  parentID: number
+  studentCode: string
+  weight: number
+  height: number
+  note: string
+}
+
+interface HealthRecordResponse {
+  $id: string
+  message: string
+  data: {
+    $id: string
+    healthRecordId: number
+    parentId: number
+    studentId: number
+    studentName: string
+    studentCode: string
+    gender: string
+    dateOfBirth: string
+    note: string
+    height: number
+    weight: number
+    bmi: number
+    nutritionStatus: string
+    student: null
+    parent: null
+  }
+}
+
+export const addHealthRecord = async (params: HealthRecordParams) => {
+  try {
+    const response = await http.post<HealthRecordResponse>(`${API_HEALTH_RECORD}/CreateHealthRecord`, params)
+    return {
+      success: true,
+      message: response.data.message,
+      data: response.data.data
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Tạo hồ sơ sức khỏe thất bại!',
+        data: null
+      }
+    }
+    console.error('Add health record error:', error)
+    return {
+      success: false,
+      message: 'Tạo hồ sơ sức khỏe thất bại!',
+      data: null
+    }
+  }
+}
+
+export const editHealthRecord = async (id: number, params: HealthRecordParams) => {
+  try {
+    const response = await http.put<HealthRecordResponse>(`${API_HEALTH_RECORD}/UpdateHealthRecord/${id}`, params)
+    return {
+      success: true,
+      message: response.data.message,
+      data: response.data.data
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Cập nhật hồ sơ sức khỏe thất bại!',
+        data: null
+      }
+    }
+    console.error('Edit health record error:', error)
+    return {
+      success: false,
+      message: 'Cập nhật hồ sơ sức khỏe thất bại!',
+      data: null
+    }
+  }
+}
+
+export const getHealthRecordsByStudentId = async (studentId: number) => {
+  try {
+    const response = await http.get(`${API_HEALTH_RECORD}/GetHealthRecordsByStudentId/${studentId}`)
+    return {
+      success: true,
+      message: response.data.message,
+      data: response.data
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Không thể lấy thông tin sức khỏe!',
+        data: null
+      }
+    }
+    console.error('Get health record error:', error)
+    return {
+      success: false,
+      message: 'Không thể lấy thông tin sức khỏe!',
+      data: null
+    }
+  }
+}

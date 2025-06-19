@@ -25,8 +25,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
     exit: { opacity: 0, x: -50, transition: { duration: 0.3 } }
   }
 
-  const maxDate = dayjs().subtract(20, 'year')
-  const minDate = dayjs().subtract(50, 'year')
+  const maxDate = dayjs().subtract(25, 'year')
+  const minDate = dayjs().subtract(40, 'year')
 
   const handleSubmit = (values: {
     phoneNumber: string

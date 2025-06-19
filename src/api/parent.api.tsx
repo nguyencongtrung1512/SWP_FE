@@ -1,10 +1,9 @@
 import http from '../utils/http'
 import { AxiosError } from 'axios'
-import path from '../constants/api.url'
 
-const API_URL = path.parent
-const API_ACCOUNT = path.account
-const API_HEALTH_RECORD = path.healthRecord
+const API_URL = '/Parent'
+const API_ACCOUNT = '/Account'
+const API_HEALTH_RECORD = '/HealthRecord'
 
 export interface Student {
   $id: string
@@ -165,6 +164,30 @@ export const getAccountInfo = async () => {
     return {
       success: false,
       message: 'Lấy thông tin tài khoản thất bại!',
+      data: null
+    }
+  }
+}
+
+export const getStudentInfo = async (studentCode: string) => {
+  try {
+    const response = await http.get(`/Parent/student-info/${studentCode}`)
+    return {
+      success: true,
+      data: response.data
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Lấy thông tin học sinh thất bại!',
+        data: null
+      }
+    }
+    console.error('Get student info error:', error)
+    return {
+      success: false,
+      message: 'Lấy thông tin học sinh thất bại!',
       data: null
     }
   }

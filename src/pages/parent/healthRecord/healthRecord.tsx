@@ -153,7 +153,6 @@ const HealthRecord = () => {
         
         toast.success('Cập nhật thông tin sức khỏe thành công!')
         
-        await fetchStudents()
       } else {
         toast.error(translateMessage(response.message, 'healthRecord'))
       }

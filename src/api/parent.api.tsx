@@ -64,14 +64,14 @@ export const addStudent = async (params: { studentCode: string }) => {
     if (error instanceof AxiosError) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Thêm con thất bại!',
+        message: error.response?.data || 'Thêm con không thành công!',
         data: null
       }
     }
     console.error('Add student error:', error)
     return {
       success: false,
-      message: 'Thêm con thất bại!',
+      message: 'Thêm con không thành công!',
       data: null
     }
   }
@@ -100,7 +100,7 @@ export const updateAccount = async (params: any) => {
       })
       return {
         success: false,
-        message: error.response?.data?.message || 'Cập nhật thông tin thất bại!',
+        message: error.response?.data || 'Cập nhật thông tin thất bại!',
         data: null
       }
     }
@@ -131,7 +131,7 @@ export const changePassword = async (params: ChangePasswordParams) => {
     if (error instanceof AxiosError) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Đổi mật khẩu thất bại!',
+        message: error.response?.data || 'Đổi mật khẩu thất bại!',
         data: null
       }
     }
@@ -159,7 +159,7 @@ export const getAccountInfo = async () => {
     if (error instanceof AxiosError) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Lấy thông tin tài khoản thất bại!',
+        message: error.response?.data || 'Lấy thông tin tài khoản thất bại!',
         data: null
       }
     }
@@ -183,14 +183,14 @@ export const getStudentInfo = async (studentCode: string) => {
     if (error instanceof AxiosError) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Lấy thông tin học sinh thất bại!',
+        message: error.response?.data || 'Lấy thông tin học sinh không thành công!',
         data: null
       }
     }
     console.error('Get student info error:', error)
     return {
       success: false,
-      message: 'Lấy thông tin học sinh thất bại!',
+      message: 'Lấy thông tin học sinh không thành công!',
       data: null
     }
   }
@@ -238,14 +238,14 @@ export const addHealthRecord = async (params: HealthRecordParams) => {
     if (error instanceof AxiosError) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Tạo hồ sơ sức khỏe thất bại!',
+        message: error.response?.data?.message || 'Tạo hồ sơ sức khỏe không thành công!',
         data: null
       }
     }
     console.error('Add health record error:', error)
     return {
       success: false,
-      message: 'Tạo hồ sơ sức khỏe thất bại!',
+      message: 'Tạo hồ sơ sức khỏe không thành công!',
       data: null
     }
   }
@@ -263,14 +263,14 @@ export const editHealthRecord = async (id: number, params: HealthRecordParams) =
     if (error instanceof AxiosError) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Cập nhật hồ sơ sức khỏe thất bại!',
+        message: error.response?.data?.message || 'Cập nhật hồ sơ sức khỏe không thành công!',
         data: null
       }
     }
     console.error('Edit health record error:', error)
     return {
       success: false,
-      message: 'Cập nhật hồ sơ sức khỏe thất bại!',
+      message: 'Cập nhật hồ sơ sức khỏe không thành công!',
       data: null
     }
   }

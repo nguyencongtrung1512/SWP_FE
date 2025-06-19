@@ -34,6 +34,24 @@ export const forgotPasswordMessage: Record<string, string> = {
   "If an account with that email exists, you will receive a password reset email.": "Nếu tài khoản với email đó tồn tại, bạn sẽ nhận được email đặt lại mật khẩu.",
 }
 
+export const accountMessage: Record<string, string> = {
+  "Account not found.": "Không tìm thấy tài khoản.",
+  "Email already exists.": "Email đã tồn tại.",
+  "A problem occurred while processing your request.": "Đã xảy ra lỗi trong quá trình xử lý yêu cầu của bạn.",
+  "Account updated successfully.": "Cập nhật thông tin tài khoản thành công.",
+  "Current password is incorrect.": "Mật khẩu hiện tại chưa chính xác.",
+  "New password cannot be the same as the current password.": "Mật khẩu mới không được trùng với mật khẩu hiện tại.",
+  "Password successfully changed.": "Đổi mật khẩu thành công.",
+}
+
+export const parentMessage: Record<string, string> = {
+  "Student code is required.": "Bắt buộc phải có mã học sinh.",
+  "Invalid account information.": "Thông tin tài khoản không hợp lệ.",
+  "Student not found.": "Không tìm thấy học sinh.",
+  "This student is already linked to a parent.": "Học sinh này đã được liên kết với một phụ huynh khác.",
+  "Student successfully linked to parent.": "Liên kết học sinh với phụ huynh thành công.",
+}
+
 export const healthRecordMessage: Record<string, string> = {
   "Parent does not exist.": "Không tìm thấy thông tin phụ huynh.",
   "Student does not exist.": "Không tìm thấy thông tin học sinh.",
@@ -48,6 +66,8 @@ type MessageSource =
   | 'resetPassword'
   | 'forgotPassword'
   | 'healthRecord'
+  | 'account'
+  | 'parent'
 
 export function translateMessage(
   message: string,
@@ -59,7 +79,9 @@ export function translateMessage(
     register: registerMessage,
     resetPassword: resetPasswordMessage,
     forgotPassword: forgotPasswordMessage,
-    healthRecord: healthRecordMessage
+    healthRecord: healthRecordMessage,
+    account: accountMessage,
+    parent: parentMessage
   }
 
   return dictionaries[source][message] || message

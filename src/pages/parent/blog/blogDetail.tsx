@@ -56,8 +56,10 @@ const BlogDetail: React.FC = () => {
   if (loading) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center'>
-        <Spin size='large' />
-        <div className='text-xl font-semibold text-gray-600'>Loading...</div>
+        <div className='text-center'>
+          <Spin size='large' />
+          <p className='mt-4 text-gray-600'>Đang tải chi tiết blog...</p>
+        </div>
       </div>
     )
   }

@@ -1,6 +1,8 @@
-import { Modal, Form, Input, message, Spin } from 'antd'
+import { Modal, Form, Input, Spin } from 'antd'
 import React from 'react'
 import { changePassword } from '../../api/parent.api'
+import { toast } from 'react-toastify'
+import { translateMessage } from '../../utils/message'
 
 interface ChangePasswordModalProps {
   isOpen: boolean
@@ -16,22 +18,27 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
     try {
       const response = await changePassword(values)
       if (response.success) {
-        message.success(response.message || 'Đổi mật khẩu thành công!')
+        toast.success(translateMessage(response.message, 'account'))
         form.resetFields()
         onClose()
       } else {
-        message.error(response.message || 'Đổi mật khẩu thất bại!')
+        toast.error(translateMessage(response.message, 'account'))
       }
     } catch (error) {
       console.error('Failed to change password:', error)
-      message.error('Đã xảy ra lỗi khi đổi mật khẩu.')
+      toast.error('Đã xảy ra lỗi khi đổi mật khẩu.')
     } finally {
       setLoading(false)
     }
   }
 
+  const handleCancel = () => {
+    form.resetFields()
+    onClose()
+  }
+
   return (
-    <Modal title='Đổi mật khẩu' open={isOpen} onCancel={onClose} footer={null}>
+    <Modal title='Đổi mật khẩu' open={isOpen} onCancel={handleCancel} footer={null}>
       <Spin spinning={loading}>
         <Form form={form} layout='vertical' onFinish={handleFinish}>
           <Form.Item

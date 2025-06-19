@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   UserOutlined,
   MailOutlined,
@@ -25,7 +25,7 @@ interface AccountInfo {
   parent: null
   nurse: null
   admin: null
-  avatarUrl?: string
+  image?: string
 }
 
 const ProfileParent = () => {
@@ -74,7 +74,7 @@ const ProfileParent = () => {
   }
 
   const handleUpdateSuccess = () => {
-    fetchData() // Re-fetch data after successful update
+    fetchData()
   }
 
   const handleOpenChangePasswordModal = () => {
@@ -94,7 +94,7 @@ const ProfileParent = () => {
   }
 
   const handleAddStudentSuccess = () => {
-    fetchData() // Re-fetch data after successful addition
+    fetchData()
   }
 
   if (loading) {
@@ -121,8 +121,12 @@ const ProfileParent = () => {
         <div className='bg-white rounded-2xl shadow p-8 w-[350px] flex flex-col items-center'>
           {/* Avatar */}
           <div className='w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center mb-2 text-gray-400 text-2xl relative overflow-hidden'>
-            {accountInfo?.avatarUrl ? (
-              <img src={accountInfo.avatarUrl} alt='avatar' className='w-full h-full object-cover' />
+            {accountInfo?.image ? (
+              <img 
+                src={`data:image/png;base64,${accountInfo.image}`} 
+                alt='avatar' 
+                className='w-full h-full object-cover' 
+              />
             ) : (
               <>
                 <UserOutlined style={{ fontSize: 48 }} />
@@ -182,11 +186,11 @@ const ProfileParent = () => {
               </button>
             </div>
             {students && students.length > 0 ? (
-              <div className='flex gap-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
                 {students.map((child) => (
                   <div
                     key={child.id}
-                    className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 flex-1 min-w-[220px]'
+                    className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px]'
                   >
                     <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold text-lg'>
                       {child.fullname?.split(' ').slice(-2).join(' ') || 'HS'}

@@ -79,9 +79,11 @@ const BlogPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className='bg-white rounded-2xl shadow-sm p-8 text-center flex items-center justify-center'>
-        <Spin size='large' />
-        <div className='text-xl font-semibold text-gray-600'>Loading...</div>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <Spin size='large' />
+          <p className='mt-4 text-gray-600'>Đang tải danh sách blog...</p>
+        </div>
       </div>
     )
   }

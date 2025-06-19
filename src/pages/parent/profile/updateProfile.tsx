@@ -1,6 +1,8 @@
-import { Modal, Form, Input, message, Spin } from 'antd'
+import { Modal, Form, Input, Spin } from 'antd'
 import React, { useEffect } from 'react'
 import { updateAccount } from '../../../api/parent.api'
+import { toast } from 'react-toastify'
+import { translateMessage } from '../../../utils/message'
 
 interface UpdateProfileModalProps {
   isOpen: boolean
@@ -47,15 +49,14 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose
       const response = await updateAccount(formData)
       console.log('Update account response:', response)
       if (response.success) {
-        message.success(response.message || 'Cập nhật thông tin thành công!')
+        toast.success(translateMessage(response.message, 'account'))
         onUpdateSuccess()
         onClose()
       } else {
-        message.error(response.message || 'Cập nhật thông tin thất bại!')
+        toast.error(translateMessage(response.message, 'account'))
       }
     } catch (error) {
       console.error('Failed to update account:', error)
-      message.error('Đã xảy ra lỗi khi cập nhật thông tin.')
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,8 @@
-import { Modal, Form, Input, message, Spin, Button } from 'antd'
+import { Modal, Form, Input, Spin, Button } from 'antd'
 import React from 'react'
 import { addStudent, getStudentInfo } from '../../api/parent.api'
+import { toast } from 'react-toastify'
+import { translateMessage } from '../../utils/message'
 
 interface AddStudentModalProps {
   isOpen: boolean
@@ -8,7 +10,6 @@ interface AddStudentModalProps {
   onAddSuccess: () => void
 }
 
-// Định nghĩa type cho studentInfo
 interface StudentInfo {
   sid: string
   fullname: string
@@ -28,7 +29,7 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
   const handleCheckStudent = async () => {
     const code = form.getFieldValue('studentCode')
     if (!code) {
-      message.warning('Vui lòng nhập mã học sinh!')
+      toast.warning('Vui lòng nhập mã học sinh!')
       return
     }
     setChecking(true)
@@ -40,11 +41,11 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
         setStudentCode(code)
       } else {
         setStudentInfo(null)
-        message.error(res.message || 'Không tìm thấy học sinh!')
+        toast.error(translateMessage(res.message, 'parent'))
       }
     } catch {
       setStudentInfo(null)
-      message.error('Đã xảy ra lỗi khi kiểm tra mã học sinh.')
+      toast.error('Đã xảy ra lỗi khi kiểm tra mã học sinh.')
     } finally {
       setChecking(false)
     }
@@ -55,17 +56,17 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
     try {
       const response = await addStudent({ studentCode })
       if (response.success) {
-        message.success(response.message || 'Liên kết con thành công!')
+        toast.success(translateMessage(response.message, 'parent'))
         form.resetFields()
         setStudentInfo(null)
         setStudentCode('')
         onAddSuccess()
         onClose()
       } else {
-        message.error(response.message || 'Liên kết con thất bại!')
+        toast.error(translateMessage(response.message, 'parent'))
       }
     } catch {
-      message.error('Đã xảy ra lỗi khi liên kết con.')
+      toast.error('Đã xảy ra lỗi khi liên kết con.')
     } finally {
       setLoading(false)
     }
@@ -86,6 +87,7 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
             name='studentCode'
             label='Mã học sinh'
             rules={[{ required: true, message: 'Vui lòng nhập mã học sinh!' }]}
+            className='mb-6'
           >
             <Input disabled={!!studentInfo} />
           </Form.Item>

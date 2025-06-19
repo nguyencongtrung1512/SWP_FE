@@ -18,8 +18,8 @@ interface HealthRecordData {
   weight: number
   height: number
   note: string
-  parentID?: number
-  studentCode?: string
+  parentID: number
+  studentCode: string
 }
 
 interface HealthRecord {
@@ -32,6 +32,7 @@ interface HealthRecord {
 
 interface StudentWithHealthRecord extends Student {
   studentId: number
+  className: string
   healthRecord?: HealthRecord
 }
 
@@ -421,11 +422,11 @@ const HealthRecord = () => {
                 </>
               ) : (
                 <div className='text-center py-12'>
-                  <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-                    <MedicineBoxOutlined className='text-gray-400 text-2xl' />
+                  <div className='w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4'>
+                    <MedicineBoxOutlined className='text-gray-500 text-2xl' />
                   </div>
-                  <p className='text-gray-500 mb-4 text-lg'>Chưa có hồ sơ sức khỏe</p>
-                  <p className='text-gray-400 mb-6 text-sm'>Tạo hồ sơ sức khỏe để theo dõi tình trạng dinh dưỡng của con bạn</p>
+                  <p className='text-gray-500 mb-2 text-lg'>Chưa có hồ sơ sức khỏe</p>
+                  <p className='text-gray-400 mb-4 text-md'>Tạo hồ sơ sức khỏe để theo dõi con của bạn</p>
                   <Button
                     type='primary'
                     icon={<PlusOutlined />}
@@ -445,20 +446,36 @@ const HealthRecord = () => {
       <HealthRecordModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSave={handleEditHealthRecord}
+        onSave={(data) => {
+          if (!selectedStudent || !account) return Promise.resolve()
+
+          return handleEditHealthRecord({
+            ...data,
+            parentID: account.accountID,
+            studentCode: selectedStudent.studentCode
+          })
+        }}
         student={selectedStudent}
         mode="edit"
         initialData={selectedStudent?.healthRecord ? {
           weight: selectedStudent.healthRecord.weight,
           height: selectedStudent.healthRecord.height,
-          note: selectedStudent.healthRecord.note
+          note: selectedStudent.healthRecord.note,
         } : undefined}
       />
 
       <HealthRecordModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddHealthRecord}
+        onSave={(data) => {
+          if (!selectedStudent || !account) return Promise.resolve()
+
+          return handleAddHealthRecord({
+            ...data,
+            parentID: account.accountID,
+            studentCode: selectedStudent.studentCode
+          })
+        }}
         student={selectedStudent}
         mode="add"
       />

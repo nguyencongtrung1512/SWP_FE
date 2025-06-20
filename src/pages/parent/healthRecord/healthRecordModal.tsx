@@ -137,8 +137,6 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
               <InputNumber
                 placeholder="Nhập cân nặng"
                 style={{ width: '100%' }}
-                min={20}
-                max={70}
                 step={1}
                 precision={1}
               />
@@ -161,8 +159,6 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
               <InputNumber
                 placeholder="Nhập chiều cao"
                 style={{ width: '100%' }}
-                min={110}
-                max={160}
                 step={1}
                 precision={1}
               />

@@ -51,11 +51,11 @@ function GradeList() {
   const filteredClasses = classes.filter((cls) => cls.className.split('/')[0] === selectedGrade)
 
   const gradeOptions = [
-    { value: '1', label: 'Cấp 1' },
-    { value: '2', label: 'Cấp 2' },
-    { value: '3', label: 'Cấp 3' },
-    { value: '4', label: 'Cấp 4' },
-    { value: '5', label: 'Cấp 5' }
+    { value: '1', label: 'Khối 1' },
+    { value: '2', label: 'Khối 2' },
+    { value: '3', label: 'Khối 3' },
+    { value: '4', label: 'Khối 4' },
+    { value: '5', label: 'Khối 5' }
   ]
 
   return (

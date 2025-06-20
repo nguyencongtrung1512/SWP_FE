@@ -4,15 +4,32 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './SideBar'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
+import { getAccountInfo } from '../../api/parent.api'
 import path from '../../constants/path'
 import ProfileModal from '../../components/Profile/ProfileModal'
+
+interface AccountInfo {
+  $id: string
+  id: number
+  fullname: string
+  email: string
+  phoneNumber: string
+  address: string
+  role: string
+  status: boolean
+  parent: null
+  nurse: null
+  admin: null
+  image?: string
+}
 
 const { Header, Content } = Layout
 
 const AdminLayout: React.FC = () => {
   const [open, setOpen] = useState(false)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
+  const [userData, setUserData] = useState<AccountInfo | null>(null)
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -27,8 +44,8 @@ const AdminLayout: React.FC = () => {
     setOpen(false)
   }
 
-  // Close dropdown when clicking outside
   useEffect(() => {
+    fetchUser()
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false)
@@ -40,6 +57,17 @@ const AdminLayout: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  const fetchUser = async () => {
+    try {
+      const response = await getAccountInfo()
+      if (response.success && response.data) {
+        setUserData(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error)
+    }
+  }
 
   return (
     <Layout className='min-h-screen bg-gray-50'>
@@ -53,11 +81,15 @@ const AdminLayout: React.FC = () => {
               onClick={() => setOpen(!open)}
             >
               <img
-                src={user?.avatar || 'https://i.pravatar.cc/150?img=8'}
+                src={
+                  userData?.image 
+                    ? `data:image/png;base64,${userData.image}` 
+                    : 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'
+                } 
                 alt='avatar'
                 className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
               />
-              <span className='text-gray-700 font-medium'>{user?.name || 'Admin'}</span>
+              <span className='text-gray-700 font-medium'>{userData?.fullname || 'Admin'}</span>
             </button>
 
             {open && (

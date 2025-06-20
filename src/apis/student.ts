@@ -17,6 +17,7 @@ export interface Student {
   studentId: number
   fullname: string
   classId: number
+  className: string
   studentCode: string
   gender: string
   parentId: number

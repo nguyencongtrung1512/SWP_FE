@@ -1,4 +1,10 @@
+import { useEffect } from "react"
+
 function Home() {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
     <div className='min-h-screen bg-gray-50 flex flex-col items-center py-12'>
       <div className='w-full max-w-[1450px] px-4 md:px-8 lg:px-12'>

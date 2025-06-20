@@ -56,7 +56,7 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
     try {
       const response = await addStudent({ studentCode })
       if (response.success) {
-        toast.success(translateMessage(response.message, 'parent'))
+        toast.success(translateMessage(response.message, 'parent') || 'Liên kết học sinh thành công!')
         form.resetFields()
         setStudentInfo(null)
         setStudentCode('')

@@ -3,10 +3,27 @@ import path from '../../../constants/path'
 import { useAuth } from '../../../contexts/auth.context'
 import { useNavigate } from 'react-router-dom'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { getAccountInfo } from '../../../api/parent.api'
+
+interface AccountInfo {
+  $id: string
+  id: number
+  fullname: string
+  email: string
+  phoneNumber: string
+  address: string
+  role: string
+  status: boolean
+  parent: null
+  nurse: null
+  admin: null
+  image?: string
+}
 
 function Header() {
   const [open, setOpen] = useState(false)
   const { user, logout, isAuthenticated } = useAuth()
+  const [userData, setUserData] = useState<AccountInfo | null>(null)
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLDivElement>(null)
   
@@ -16,8 +33,8 @@ function Header() {
     navigate(path.login)
   }
   
-  // Close dropdown when clicking outside
   useEffect(() => {
+    fetchUser()
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false)
@@ -29,6 +46,17 @@ function Header() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  const fetchUser = async () => {
+    try {
+      const response = await getAccountInfo()
+      if (response.success && response.data) {
+        setUserData(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error)
+    }
+  }
 
   return (
     <header className='flex items-center px-12 py-6 bg-white w-full relative'>
@@ -76,7 +104,11 @@ function Header() {
             onClick={() => setOpen(!open)}
           >
             <img 
-              src='https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg' 
+              src={
+                userData?.image 
+                  ? `data:image/png;base64,${userData.image}` 
+                  : 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'
+              } 
               alt='avatar' 
               className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
             />

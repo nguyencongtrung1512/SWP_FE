@@ -17,13 +17,39 @@ export interface CreateMedicationRequest {
   medications: Medication[]
 }
 
-// Lấy tất cả yêu cầu thuốc
+export interface MedicationRequestHistory {
+  requestId: number;
+  studentId: number;
+  studentName: string;
+  parentNote: string;
+  dateCreated: string;
+  status: string;
+  medications: { $values: Medication[] };
+}
+
+export interface MedicationRequestUpdate {
+  parentNote: string;
+  medications: Medication[];
+}
+
+export interface ProcessRequestPayload {
+  status: 'Approved' | 'Rejected'
+  nurseNote?: string
+}
+
 export const getAllRequests = () => http.get(`${API_URL}/GetAllRequests`).then((response) => response.data)
 
-// Gửi yêu cầu thuốc mới
 export const sendMedicationToStudent = (data: CreateMedicationRequest) =>
   http.post(`${API_URL}/SendMedicationToStudent`, data).then((response) => response.data)
 
-// Cập nhật trạng thái yêu cầu
-export const approveRequest = (requestId: number) =>
-  http.put(`${API_URL}/ApproveRequest/${requestId}`).then((response) => response.data)
+export const processRequest = (requestId: number, data: ProcessRequestPayload) =>
+  http.put(`${API_URL}/ApproveRequest/${requestId}`, data).then((response) => response.data)
+
+export const getRequestById = (id: number) =>
+  http.get(`${API_URL}/GetById/${id}`).then((response) => response.data)
+
+export const updateRequest = (id: number, data: MedicationRequestUpdate) =>
+  http.put(`${API_URL}/UpdateRequest/${id}`, data).then((response) => response.data)
+
+export const getRequestHistory = () =>
+  http.get(`${API_URL}/History`).then((response) => response.data)

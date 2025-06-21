@@ -118,3 +118,25 @@ export const resetPassword = async (params: { email: string; token: string; newP
     }
   }
 }
+
+export const createNurse = async (params: {
+  phoneNumber: string
+  password: string
+  fullname: string
+  email: string
+  address: string
+  dateOfBirth: string
+}) => {
+  try {
+    const response = await http.post(`${API_URL}/admin/create-nurse`, params)
+    return {
+      success: true,
+      message: response.data.message
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error?.response?.data || 'Đăng ký thất bại! Vui lòng kiểm tra lại thông tin.'
+    }
+  }
+}

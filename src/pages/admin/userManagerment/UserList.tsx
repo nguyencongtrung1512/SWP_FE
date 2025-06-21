@@ -15,9 +15,15 @@ import {
   Spin,
   Select
 } from 'antd'
-import { DeleteOutlined, EyeOutlined } from '@ant-design/icons'
+import { CiLock, CiUnlock } from 'react-icons/ci'
+import { EyeOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
 import { getAllUser, deleteUser, User } from '../../../apis/adminManageAccount'
+import { createNurse } from '../../../api/auth.api'
+import { FaPlus } from 'react-icons/fa6'
+import AddNurse from './AddNurse'
+import { translateMessage } from '../../../utils/message'
+import dayjs from 'dayjs'
 
 const { Title } = Typography
 
@@ -27,37 +33,11 @@ const UserList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+  const [nurseModalVisible, setNurseModalVisible] = useState<boolean>(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [selectedRole, setSelectedRole] = useState<string>('all')
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true)
-        const token = localStorage.getItem('token')
-        if (token) {
-          const data = await getAllUser.getAllUsers()
-          const transformedData = data
-            .filter((user: User) => user.role?.roleName === 'Parent' || user.role?.roleName === 'Nurse')
-            .map((user: User) => ({
-              ...user,
-              status: (user.status === 'Active' ? 'Active' : 'Inactive') as 'Active' | 'Inactive'
-            }))
-          setUsers(transformedData)
-          setFilteredUsers(transformedData)
-        } else {
-          setError('Không tìm thấy token xác thực.')
-          toast.error('Không tìm thấy token xác thực.')
-        }
-      } catch (err) {
-        setError('Không thể tải dữ liệu người dùng.')
-        toast.error('Không thể tải dữ liệu người dùng.')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchUsers()
   }, [])
 
@@ -70,20 +50,51 @@ const UserList: React.FC = () => {
     }
   }, [selectedRole, users])
 
+  const fetchUsers = async () => {
+    try {
+      setLoading(true)
+      const token = localStorage.getItem('token')
+      if (token) {
+        const data = await getAllUser.getAllUsers()
+        const transformedData = data
+          .filter((user: User) => user.role?.roleName === 'Parent' || user.role?.roleName === 'Nurse')
+          .map((user: User) => ({
+            ...user,
+            status: (user.status === 'Active' ? 'Active' : 'Inactive') as 'Active' | 'Inactive'
+          }))
+        setUsers(transformedData)
+        setFilteredUsers(transformedData)
+      } else {
+        setError('Không tìm thấy token xác thực.')
+        toast.error('Không tìm thấy token xác thực.')
+      }
+    } catch (err) {
+      setError('Không thể tải dữ liệu người dùng.')
+      toast.error('Không thể tải dữ liệu người dùng.')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleDeleteUser = async (user: User) => {
     try {
       const token = localStorage.getItem('token')
       if (token) {
         await deleteUser.deleteUser(user.accountID)
         setUsers(users.filter((u) => u.accountID !== user.accountID))
-        toast.success('Đã xóa người dùng thành công!')
+        toast.success('Đã vô hiệu hóa người dùng thành công!')
       } else {
         toast.error('Không tìm thấy token xác thực.')
       }
     } catch (err) {
-      toast.error('Xóa người dùng thất bại.')
+      toast.error('Vô hiệu hóa người dùng thất bại.')
       console.error(err)
     }
+  }
+
+  const handleOpenNurseModal = () => {
+    setNurseModalVisible(true)
   }
 
   const showUserDetails = (user: User) => {
@@ -94,6 +105,67 @@ const UserList: React.FC = () => {
   const handleCancel = () => {
     setIsModalVisible(false)
     setSelectedUser(null)
+  }
+
+  const handleAddNurseCancel = () => {
+    setNurseModalVisible(false)
+  }
+
+  const handleAddNurseSuccess = async (values: {
+    phoneNumber: string
+    password: string
+    confirmPassword: string
+    fullname: string
+    email: string
+    address: string
+    dateOfBirth: any
+  }) => {
+    try {
+      setLoading(true)
+      if (!values.dateOfBirth) {
+        toast.error('Vui lòng chọn ngày sinh!')
+        setLoading(false)
+        return
+      }
+
+      let formattedDate
+      try {
+        if (typeof values.dateOfBirth === 'string') {
+          const parts = values.dateOfBirth.split('/')
+          if (parts.length === 3) formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}T00:00:00Z`
+          else formattedDate = new Date(values.dateOfBirth).toISOString()
+        } else if (values.dateOfBirth instanceof Date) {
+          formattedDate = values.dateOfBirth.toISOString()
+        } else {
+          formattedDate = dayjs(values.dateOfBirth).format('YYYY-MM-DD') + 'T00:00:00Z'
+        }
+      } catch (e) {
+        toast.error('Định dạng ngày sinh không hợp lệ!')
+        setLoading(false)
+        return
+      }
+
+      const formattedValues = {
+        ...values,
+        dateOfBirth: formattedDate
+      }
+      
+      console.log('Formatted Values:', formattedValues)
+      const result: any = await createNurse(formattedValues)
+
+      if (result && result.success) {
+        toast.success('Đăng ký tài khoản y tá thành công!')
+        setNurseModalVisible(false)
+        fetchUsers()
+      } else if (result) {
+        toast.error(translateMessage(result.message, 'register'))
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error)
+      toast.error(error?.message || 'Đăng ký thất bại! Vui lòng thử lại.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const columns = [
@@ -147,17 +219,31 @@ const UserList: React.FC = () => {
           <Button type='link' icon={<EyeOutlined />} onClick={() => showUserDetails(record)}>
             Xem chi tiết
           </Button>
-          <Popconfirm
-            title='Xóa người dùng'
-            description='Bạn có chắc chắn muốn xóa người dùng này?'
-            onConfirm={() => handleDeleteUser(record)}
-            okText='Xóa'
-            cancelText='Hủy'
-          >
-            <Button type='link' danger icon={<DeleteOutlined />}>
-              Xóa
-            </Button>
-          </Popconfirm>
+          {record.status === 'Active' ? (
+            <Popconfirm
+              title='Vô hiệu hóa người dùng'
+              description='Bạn có chắc chắn muốn vô hiệu hóa người dùng này?'
+              onConfirm={() => handleDeleteUser(record)}
+              okText='Vô hiệu hóa'
+              cancelText='Hủy'
+            >
+              <Button type='link' danger icon={<CiLock className='text-lg' />}>
+                Vô hiệu hóa
+              </Button>
+            </Popconfirm>
+          ):(
+            <Popconfirm
+              title='Kích hoạt người dùng'
+              description='Bạn có chắc chắn muốn kích hoạt người dùng này?'
+              onConfirm={() => handleDeleteUser(record)}
+              okText='Kích hoạt'
+              cancelText='Hủy'
+            >
+              <Button type='link' danger icon={<CiUnlock className='text-lg' />}>
+                Kích hoạt
+              </Button>
+            </Popconfirm>
+          )}
         </Space>
       )
     }
@@ -195,7 +281,7 @@ const UserList: React.FC = () => {
           </Card>
 
           <Card title='Danh sách người dùng' style={{ marginTop: '20px' }}>
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <Select
                 style={{ width: 200 }}
                 value={selectedRole}
@@ -206,6 +292,12 @@ const UserList: React.FC = () => {
                   { value: 'Nurse', label: 'Y tá' }
                 ]}
               />
+              <Button 
+                type='primary' 
+                onClick={handleOpenNurseModal}
+              >
+                <FaPlus />Tạo tài khoản cho Y tá
+              </Button>
             </div>
             {error ? (
               <Typography.Text type='danger'>{error}</Typography.Text>
@@ -237,6 +329,12 @@ const UserList: React.FC = () => {
           </Descriptions>
         </Modal>
       )}
+
+      <AddNurse
+        visible={nurseModalVisible}
+        onClose={handleAddNurseCancel}
+        onSuccess={handleAddNurseSuccess}
+      />
     </div>
   )
 }

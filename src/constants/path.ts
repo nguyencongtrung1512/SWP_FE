@@ -34,6 +34,9 @@ const path = {
   MEDICAL_SUPPLIES: '/nurse/medical-supplies',
   MEDICAL_SUPPLIES_CREATE: '/nurse/medical-supplies/create',
   MEDICAL_SUPPLIES_EDIT: '/nurse/medical-supplies/edit/:id',
+  NURSE_CATEGORY_MANAGEMENT: '/nurse/category-management',
+  NURSE_BLOG_LIST_BY_CATEGORY: '/nurse/category/:categoryId/blogs',
+  NURSE_BLOG_DETAIL: '/nurse/blog-detail/:id',
   //=============Admin============
   BASE_ADMIN: '/admin',
   DASHBOARD_ADMIN: '/admin/dashboard',

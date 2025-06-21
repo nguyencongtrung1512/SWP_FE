@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../../../contexts/auth.context'
 import { Table, Button, Space, Popconfirm } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { categoryApi, Category } from '../../../apis/category.api'
 import { useNavigate } from 'react-router-dom'
-import path from '../../../constants/path'
 import CreateCategoryModal from './create'
 import UpdateCategoryModal from './update'
 import { toast } from 'react-toastify'
@@ -15,6 +15,7 @@ const CategoryList = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const fetchCategories = async () => {
     try {
@@ -32,7 +33,7 @@ const CategoryList = () => {
     try {
       await categoryApi.deleteCategoryById(categoryId)
       toast.success('Xóa danh mục thành công')
-      fetchCategories() // Reload lại danh sách sau khi xóa
+      fetchCategories()
     } catch (error) {
       console.error('Error deleting category:', error)
     }
@@ -69,7 +70,11 @@ const CategoryList = () => {
               type='primary'
               onClick={() => {
                 if (typeof categoryId === 'number') {
-                  navigate(path.BLOG_LIST_BY_CATEGORY.replace(':categoryId', categoryId.toString()))
+                  if (user?.roleName === 'Nurse') {
+                    navigate(`/nurse/category/${categoryId}/blogs`)
+                  } else if (user?.roleName === 'Admin') {
+                    navigate(`/admin/category/${categoryId}/blogs`)
+                  }
                 } else {
                   console.error('Cannot navigate: Invalid category ID', record)
                 }

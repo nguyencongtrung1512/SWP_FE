@@ -1,11 +1,11 @@
-import React from 'react'
-import { Form, Input, Button, DatePicker, Row, Col, Alert } from 'antd'
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { Form, Modal, Input, Button, Col, Row, DatePicker } from 'antd'
 import dayjs from 'dayjs'
 
-interface SignupFormProps {
-  onFinish: (values: {
+interface CreateNurseProps {
+  visible: boolean
+  onClose: () => void
+  onSuccess: (values: {
     phoneNumber: string
     password: string
     confirmPassword: string
@@ -14,21 +14,16 @@ interface SignupFormProps {
     address: string
     dateOfBirth: any
   }) => Promise<void>
-  loading: boolean
-  form: any
 }
 
-const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
-  const formVariants = {
-    hidden: { opacity: 0, x: 50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, x: -50, transition: { duration: 0.3 } }
-  }
+const AddNurse: React.FC<CreateNurseProps> = ({ visible, onClose, onSuccess }) => {
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
 
   const maxDate = dayjs().subtract(25, 'year')
-  const minDate = dayjs().subtract(60, 'year')
+  const minDate = dayjs().subtract(40, 'year')
 
-  const handleSubmit = (values: {
+  const handleSubmit = async (values: {
     phoneNumber: string
     password: string
     confirmPassword: string
@@ -37,137 +32,141 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
     address: string
     dateOfBirth: any
   }) => {
-    return onFinish(values)
+    try {
+      setLoading(true)
+      await onSuccess(values)
+      form.resetFields()
+    } catch (error) {
+      console.error('Error creating nurse:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancel = () => {
+    form.resetFields()
+    onClose()
   }
 
   return (
-    <motion.div
-      key='register'
-      initial='hidden'
-      animate='visible'
-      exit='exit'
-      variants={formVariants}
-      className='mt-2 w-full'
+    <Modal
+      title="Tạo tài khoản cho Y tá"
+      visible={visible}
+      onCancel={handleCancel}
+      footer={null}
+      width={800}
+      closable={false}
+      destroyOnClose
     >
-      <Alert message='Vui lòng điền đầy đủ thông tin để đăng ký tài khoản' type='info' showIcon className='mb-4' />
-
-      <Form name='register' onFinish={handleSubmit} layout='vertical' form={form} className='space-y-2 w-full ml-2'>
-        <Row gutter={16} className='w-full'>
+      <Form 
+        name='createNurse' 
+        onFinish={handleSubmit} 
+        layout='vertical' 
+        form={form}
+        style={{ padding: '20px 0' }}
+      >
+        <Row gutter={24}>
           <Col xs={24} sm={12}>
             <Form.Item
+              label="Họ và tên"
               name='fullname'
               rules={[
                 { required: true, message: 'Vui lòng nhập họ tên!' },
                 { min: 2, message: 'Họ tên phải có ít nhất 2 ký tự!' }
               ]}
-              className='mb-3'
             >
               <Input
-                prefix={<UserOutlined className='mr-2 text-gray-400' />}
-                placeholder='Họ và tên'
+                placeholder='Nhập họ và tên y tá'
                 size='large'
-                className='py-3 px-4 w-full'
               />
             </Form.Item>
           </Col>
 
           <Col xs={24} sm={12}>
             <Form.Item
+              label="Email"
               name='email'
               rules={[
                 { required: true, message: 'Vui lòng nhập email!' },
                 { type: 'email', message: 'Email không hợp lệ!' }
               ]}
-              className='mb-3'
               validateTrigger={['onChange', 'onBlur']}
             >
               <Input
-                prefix={<MailOutlined className='mr-2 text-gray-400' />}
-                placeholder='Email'
+                placeholder='Nhập email y tá'
                 size='large'
-                className='py-3 px-4 w-full'
               />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16} className='w-full'>
+        <Row gutter={24}>
           <Col xs={24} sm={12}>
             <Form.Item
+              label="Số điện thoại"
               name='phoneNumber'
               rules={[
                 { required: true, message: 'Vui lòng nhập số điện thoại!' },
                 { pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải có 10 chữ số!' }
               ]}
-              className='mb-3'
               validateTrigger={['onChange', 'onBlur']}
             >
               <Input
-                prefix={<PhoneOutlined className='mr-2 text-gray-400' />}
-                placeholder='Số điện thoại'
+                placeholder='Nhập số điện thoại y tá'
                 size='large'
-                className='py-3 px-4 w-full'
               />
             </Form.Item>
           </Col>
 
           <Col xs={24} sm={12}>
             <Form.Item
+              label="Ngày sinh"
               name='dateOfBirth'
               rules={[{ required: true, message: 'Vui lòng chọn ngày sinh!' }]}
-              className='mb-3'
               getValueProps={(value) => {
                 return {
                   value: value ? dayjs(value) : undefined
                 }
               }}
             >
-              <div className='relative flex items-center w-full'>
-                <span className='absolute left-3 z-10 text-gray-400'>
-                  <CalendarOutlined />
-                </span>
-                <DatePicker
-                  placeholder='Ngày sinh'
-                  size='large'
-                  format='DD/MM/YYYY'
-                  className='w-full py-3 px-4 pl-9'
-                  suffixIcon={null}
-                  style={{ paddingLeft: '36px', height: '48px' }}
-                  disabledDate={(current) => {
-                    return current && (current > maxDate || current < minDate)
-                  }}
-                  onChange={(dateString) => {
-                    form.setFieldsValue({ dateOfBirth: dateString })
-                  }}
-                />
-              </div>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16} className='w-full'>
-          <Col xs={24}>
-            <Form.Item
-              name='address'
-              rules={[
-                { required: true, message: 'Vui lòng nhập địa chỉ!' },
-                { min: 5, message: 'Địa chỉ phải có ít nhất 5 ký tự!' }
-              ]}
-              className='mb-3'
-            >
-              <Input
-                prefix={<HomeOutlined className='mr-2 text-gray-400' />}
-                placeholder='Địa chỉ'
+              <DatePicker
+                placeholder='Chọn ngày sinh'
                 size='large'
-                className='py-3 px-4 w-full'
+                format='DD/MM/YYYY'
+                style={{ width: '100%' }}
+                disabledDate={(current) => {
+                  return current && (current > maxDate || current < minDate)
+                }}
+                onChange={(dateString) => {
+                  form.setFieldsValue({ dateOfBirth: dateString })
+                }}
               />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16} className='w-full'>
+        <Row gutter={24}>
+          <Col xs={24}>
+            <Form.Item
+              label="Địa chỉ"
+              name='address'
+              rules={[
+                { required: true, message: 'Vui lòng nhập địa chỉ!' },
+                { min: 5, message: 'Địa chỉ phải có ít nhất 5 ký tự!' }
+              ]}
+            >
+              <Input
+                placeholder='Nhập địa chỉ y tá'
+                size='large'
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
           <Col xs={24} sm={12}>
             <Form.Item
+              label="Mật khẩu"
               name='password'
               rules={[
                 { required: true, message: 'Vui lòng nhập mật khẩu!' },
@@ -177,20 +176,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                   message: 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt!'
                 }
               ]}
-              className='mb-3'
               validateTrigger={['onChange', 'onBlur']}
             >
               <Input.Password
-                prefix={<LockOutlined className='mr-2 text-gray-400' />}
-                placeholder='Mật khẩu'
+                placeholder='Nhập mật khẩu'
                 size='large'
-                className='py-3 px-4 w-full'
               />
             </Form.Item>
           </Col>
 
           <Col xs={24} sm={12}>
             <Form.Item
+              label="Xác nhận mật khẩu"
               name='confirmPassword'
               dependencies={['password']}
               rules={[
@@ -201,41 +198,44 @@ const SignupForm: React.FC<SignupFormProps> = ({ onFinish, loading, form }) => {
                       return Promise.resolve()
                     }
                     return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'))
-                  }
-                })
+                  },
+                }),
               ]}
-              className='mb-3'
-              validateTrigger={['onChange', 'onBlur']}
             >
               <Input.Password
-                prefix={<LockOutlined className='mr-2 text-gray-400' />}
                 placeholder='Xác nhận mật khẩu'
                 size='large'
-                className='py-3 px-4 w-full'
               />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16} className='w-full'>
+        <Row>
           <Col xs={24}>
-            <Form.Item className='mb-0 mt-4'>
-              <Button
-                type='primary'
-                htmlType='submit'
-                loading={loading}
-                block
-                size='large'
-                className='bg-blue-500 hover:bg-blue-600 h-12 text-base font-medium w-full'
-              >
-                Đăng ký
-              </Button>
+            <Form.Item style={{ marginTop: '24px', marginBottom: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <Button 
+                  size='large' 
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type='primary'
+                  htmlType='submit'
+                  size='large'
+                  loading={loading}
+                >
+                  Tạo tài khoản Y tá
+                </Button>
+              </div>
             </Form.Item>
           </Col>
         </Row>
       </Form>
-    </motion.div>
+    </Modal>
   )
 }
 
-export default SignupForm
+export default AddNurse

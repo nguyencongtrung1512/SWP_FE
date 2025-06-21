@@ -3,33 +3,11 @@ import { Table, Tag, Button, Space, Modal, Tabs, Typography, Select, Row, Col, C
 import type { TabsProps } from 'antd'
 import { getAllClasses } from '../../../apis/class'
 import { getAllHealthRecords } from '../../../apis/healthRecord'
+import { getStudentById } from '../../../apis/student'
 import { Class } from '../../../apis/class'
 
 const { Title, Text } = Typography
 const { Option } = Select
-
-interface ApiHealthRecord {
-  healthRecordId: number
-  parentId: number
-  studentId: number
-  studentName: string
-  studentCode: string
-  gender: string
-  dateOfBirth: string
-  note: string
-  height: number
-  weight: number
-  bmi: number
-  nutritionStatus: string
-  student: {
-    studentId: number
-    fullname: string
-    classId: number
-    studentCode: string
-    gender: string
-    dateOfBirth: string
-  }
-}
 
 interface HealthRecord {
   key: string
@@ -75,24 +53,26 @@ const HealthRecordCensorship: React.FC = () => {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetchClasses()
-    fetchAllHealthRecords()
+    const init = async () => {
+      await fetchClasses()
+      await fetchAllHealthRecords()
+    }
+    init()
   }, [])
 
   useEffect(() => {
-    if (classes.length > 0 && !selectedClass) {
+    if (classes.length > 0 && !selectedClass && selectedGrade) {
       const defaultClass = classes.find(cls => 
-        cls.className === '1/1' || cls.className.startsWith('1')
+        cls.className.startsWith(selectedGrade)
       )
       if (defaultClass) {
         setSelectedClass(defaultClass)
       }
     }
-  }, [classes, selectedClass])
+  }, [classes, selectedClass, selectedGrade])
 
   useEffect(() => {
     if (selectedClass) {
-      console.log('Selected class:', selectedClass)
       const filtered = records.filter(record => record.classId === selectedClass.classId)
       setFilteredData(filtered)
     } else if (selectedGrade) {
@@ -117,31 +97,41 @@ const HealthRecordCensorship: React.FC = () => {
       setLoading(true)
       const response = await getAllHealthRecords()
       const healthRecordsData = response.data.$values
-      
-      const transformedRecords: HealthRecord[] = healthRecordsData.map((record: ApiHealthRecord, index: number) => {
-        const classInfo = classes.find(c => c.classId === record.student.classId)
-        const className = classInfo?.className || `Class ${record.student.classId}`
-        
-        return {
-          key: record.healthRecordId?.toString() || index.toString(),
-          name: record.studentName || record.student.fullname,
-          class: className,
-          dob: new Date(record.dateOfBirth || record.student.dateOfBirth).toLocaleDateString('vi-VN'),
-          gender: record.gender === 'Male' ? 'Nam' : 'Nữ',
-          studentId: record.studentId.toString(),
-          studentCode: record.studentCode || record.student.studentCode,
-          height: record.height,
-          weight: record.weight,
-          bmi: record.bmi,
-          nutritionStatus: record.nutritionStatus,
-          note: record.note,
-          classId: record.student.classId,
-          medicalHistory: [],
-          vaccinationHistory: [],
-          parentNotes: record.note
-        }
-      })
 
+      const transformedRecords: HealthRecord[] = []
+
+      for (let i = 0; i < healthRecordsData.length; i++) {
+        const record = healthRecordsData[i]
+        try {
+          const studentResponse = await getStudentById(record.studentId)
+          const student = studentResponse.data
+          const studentClass = classes.find(cls => cls.classId === student.classId)
+
+          transformedRecords.push({
+            key: record.healthRecordId?.toString() || i.toString(),
+            name: record.studentName || student.fullname,
+            class: studentClass?.className || 'Unknown',
+            dob: new Date(record.dateOfBirth || student.dateOfBirth).toLocaleDateString('vi-VN'),
+            gender: record.gender === 'Male' ? 'Nam' : 'Nữ',
+            studentId: record.studentId.toString(),
+            studentCode: record.studentCode || student.studentCode,
+            height: record.height,
+            weight: record.weight,
+            bmi: record.bmi,
+            nutritionStatus: record.nutritionStatus,
+            note: record.note,
+            classId: student.classId || 0,
+            status: 'Active',
+            allergies: [],
+            medicalHistory: [],
+            vaccinationHistory: [],
+            parentNotes: record.note
+          })
+        } catch (error) {
+          console.error(`Failed to fetch student ${record.studentId}`, error)
+        }
+      }
+      
       transformedRecords.sort((a, b) => a.classId - b.classId)
       setRecords(transformedRecords)
       setFilteredData(transformedRecords)

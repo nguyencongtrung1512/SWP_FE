@@ -2,11 +2,10 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Layout } from 'antd'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './SideBar'
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { LogoutOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
 import { getAccountInfo } from '../../api/parent.api'
 import path from '../../constants/path'
-import ProfileModal from '../../components/Profile/ProfileModal'
 
 interface AccountInfo {
   $id: string
@@ -27,7 +26,6 @@ const { Header, Content } = Layout
 
 const AdminLayout: React.FC = () => {
   const [open, setOpen] = useState(false)
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const { logout } = useAuth()
   const [userData, setUserData] = useState<AccountInfo | null>(null)
   const navigate = useNavigate()
@@ -37,11 +35,6 @@ const AdminLayout: React.FC = () => {
     logout()
     setOpen(false)
     navigate(path.login)
-  }
-
-  const handleProfileClick = () => {
-    setIsProfileModalOpen(true)
-    setOpen(false)
   }
 
   useEffect(() => {
@@ -95,13 +88,6 @@ const AdminLayout: React.FC = () => {
             {open && (
               <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200'>
                 <button
-                  className='w-full flex items-center px-3 py-2 text-gray-700 hover:bg-blue-50 transition-colors text-sm'
-                  onClick={handleProfileClick}
-                >
-                  <UserOutlined className='mr-2' />
-                  <span>Hồ sơ</span>
-                </button>
-                <button
                   className='w-full flex items-center px-3 py-2 text-red-500 hover:bg-blue-50 transition-colors text-sm'
                   onClick={handleLogout}
                 >
@@ -116,7 +102,6 @@ const AdminLayout: React.FC = () => {
           <Outlet />
         </Content>
       </Layout>
-      <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
     </Layout>
   )
 }

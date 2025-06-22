@@ -46,7 +46,7 @@ const Login: React.FC = () => {
         authLogin(userData)
 
         if (userData.roleName === 'Parent') navigate(path.home)
-        else if (userData.roleName === 'Nurse') navigate(path.NURSE_PROFILE)
+        else if (userData.roleName === 'Nurse') navigate(path.HEALTH_RECORD_CENSORSHIP)
         else if (userData.roleName === 'Admin') navigate(path.CENSOR_LIST)
       } else {
         toast.error(translateMessage(result.message, 'login'))

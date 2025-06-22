@@ -9,7 +9,6 @@ import SendMedicine from './pages/parent/sendMedicine/sendMedicine'
 import ProfileParent from './pages/parent/profile/profileParent'
 import NurseLayout from './layouts/NurseLayout/NurseLayout'
 import HealthRecordCensorship from './pages/nurse/healthRecordCensorship/HealthRecordCensorship'
-import NurseProfile from './pages/nurse/nurseProfile/NurseProfile'
 import ScheduleVaccination from './pages/nurse/scheduleVaccination/ScheduleVaccination'
 import ResultsAfterVaccination from './pages/nurse/resultsAfterVaccination'
 import ReceiveMedicine from './pages/nurse/receiveMedicine/ReceiveMedicine'
@@ -128,10 +127,6 @@ export default function useRouteElements() {
               element: <MedicationList />
             },
             {
-              path: path.NURSE_PROFILE,
-              element: <NurseProfile />
-            },
-            {
               path: path.SCHEDULE_VACCINATION,
               element: <ScheduleVaccination />
             },
@@ -155,10 +150,21 @@ export default function useRouteElements() {
               path: path.MEDICAL_SUPPLIES,
               element: <MedicalSuppliesList />
             },
-
             {
               path: path.PRIVATE_CONSULTATION,
               element: <PrivateConsultation />
+            },
+            {
+              path: path.NURSE_CATEGORY_MANAGEMENT,
+              element: <CategoryList />
+            },
+            {
+              path: path.NURSE_BLOG_LIST_BY_CATEGORY,
+              element: <BlogList />
+            },
+            {
+              path: path.NURSE_BLOG_DETAIL,
+              element: <BlogDetail />
             }
           ]
         }

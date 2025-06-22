@@ -1,6 +1,6 @@
 import React from 'react'
 import { Layout, Menu } from 'antd'
-import { FileSearchOutlined, UserOutlined } from '@ant-design/icons'
+import { FileSearchOutlined } from '@ant-design/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
 import path from '../../constants/path'
 
@@ -62,9 +62,9 @@ const Sidebar: React.FC = () => {
       label: 'Kế hoạch y tế'
     },
     {
-      key: path.NURSE_PROFILE,
-      icon: <UserOutlined className='text-lg' />,
-      label: 'Hồ sơ cá nhân'
+      key: path.NURSE_CATEGORY_MANAGEMENT,
+      icon: <FileSearchOutlined className='text-lg' />,
+      label: 'Quản lí Blog'
     }
   ]
 

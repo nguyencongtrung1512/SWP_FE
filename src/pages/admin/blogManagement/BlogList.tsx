@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../../../contexts/auth.context'
 import { Card, Row, Col, Table, Button, Dropdown, message, Modal } from 'antd'
-import { FileTextOutlined, TagsOutlined, MoreOutlined } from '@ant-design/icons'
+import { FileTextOutlined, MoreOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { MenuProps } from 'antd'
 import blogApi, { type Blog, type CreateBlogRequest } from '../../../apis/blog.api'
@@ -20,6 +21,7 @@ function BlogList() {
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null)
+  const { user } = useAuth()
 
   const fetchBlogs = async () => {
     if (!categoryId) return
@@ -47,11 +49,16 @@ function BlogList() {
   }
 
   useEffect(() => {
+    console.log(user)
     fetchBlogs()
   }, [categoryId])
 
   const handleViewDetail = (record: Blog) => {
-    navigate(`/admin/blog-detail/${record.blogID}`)
+    if (user?.roleName === 'Nurse') {
+      navigate(`/nurse/blog-detail/${record.blogID}`)
+    } else if (user?.roleName === 'Admin') {
+      navigate(`/admin/blog-detail/${record.blogID}`)
+    }
   }
 
   const handleDelete = (record: Blog) => {
@@ -134,7 +141,10 @@ function BlogList() {
 
   return (
     <div className='p-6'>
-      <h1 className='text-2xl font-bold mb-6'>Quản lý Blog</h1>
+      <h1 className='text-2xl font-bold'>Quản lý Blog</h1>
+      <div className='flex justify-end items-end mb-6 -mt-7 mr-6'>
+        <Button onClick={() => navigate(-1)}>Quay lại</Button>
+      </div>
 
       <Row gutter={16} className='mb-6'>
         <Col span={12}>

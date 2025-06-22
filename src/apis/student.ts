@@ -56,3 +56,7 @@ export const updateStudent = (id: number, data: Partial<Omit<Student, 'parent'>>
 export const deleteStudent = (id: number) => {
   return http.delete<ApiResponse<void>>(`/Student/DeleteStudent/${id}`)
 }
+
+export const getParentById = (id: number) => {
+  return http.get(`/accounts/admin/${id}`)
+}

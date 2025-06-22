@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Descriptions, Typography, Spin, message } from 'antd'
-import { getStudentById } from '../../../apis/student'
+import { getParentById, getStudentById } from '../../../apis/student'
 import type { Student } from '../../../apis/student'
 
 const { Title } = Typography
@@ -14,6 +14,7 @@ interface StudentDetailModalProps {
 function StudentDetailModal({ isModalVisible, onCancel, studentId }: StudentDetailModalProps) {
   const [student, setStudent] = useState<Student | null>(null)
   const [loading, setLoading] = useState(false)
+  const [parent, setParent] = useState<any>(null)
 
   useEffect(() => {
     if (isModalVisible && studentId) {
@@ -25,8 +26,14 @@ function StudentDetailModal({ isModalVisible, onCancel, studentId }: StudentDeta
     try {
       setLoading(true)
       const response = await getStudentById(Number(studentId))
-      console.log('API Response data:', response.data)
       setStudent(response.data)
+      // Lấy thông tin phụ huynh nếu có parentId
+      if (response.data.parentId) {
+        const parentRes = await getParentById(response.data.parentId)
+        setParent(parentRes.data)
+      } else {
+        setParent(null)
+      }
     } catch (error) {
       console.error('Error fetching student detail:', error)
       message.error('Có lỗi xảy ra khi tải thông tin học sinh!')
@@ -64,16 +71,14 @@ function StudentDetailModal({ isModalVisible, onCancel, studentId }: StudentDeta
           </Descriptions>
 
           <Descriptions title='Thông tin phụ huynh' bordered style={{ marginTop: '24px' }}>
-            <Descriptions.Item label='Họ và tên'>{student.parent?.fullname || 'Chưa Cập nhập'}</Descriptions.Item>
-            <Descriptions.Item label='Email'>{student.parent?.email || 'Chưa Cập nhập'}</Descriptions.Item>
-            <Descriptions.Item label='Số điện thoại'>
-              {student.parent?.phoneNumber || 'Chưa Cập nhập'}
-            </Descriptions.Item>
-            <Descriptions.Item label='Địa chỉ'>{student.parent?.address || 'Chưa Cập nhập'}</Descriptions.Item>
+            <Descriptions.Item label='Họ và tên'>{parent?.fullname || 'Chưa Cập nhập'}</Descriptions.Item>
+            <Descriptions.Item label='Email'>{parent?.email || 'Chưa Cập nhập'}</Descriptions.Item>
+            <Descriptions.Item label='Số điện thoại'>{parent?.phoneNumber || 'Chưa Cập nhập'}</Descriptions.Item>
+            <Descriptions.Item label='Địa chỉ'>{parent?.address || 'Chưa Cập nhập'}</Descriptions.Item>
             <Descriptions.Item label='Ngày sinh'>
-              {student.parent?.dateOfBirth ? new Date(student.parent.dateOfBirth).toLocaleDateString('vi-VN') : 'N/A'}
+              {parent?.dateOfBirth ? new Date(parent.dateOfBirth).toLocaleDateString('vi-VN') : 'N/A'}
             </Descriptions.Item>
-            <Descriptions.Item label='Trạng thái'>{student.parent?.status || 'Chưa Cập nhập'}</Descriptions.Item>
+            <Descriptions.Item label='Trạng thái'>{parent?.status || 'Chưa Cập nhập'}</Descriptions.Item>
           </Descriptions>
         </>
       ) : (

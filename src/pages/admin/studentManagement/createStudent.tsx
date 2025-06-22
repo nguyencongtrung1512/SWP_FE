@@ -2,7 +2,9 @@ import React from 'react'
 import { Modal, Form, Input, DatePicker, Select } from 'antd'
 import { createStudent } from '../../../apis/student'
 import dayjs from 'dayjs'
+import { getAllUser } from '../../../apis/adminManageAccount'
 import { toast } from 'react-toastify'
+import { AxiosError } from 'axios'
 
 interface CreateStudentProps {
   isModalVisible: boolean
@@ -14,9 +16,19 @@ interface CreateStudentProps {
 const CreateStudent: React.FC<CreateStudentProps> = ({ isModalVisible, onCancel, onSuccess, classId }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+  const [parents, setParents] = React.useState<{ accountID: number; fullname: string }[]>([])
 
   const maxDate = dayjs().subtract(6, 'year')
   const minDate = dayjs().subtract(15, 'year')
+
+  React.useEffect(() => {
+    if (isModalVisible) {
+      getAllUser.getAllUsers().then((res) => {
+        const parentList = res.filter((u) => u.role?.roleName === 'Parent')
+        setParents(parentList)
+      })
+    }
+  }, [isModalVisible])
 
   const handleOk = async () => {
     try {
@@ -31,9 +43,14 @@ const CreateStudent: React.FC<CreateStudentProps> = ({ isModalVisible, onCancel,
       toast.success('Thêm học sinh thành công!')
       form.resetFields()
       onSuccess()
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating student:', error)
-      toast.error('Có lỗi xảy ra khi thêm học sinh!')
+      const err = error as AxiosError<{ message?: string }>
+      if (err?.response?.data?.message === 'StudentCode already exists.') {
+        toast.error('Học sinh khác đã có mã này!')
+      } else {
+        toast.error('Có lỗi xảy ra khi thêm học sinh!')
+      }
     } finally {
       setLoading(false)
     }
@@ -89,12 +106,22 @@ const CreateStudent: React.FC<CreateStudentProps> = ({ isModalVisible, onCancel,
           />
         </Form.Item>
 
-        <Form.Item
-          name='parentId'
-          label='ID Phụ huynh'
-          rules={[{ required: true, message: 'Vui lòng nhập ID phụ huynh!' }]}
-        >
-          <Input type='number' placeholder='Nhập ID phụ huynh' />
+        <Form.Item name='parentId' label='Phụ huynh' rules={[{ required: false, message: 'Vui lòng chọn phụ huynh!' }]}>
+          <Select
+            showSearch
+            placeholder='Chọn phụ huynh'
+            optionFilterProp='children'
+            filterOption={(input, option) => {
+              const label = option?.children?.toString() || '';
+              return label.toLowerCase().includes(input.toLowerCase());
+            }}
+          >
+            {parents.map((p) => (
+              <Select.Option key={p.accountID} value={p.accountID}>
+                {p.fullname}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

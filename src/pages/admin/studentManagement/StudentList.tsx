@@ -31,8 +31,10 @@ function StudentList() {
     try {
       setLoading(true)
       const response = await getAllStudents()
+
       const filteredStudents = response.data.$values.filter((student) => student.classId === Number(classId))
       setStudents(filteredStudents)
+      console.log('phụ huynh ', filteredStudents)
     } catch (error) {
       console.error('Error fetching students:', error)
     } finally {
@@ -80,8 +82,11 @@ function StudentList() {
     },
     {
       title: 'Phụ huynh',
-      dataIndex: ['parent', 'fullname'],
-      key: 'parentName'
+      key: 'parentName',
+      render: (_, record) =>
+        record.parentName ||
+        (record.parent && record.parent.fullname) ||
+        'Chưa có thông tin'
     },
     {
       title: 'Thao tác',
@@ -128,7 +133,7 @@ function StudentList() {
       <Card>
         <Table columns={columns} dataSource={students} rowKey='studentId' loading={loading} />
       </Card>
-     
+
       <CreateStudent
         isModalVisible={isCreateModalVisible}
         onCancel={() => setIsCreateModalVisible(false)}

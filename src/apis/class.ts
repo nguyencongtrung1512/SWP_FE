@@ -1,4 +1,3 @@
-import { ApiResponse } from './class';
 import http from '../utils/http'
 
 export interface Class {

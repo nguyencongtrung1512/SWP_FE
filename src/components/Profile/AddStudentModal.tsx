@@ -93,12 +93,7 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
           </Form.Item>
           {!studentInfo && (
             <Form.Item>
-              <Button
-                type='primary'
-                className='w-full'
-                onClick={handleCheckStudent}
-                loading={checking}
-              >
+              <Button type='primary' className='w-full' onClick={handleCheckStudent} loading={checking}>
                 Kiểm tra
               </Button>
             </Form.Item>
@@ -106,18 +101,26 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
         </Form>
         {studentInfo && (
           <div className='bg-gray-50 rounded-lg p-4 my-4'>
-            <div><b>Họ tên:</b> {studentInfo.fullname}</div>
-            <div><b>Mã học sinh:</b> {studentInfo.studentCode}</div>
-            <div><b>Giới tính:</b> {studentInfo.gender}</div>
-            <div><b>Ngày sinh:</b> {studentInfo.dateOfBirth?.split('T')[0]}</div>
-            <div><b>Lớp:</b> {studentInfo.className}</div>
+            <div>
+              <b>Họ tên:</b> {studentInfo.fullname}
+            </div>
+            <div>
+              <b>Mã học sinh:</b> {studentInfo.studentCode}
+            </div>
+            <div>
+              <b>Giới tính:</b> {studentInfo.gender}
+            </div>
+            <div>
+              <b>Ngày sinh:</b> {studentInfo.dateOfBirth?.split('T')[0]}
+            </div>
+            <div>
+              <b>Lớp:</b> {studentInfo.className}
+            </div>
             <div className='flex gap-2 mt-4'>
               <Button type='primary' onClick={handleConfirm} loading={loading}>
                 Xác nhận liên kết
               </Button>
-              <Button onClick={handleCancel}>
-                Hủy
-              </Button>
+              <Button onClick={handleCancel}>Hủy</Button>
             </div>
           </div>
         )}

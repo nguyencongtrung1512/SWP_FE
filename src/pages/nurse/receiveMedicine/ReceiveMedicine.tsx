@@ -102,7 +102,30 @@ const ReceiveMedicine: React.FC = () => {
       key: 'medications',
       render: (_, record) => {
         const meds = record.medications?.$values || []
-        return meds.map((m: Medication) => m.name).join(', ')
+        return meds.map((m: Medication, index) => (
+          <li key={index} className='mb-2'>
+            <div>
+              <strong>Tên thuốc:</strong> {m.name}
+            </div>
+            <div>
+              <strong>Dạng:</strong> {m.type}
+            </div>
+            <div>
+              <strong>Liều lượng:</strong> {m.dosage}
+            </div>
+            <div>
+              <strong>Cách dùng:</strong> {m.usage}
+            </div>
+            <div>
+              <strong>Hạn sử dụng:</strong> {dayjs(m.expiredDate).format('DD/MM/YYYY')}
+            </div>
+            {m.note && (
+              <div>
+                <strong>Ghi chú:</strong> {m.note}
+              </div>
+            )}
+          </li>
+        ))
       }
     },
     {
@@ -272,17 +295,26 @@ const ReceiveMedicine: React.FC = () => {
                   <Descriptions.Item label='Danh sách thuốc' span={2}>
                     <ul>
                       {(selectedRequest.medications?.$values || []).map((med, index) => (
-                        <li key={index}>
-                          <strong>{med.name}</strong> ({med.type}) - {med.dosage}
-                          <br />
-                          Cách dùng: {med.usage}
-                          <br />
-                          HSD: {dayjs(med.expiredDate).format('DD/MM/YYYY')}
+                        <li key={index} className='mb-2'>
+                          <div>
+                            <strong>Tên thuốc:</strong> {med.name}
+                          </div>
+                          <div>
+                            <strong>Dạng:</strong> {med.type}
+                          </div>
+                          <div>
+                            <strong>Liều lượng:</strong> {med.dosage}
+                          </div>
+                          <div>
+                            <strong>Cách dùng:</strong> {med.usage}
+                          </div>
+                          <div>
+                            <strong>Hạn sử dụng:</strong> {dayjs(med.expiredDate).format('DD/MM/YYYY')}
+                          </div>
                           {med.note && (
-                            <>
-                              <br />
-                              Ghi chú thuốc: {med.note}
-                            </>
+                            <div>
+                              <strong>Ghi chú:</strong> {med.note}
+                            </div>
                           )}
                         </li>
                       ))}

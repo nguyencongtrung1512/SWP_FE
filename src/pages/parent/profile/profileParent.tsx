@@ -12,6 +12,7 @@ import { getAccountInfo, getMyChildren, Student } from '../../../api/parent.api'
 import UpdateProfileModal from './updateProfile'
 import ChangePasswordModal from '../../../components/Profile/ChangePasswordModal'
 import AddStudentModal from '../../../components/Profile/AddStudentModal'
+import StudentDetailModal from '../../../components/Profile/StudentDetailModal'
 
 interface AccountInfo {
   $id: string
@@ -36,6 +37,8 @@ const ProfileParent = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false)
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
+  const [isStudentDetailModalOpen, setIsStudentDetailModalOpen] = useState(false)
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
@@ -97,6 +100,16 @@ const ProfileParent = () => {
     fetchData()
   }
 
+  const handleOpenStudentDetailModal = (student: Student) => {
+    setSelectedStudent(student)
+    setIsStudentDetailModalOpen(true)
+  }
+
+  const handleCloseStudentDetailModal = () => {
+    setIsStudentDetailModalOpen(false)
+    setSelectedStudent(null)
+  }
+
   if (loading) {
     return (
       <div className='min-h-screen bg-gray-50 py-8 px-8 flex items-center justify-center'>
@@ -122,10 +135,10 @@ const ProfileParent = () => {
           {/* Avatar */}
           <div className='w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center mb-2 text-gray-400 text-2xl relative overflow-hidden'>
             {accountInfo?.image ? (
-              <img 
-                src={`data:image/png;base64,${accountInfo.image}`} 
-                alt='avatar' 
-                className='w-full h-full object-cover' 
+              <img
+                src={`data:image/png;base64,${accountInfo.image}`}
+                alt='avatar'
+                className='w-full h-full object-cover'
               />
             ) : (
               <>
@@ -190,11 +203,9 @@ const ProfileParent = () => {
                 {students.map((child) => (
                   <div
                     key={child.id}
-                    className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px]'
+                    className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px] cursor-pointer hover:bg-gray-100 transition-colors'
+                    onClick={() => handleOpenStudentDetailModal(child)}
                   >
-                    <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold text-lg'>
-                      {child.fullname?.split(' ').slice(-2).join(' ') || 'HS'}
-                    </div>
                     <div>
                       <div className='font-semibold'>{child.fullname || 'Chưa có tên'}</div>
                       <div className='flex items-center gap-1 text-gray-400 text-xs mt-1'>
@@ -228,6 +239,11 @@ const ProfileParent = () => {
         isOpen={isAddStudentModalOpen}
         onClose={handleCloseAddStudentModal}
         onAddSuccess={handleAddStudentSuccess}
+      />
+      <StudentDetailModal
+        isOpen={isStudentDetailModalOpen}
+        onClose={handleCloseStudentDetailModal}
+        student={selectedStudent}
       />
     </div>
   )

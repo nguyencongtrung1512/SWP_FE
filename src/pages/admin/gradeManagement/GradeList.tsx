@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { getAllClasses, deleteClass } from '../../../apis/class'
-import { Select, Card, List, Typography, Button, Popconfirm, message } from 'antd'
+import { Select, message, Popconfirm } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import type { Class } from '../../../apis/class'
+import type { Class as ClassBase } from '../../../apis/class'
 import CreateClass from '../classroomManagement/Create'
 import UpdateClass from '../classroomManagement/Update'
+import { EyeOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
+import { getAllStudents } from '../../../apis/student'
 
-const { Title } = Typography
+type Class = ClassBase & { studentCount?: number }
 
 function GradeList() {
   const navigate = useNavigate()
   const [classes, setClasses] = useState<Class[]>([])
   const [selectedGrade, setSelectedGrade] = useState<string>('1')
-  const [loading, setLoading] = useState(false)
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false)
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false)
   const [selectedClass, setSelectedClass] = useState<Class | null>(null)
@@ -23,13 +24,28 @@ function GradeList() {
 
   const fetchClasses = async () => {
     try {
-      setLoading(true)
-      const response = await getAllClasses()
-      setClasses(response.data.$values)
+      const [classRes, studentRes] = await Promise.all([
+        getAllClasses(),
+        getAllStudents()
+      ])
+      const classList = classRes.data.$values
+      const students = studentRes.data.$values
+
+      // Tạo map classId -> số lượng học sinh
+      const classIdToCount: Record<number, number> = {}
+      students.forEach(stu => {
+        classIdToCount[stu.classId] = (classIdToCount[stu.classId] || 0) + 1
+      })
+
+      // Gán studentCount cho từng lớp
+      const classesWithCount = classList.map(cls => ({
+        ...cls,
+        studentCount: classIdToCount[cls.classId] || 0
+      }))
+
+      setClasses(classesWithCount)
     } catch (error) {
       console.error('Error fetching classes:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -59,66 +75,69 @@ function GradeList() {
   ]
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <Title level={2}>Quản lý lớp học</Title>
-        <Button type='primary' onClick={() => setIsCreateModalVisible(true)}>
-          Thêm lớp mới
-        </Button>
+    <div className='min-h-screen bg-[#f4f7fb] p-8'>
+      <div className='flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4'>
+        <h2 className='text-3xl font-bold text-gray-800'>Quản lý lớp học</h2>
+        <div className='flex gap-4 items-center'>
+          <Select
+            style={{ width: 160 }}
+            value={selectedGrade}
+            onChange={setSelectedGrade}
+            options={gradeOptions}
+            placeholder='Chọn khối'
+            className='rounded-lg shadow-sm'
+          />
+          <button
+            className='flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow transition-colors'
+            onClick={() => setIsCreateModalVisible(true)}
+          >
+            <span className='text-lg'>+</span> Thêm lớp mới
+          </button>
+        </div>
       </div>
 
-      <div style={{ marginBottom: '24px' }}>
-        <Select
-          style={{ width: 200 }}
-          value={selectedGrade}
-          onChange={setSelectedGrade}
-          options={gradeOptions}
-          placeholder='Chọn cấp'
-        />
-      </div>
-
-      <Card loading={loading}>
-        <List
-          grid={{ gutter: 16, column: 4 }}
-          dataSource={filteredClasses}
-          renderItem={(item) => (
-            <List.Item>
-              <Card
-                title={`Lớp ${item.className}`}
-                actions={[
-                  <Button
-                    type='link'
-                    onClick={() => handleViewStudents(item.classId, item.className)}
-                  >
-                    Xem học sinh
-                  </Button>,
-                  <Button
-                    type='link'
-                    onClick={() => {
-                      setSelectedClass(item)
-                      setIsUpdateModalVisible(true)
-                    }}
-                  >
-                    Sửa
-                  </Button>,
-                  <Popconfirm
-                    title='Xóa lớp học'
-                    description='Bạn có chắc chắn muốn xóa lớp này?'
-                    onConfirm={() => handleDelete(item.classId)}
-                    okText='Xóa'
-                    cancelText='Hủy'
-                  >
-                    <Button type='link' danger>
-                      Xóa
-                    </Button>
-                  </Popconfirm>
-                ]}
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
+        {filteredClasses.map((item) => (
+          <div
+            key={item.classId}
+            className='bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center hover:shadow-2xl transition-shadow duration-200 min-h-[220px]'
+          >
+            <div className='text-xl font-bold text-gray-700 mb-2'>Lớp {item.className}</div>
+            <div className='flex items-center gap-2 text-gray-500 mb-4'>
+              <UserOutlined />
+              <span>{item['studentCount'] || 0} học sinh</span>
+            </div>
+            <div className='flex flex-col gap-2 w-full mt-auto'>
+              <button
+                className='flex items-center gap-2 text-blue-600 hover:underline font-medium justify-center'
+                onClick={() => handleViewStudents(item.classId, item.className)}
               >
-              </Card>
-            </List.Item>
-          )}
-        />
-      </Card>
+                <EyeOutlined /> Xem học sinh
+              </button>
+              <button
+                className='flex items-center gap-2 text-blue-500 hover:underline font-medium justify-center'
+                onClick={() => {
+                  setSelectedClass(item)
+                  setIsUpdateModalVisible(true)
+                }}
+              >
+                <EditOutlined /> Sửa
+              </button>
+              <Popconfirm
+                title='Xóa lớp học'
+                description='Bạn có chắc chắn muốn xóa lớp này?'
+                onConfirm={() => handleDelete(item.classId)}
+                okText='Xóa'
+                cancelText='Hủy'
+              >
+                <button className='flex items-center gap-2 text-red-500 hover:underline font-medium justify-center'>
+                  <DeleteOutlined /> Xóa
+                </button>
+              </Popconfirm>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <CreateClass
         isModalVisible={isCreateModalVisible}

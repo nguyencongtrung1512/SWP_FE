@@ -1,95 +1,76 @@
-import React from 'react'
-import { Card, Timeline, Tag, Typography } from 'antd'
-import { CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import React, { useEffect, useState } from 'react'
+import { Table, Card, Select, message, Spin } from 'antd'
+import { getRecordsByStudent } from '../../../apis/vaccination'
 
-const { Title, Text } = Typography
+const { Option } = Select
 
 interface VaccinationRecord {
-  id: string
-  year: string
-  date: string
-  vaccineName: string
-  status: 'completed' | 'scheduled'
-  location: string
-  notes?: string
+  recordId: number
+  campaignName: string
+  dateInjected: string
+  result: string
+  immediateReaction: string
+  note: string
 }
 
-const mockHistoryData: VaccinationRecord[] = [
+interface Child {
+  studentId: number
+  studentName: string
+}
+
+interface HistoryVaccinationProps {
+  childrenList: Child[]
+}
+
+const columns = [
+  { title: 'Chiến dịch', dataIndex: 'campaignName', key: 'campaignName' },
   {
-    id: '1',
-    year: '2024',
-    date: '15/03/2024',
-    vaccineName: 'Vaccine 5 trong 1',
-    status: 'completed',
-    location: 'Trung tâm Y tế Quận 1',
-    notes: 'Không có phản ứng phụ'
+    title: 'Ngày tiêm',
+    dataIndex: 'dateInjected',
+    key: 'dateInjected',
+    render: (date: string) => (date ? new Date(date).toLocaleString('vi-VN') : '')
   },
-  {
-    id: '2',
-    year: '2024',
-    date: '20/04/2024',
-    vaccineName: 'Vaccine 6 trong 1',
-    status: 'scheduled',
-    location: 'Trung tâm Y tế Quận 1'
-  },
-  {
-    id: '3',
-    year: '2023',
-    date: '10/12/2023',
-    vaccineName: 'Vaccine Sởi - Quai bị - Rubella',
-    status: 'completed',
-    location: 'Trung tâm Y tế Quận 1',
-    notes: 'Sốt nhẹ 1 ngày'
-  },
-  {
-    id: '4',
-    year: '2023',
-    date: '05/09/2023',
-    vaccineName: 'Vaccine Viêm não Nhật Bản',
-    status: 'completed',
-    location: 'Trung tâm Y tế Quận 1'
-  }
+  { title: 'Kết quả', dataIndex: 'result', key: 'result' },
+  { title: 'Phản ứng ngay', dataIndex: 'immediateReaction', key: 'immediateReaction' },
+  { title: 'Ghi chú', dataIndex: 'note', key: 'note' }
 ]
 
-const HistoryVaccination: React.FC = () => {
-  const groupedByYear = mockHistoryData.reduce((acc, record) => {
-    if (!acc[record.year]) {
-      acc[record.year] = []
-    }
-    acc[record.year].push(record)
-    return acc
-  }, {} as Record<string, VaccinationRecord[]>)
+const HistoryVaccination: React.FC<HistoryVaccinationProps> = ({ childrenList }) => {
+  const [selectedStudentId, setSelectedStudentId] = useState<number | undefined>(childrenList[0]?.studentId)
+  const [records, setRecords] = useState<VaccinationRecord[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!selectedStudentId) return
+    setLoading(true)
+    getRecordsByStudent(selectedStudentId)
+      .then((res) => setRecords(res.data))
+      .catch(() => message.error('Không lấy được lịch sử tiêm!'))
+      .finally(() => setLoading(false))
+  }, [selectedStudentId])
 
   return (
-    <div className='space-y-6'>
-      {Object.entries(groupedByYear).map(([year, records]) => (
-        <Card key={year} className='bg-white shadow-md'>
-          <Title level={4} className='mb-4'>
-            Năm {year}
-          </Title>
-          <Timeline
-            items={records.map((record) => ({
-              color: record.status === 'completed' ? 'green' : 'blue',
-              children: (
-                <div className='space-y-2'>
-                  <div className='flex items-center justify-between'>
-                    <Text strong>{record.vaccineName}</Text>
-                    <Tag color={record.status === 'completed' ? 'green' : 'blue'} icon={record.status === 'completed' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
-                      {record.status === 'completed' ? 'Đã tiêm' : 'Đã lên lịch'}
-                    </Tag>
-                  </div>
-                  <div className='text-gray-600'>
-                    <div>Ngày: {record.date}</div>
-                    <div>Địa điểm: {record.location}</div>
-                    {record.notes && <div>Ghi chú: {record.notes}</div>}
-                  </div>
-                </div>
-              )
-            }))}
-          />
-        </Card>
-      ))}
-    </div>
+    <Card>
+      <div style={{ marginBottom: 16 }}>
+        <span style={{ marginRight: 8, fontWeight: 500 }}>Chọn học sinh:</span>
+        <Select style={{ width: 220 }} value={selectedStudentId} onChange={setSelectedStudentId}>
+          {childrenList.map((child) => (
+            <Option key={child.studentId} value={child.studentId}>
+              {child.studentName}
+            </Option>
+          ))}
+        </Select>
+      </div>
+      <Spin spinning={loading}>
+        <Table
+          columns={columns}
+          dataSource={Array.isArray(records) ? records : []}
+          rowKey='recordId'
+          pagination={false}
+          locale={{ emptyText: 'Không có dữ liệu' }}
+        />
+      </Spin>
+    </Card>
   )
 }
 

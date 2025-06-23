@@ -18,7 +18,7 @@ import {
 import { CiLock, CiUnlock } from 'react-icons/ci'
 import { EyeOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
-import { getAllUser, deleteUser, User } from '../../../apis/adminManageAccount'
+import { getAllUser, deleteUser, User, updateUserStatus } from '../../../apis/adminManageAccount'
 import { createNurse } from '../../../api/auth.api'
 import { FaPlus } from 'react-icons/fa6'
 import AddNurse from './AddNurse'
@@ -63,6 +63,7 @@ const UserList: React.FC = () => {
             status: (user.status === 'Active' ? 'Active' : 'Inactive') as 'Active' | 'Inactive'
           }))
         setUsers(transformedData)
+        console.log('Fetched Users:', transformedData)
         setFilteredUsers(transformedData)
       } else {
         setError('Không tìm thấy token xác thực.')
@@ -78,18 +79,33 @@ const UserList: React.FC = () => {
   }
 
   const handleDeleteUser = async (user: User) => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.error('Không tìm thấy token xác thực.')
+      return
+    }
+    await deleteUser.deleteUser(user.accountID)
+    setUsers(users.filter((u) => u.accountID !== user.accountID))
+    fetchUsers()
+    toast.success('Đã vô hiệu hóa người dùng thành công!')
+  }
+
+  const handleActivateUser = async (user: User) => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.error('Không tìm thấy token xác thực.')
+      return
+    }
     try {
-      const token = localStorage.getItem('token')
-      if (token) {
-        await deleteUser.deleteUser(user.accountID)
-        setUsers(users.filter((u) => u.accountID !== user.accountID))
-        toast.success('Đã vô hiệu hóa người dùng thành công!')
-      } else {
-        toast.error('Không tìm thấy token xác thực.')
+      const response = await updateUserStatus.updateStatus(user.accountID, 'Active')
+      if (response.data && response.data.message) {
+        // setUsers(users.filter((u) => u.accountID !== user.accountID))
+        console.log('Response:', response.data)
+        toast.success('Đã kích hoạt người dùng thành công!')
+        fetchUsers()
       }
     } catch (err) {
-      toast.error('Vô hiệu hóa người dùng thất bại.')
-      console.error(err)
+      
     }
   }
 
@@ -168,7 +184,7 @@ const UserList: React.FC = () => {
     }
   }
 
-  const columns = [
+  const columns: any[] = [
     {
       title: 'Họ và tên',
       dataIndex: 'fullname',
@@ -235,7 +251,7 @@ const UserList: React.FC = () => {
             <Popconfirm
               title='Kích hoạt người dùng'
               description='Bạn có chắc chắn muốn kích hoạt người dùng này?'
-              onConfirm={() => handleDeleteUser(record)}
+              onConfirm={() => handleActivateUser(record)}
               okText='Kích hoạt'
               cancelText='Hủy'
             >

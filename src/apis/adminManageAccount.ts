@@ -59,3 +59,9 @@ export const deleteUser = {
     return http.delete(`${API_URL}/admin/delete/${id}`)
   }
 }
+
+export const updateUserStatus = {
+  updateStatus(id: number, status: string) {
+    return http.patch(`${API_URL}/admin/update-status/${id}`, { status})
+  }
+}

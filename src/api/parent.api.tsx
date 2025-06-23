@@ -300,3 +300,29 @@ export const getHealthRecordsByStudentId = async (studentId: number) => {
     }
   }
 }
+
+// Lấy tất cả sự kiện y tế của các con (dành cho parent)
+export const getAllMedicalEventsForParent = async () => {
+  try {
+    const response = await http.get('/MedicalEvent/Parent/MedicalEvents')
+    return {
+      success: true,
+      data: response.data,
+      message: 'Lấy danh sách sự kiện y tế thành công!'
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Lấy danh sách sự kiện y tế thất bại!',
+        data: null
+      }
+    }
+    console.error('Get all medical events for parent error:', error)
+    return {
+      success: false,
+      message: 'Lấy danh sách sự kiện y tế thất bại!',
+      data: null
+    }
+  }
+}

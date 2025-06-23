@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Button, Table, Card, Typography, Space, Modal, Descriptions, Tag, Tooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { getAllMedicalEvents, MedicalEvent, deleteMedicalEvent } from '../../../apis/medicalEvent'
+import { getAllMedicalEvents, MedicalEvent, deleteMedicalEvent, getMedicalEventById } from '../../../apis/medicalEvent'
 import CreateEvent from './CreateEvent'
 import UpdateEvent from './UpdateEvent'
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons'
@@ -15,6 +15,7 @@ const MedicalReport: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<MedicalEvent | null>(null)
   const [medicalEvents, setMedicalEvents] = useState<MedicalEvent[]>([])
   const [loading, setLoading] = useState(false)
+  const [detailEvent, setDetailEvent] = useState<MedicalEvent | null>(null)
 
   useEffect(() => {
     fetchMedicalEvents()
@@ -25,8 +26,8 @@ const MedicalReport: React.FC = () => {
       setLoading(true)
       const response = await getAllMedicalEvents()
       setMedicalEvents(response.data.$values)
-    } catch (error: unknown) {
-      console.log(error)
+    } catch {
+      // ignore
     } finally {
       setLoading(false)
     }
@@ -100,9 +101,16 @@ const MedicalReport: React.FC = () => {
     }
   ]
 
-  const handleViewDetails = (record: MedicalEvent) => {
-    setSelectedEvent(record)
+  const handleViewDetails = async (record: MedicalEvent) => {
     setIsModalVisible(true)
+    try {
+      const res = await getMedicalEventById(record.medicalEventId)
+      setDetailEvent(res.data)
+      console.log("trung", res.data)
+    } catch (error) {
+      console.error('Lỗi khi lấy chi tiết sự kiện y tế:', error)
+      setDetailEvent(null)
+    }
   }
 
   const handleEdit = (record: MedicalEvent) => {
@@ -127,26 +135,42 @@ const MedicalReport: React.FC = () => {
           width={800}
           footer={null}
         >
-          {selectedEvent && (
+          {detailEvent && (
             <div>
               <Descriptions bordered column={2}>
                 <Descriptions.Item label='Thời gian' span={2}>
-                  {dayjs(selectedEvent.date).format('DD/MM/YYYY HH:mm')}
+                  {dayjs(detailEvent.date).format('DD/MM/YYYY HH:mm')}
                 </Descriptions.Item>
-                <Descriptions.Item label='Loại sự kiện'>{selectedEvent.type}</Descriptions.Item>
-                <Descriptions.Item label='Học sinh'>{selectedEvent.studentName}</Descriptions.Item>
+                <Descriptions.Item label='Loại sự kiện'>{detailEvent.type}</Descriptions.Item>
+                <Descriptions.Item label='Học sinh'>{detailEvent.studentName}</Descriptions.Item>
                 <Descriptions.Item label='Mô tả' span={2}>
-                  {selectedEvent.description}
+                  {detailEvent.description}
                 </Descriptions.Item>
                 <Descriptions.Item label='Ghi chú' span={2}>
-                  {selectedEvent.note}
+                  {detailEvent.note}
                 </Descriptions.Item>
-                <Descriptions.Item label='Y tá phụ trách'>{selectedEvent.nurseName}</Descriptions.Item>
+                <Descriptions.Item label='Y tá phụ trách'>{detailEvent.nurseName}</Descriptions.Item>
                 <Descriptions.Item label='Thuốc sử dụng'>
-                  {selectedEvent.medicationNames.$values.join(', ')}
+                  {detailEvent.medications && detailEvent.medications.$values && detailEvent.medications.$values.length > 0 ? (
+                    <ul style={{ margin: 0, paddingLeft: 16 }}>
+                      {detailEvent.medications.$values.map((med: any, idx: number) => (
+                        <li key={idx}>
+                          {med.name || 'Tên thuốc'}{med.quantityUsed ? ` (SL: ${med.quantityUsed})` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : 'Không có'}
                 </Descriptions.Item>
                 <Descriptions.Item label='Vật tư y tế sử dụng'>
-                  {selectedEvent.medicalSupplyNames.$values.join(', ')}
+                  {detailEvent.medicalSupplies && detailEvent.medicalSupplies.$values && detailEvent.medicalSupplies.$values.length > 0 ? (
+                    <ul style={{ margin: 0, paddingLeft: 16 }}>
+                      {detailEvent.medicalSupplies.$values.map((sup: any, idx: number) => (
+                        <li key={idx}>
+                          {sup.name || 'Tên vật tư'}{sup.quantityUsed ? ` (SL: ${sup.quantityUsed})` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : 'Không có'}
                 </Descriptions.Item>
               </Descriptions>
             </div>

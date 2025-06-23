@@ -6,7 +6,8 @@ export interface Medication {
   type: string
   usage: string
   expiredDate: string
-  medicalEvents: any | null
+  medicalEvents: unknown | null
+  quantity: number
 }
 
 export interface ApiResponse<T> {

@@ -32,6 +32,7 @@ const MedicationDetail: React.FC<MedicationDetailProps> = ({ isModalVisible, onC
         <Descriptions.Item label='Cập nhật lần cuối'>
           {dayjs(medication.updatedAt).format('DD/MM/YYYY HH:mm')}
         </Descriptions.Item>
+        <Descriptions.Item label='Số lượng'>{medication.quantity}</Descriptions.Item>
       </Descriptions>
     </Modal>
   )

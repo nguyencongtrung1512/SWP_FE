@@ -36,11 +36,23 @@ export interface MedicalEvent {
   note: string
   date: string
   studentCode: string
+  medications?: { $id: string; $values: Array<{ medicationId: number; name?: string; quantityUsed?: number }> }
+  medicalSupplies?: { $id: string; $values: Array<{ medicalSupplyId: number; name?: string; quantityUsed?: number }> }
 }
 
 interface MedicalEventResponse {
   $id: string
   $values: MedicalEvent[]
+}
+
+export interface MedicationUsed {
+  medicationId: number
+  quantityUsed: number
+}
+
+export interface MedicalSupplyUsed {
+  medicalSupplyId: number
+  quantityUsed: number
 }
 
 export interface CreateMedicalEventRequest {
@@ -49,8 +61,8 @@ export interface CreateMedicalEventRequest {
   description: string
   note: string
   date: string
-  medicationIds: number[]
-  medicalSupplyIds: number[]
+  medications: MedicationUsed[]
+  medicalSupplies: MedicalSupplyUsed[]
 }
 
 export const getAllMedicalEvents = () => {

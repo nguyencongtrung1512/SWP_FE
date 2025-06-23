@@ -114,6 +114,10 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
             disabledDate={(current) => current && current < dayjs().startOf('day')}
           />
         </Form.Item>
+
+        <Form.Item name='quantity' label='Số lượng' rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
+          <Input type='number' min={1} placeholder='Nhập số lượng' />
+        </Form.Item>
       </Form>
     </Modal>
   )

@@ -6,6 +6,7 @@ export interface MedicalSupply {
   type: string
   description: string
   expiredDate: string
+  quantity: number
 }
 
 interface MedicalSupplyGetAllResponse {

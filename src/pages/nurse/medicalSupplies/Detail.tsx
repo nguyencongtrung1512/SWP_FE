@@ -24,6 +24,7 @@ const MedicalSupplyDetail: React.FC<MedicalSupplyDetailProps> = ({ isModalVisibl
           <Descriptions.Item label='Loại vật tư'>{medicalSupply.type}</Descriptions.Item>
           <Descriptions.Item label='Mô tả'>{medicalSupply.description}</Descriptions.Item>
           <Descriptions.Item label='Ngày hết hạn'>{formatDate(medicalSupply.expiredDate)}</Descriptions.Item>
+          <Descriptions.Item label='Số lượng'>{medicalSupply.quantity}</Descriptions.Item>
         </Descriptions>
       )}
     </Modal>

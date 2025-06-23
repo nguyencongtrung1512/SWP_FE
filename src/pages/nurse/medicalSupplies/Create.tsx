@@ -75,6 +75,10 @@ const CreateMedicalSupply: React.FC<CreateMedicalSupplyProps> = ({ isModalVisibl
         >
           <DatePicker style={{ width: '100%' }} format='DD/MM/YYYY' />
         </Form.Item>
+
+        <Form.Item name='quantity' label='Số lượng' rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
+          <Input type='number' min={1} />
+        </Form.Item>
       </Form>
     </Modal>
   )

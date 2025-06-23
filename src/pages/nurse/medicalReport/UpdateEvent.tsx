@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Form, Input, Select, DatePicker, Button, Modal, Typography, Space, message, Row, Col } from 'antd'
+import { Form, Input, Select, DatePicker, Button, Modal, Typography, Space, Row, Col } from 'antd'
 import dayjs from 'dayjs'
 import {
   updateMedicalEvent,
@@ -10,6 +10,7 @@ import {
 import { getStudentByCode, getStudentById, Student } from '../../../apis/student'
 import { getAllMedications, Medication } from '../../../apis/medication'
 import medicalSupplyApi, { MedicalSupply } from '../../../apis/medicalSupply'
+import { toast } from 'react-toastify'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -21,18 +22,17 @@ interface UpdateEventProps {
   onSuccess: () => void
 }
 
-const UpdateEvent: React.FC<UpdateEventProps> = ({
-  eventId,
-  visible,
-  onCancel,
-  onSuccess
-}) => {
+const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, onSuccess }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [studentCode, setStudentCode] = useState<string>('')
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
   const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string }[]>([])
+  const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
+    { medicalSupplyId: number; quantityUsed: number }[]
+  >([])
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -58,7 +58,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
         }
       } catch (error: unknown) {
         console.error('Error fetching options:', error)
-        message.error('Lỗi khi tải danh sách thuốc hoặc vật tư y tế.')
+        toast.error('Lỗi khi tải danh sách thuốc hoặc vật tư y tế.')
       }
     }
 
@@ -88,15 +88,42 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
             type: eventData.type,
             description: eventData.description,
             note: eventData.note,
-            date: dayjs(eventData.date),
-            medicationIds: eventData.medicationIds.$values,
-            medicalSupplyIds: eventData.medicalSupplyIds?.$values || []
+            date: dayjs(eventData.date)
           })
+          // Set selected medications and supplies with quantity
+          if (eventData.medications && eventData.medications.$values) {
+            setSelectedMedications(
+              eventData.medications.$values.map((med: { medicationId: number; quantityUsed?: number }) => ({
+                medicationId: med.medicationId,
+                quantityUsed: med.quantityUsed || 1
+              }))
+            )
+          } else if (eventData.medicationIds && eventData.medicationIds.$values) {
+            setSelectedMedications(
+              eventData.medicationIds.$values.map((id: number) => ({ medicationId: id, quantityUsed: 1 }))
+            )
+          } else {
+            setSelectedMedications([])
+          }
+          if (eventData.medicalSupplies && eventData.medicalSupplies.$values) {
+            setSelectedMedicalSupplies(
+              eventData.medicalSupplies.$values.map((sup: { medicalSupplyId: number; quantityUsed?: number }) => ({
+                medicalSupplyId: sup.medicalSupplyId,
+                quantityUsed: sup.quantityUsed || 1
+              }))
+            )
+          } else if (eventData.medicalSupplyIds && eventData.medicalSupplyIds.$values) {
+            setSelectedMedicalSupplies(
+              eventData.medicalSupplyIds.$values.map((id: number) => ({ medicalSupplyId: id, quantityUsed: 1 }))
+            )
+          } else {
+            setSelectedMedicalSupplies([])
+          }
         } catch (error: unknown) {
           if (error instanceof Error) {
-            message.error(`Không thể tải thông tin sự kiện: ${error.message}`)
+            toast.error(`Không thể tải thông tin sự kiện`)
           } else {
-            message.error('Không thể tải thông tin sự kiện')
+            toast.error('Không thể tải thông tin sự kiện')
           }
           onCancel()
         } finally {
@@ -114,14 +141,15 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
         // Only search if code changed or no student found
         try {
           const response = await getStudentByCode(studentCode)
-          const studentData = response.data
+          const studentArr = response.data.$values
+          const studentData = studentArr && studentArr.length > 0 ? studentArr[0] : null
           setFoundStudent(studentData)
-          form.setFieldsValue({ studentId: studentData.studentId })
+          form.setFieldsValue({ studentId: studentData?.studentId })
         } catch (error: unknown) {
           if (error instanceof Error) {
-            message.error(`Lỗi khi tìm học sinh: ${error.message}`)
+            toast.error(`Lỗi khi tìm học sinh`)
           } else {
-            message.error('Lỗi khi tìm học sinh.')
+            toast.error('Lỗi khi tìm học sinh.')
           }
           setFoundStudent(null)
           form.setFieldsValue({ studentId: undefined })
@@ -143,11 +171,9 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
     description: string
     note: string
     date: string
-    medicationIds: number[]
-    medicalSupplyIds: number[]
   }) => {
     if (!foundStudent) {
-      message.error('Vui lòng nhập mã học sinh hợp lệ.')
+      toast.error('Vui lòng nhập mã học sinh hợp lệ.')
       return
     }
     try {
@@ -157,18 +183,18 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
         type: values.type,
         description: values.description,
         note: values.note,
-        date: values.date,
-        medicationIds: values.medicationIds,
-        medicalSupplyIds: values.medicalSupplyIds
+        date: dayjs(values.date as unknown as string | number | Date | dayjs.Dayjs | null | undefined).toISOString(),
+        medications: selectedMedications,
+        medicalSupplies: selectedMedicalSupplies
       }
       await updateMedicalEvent(eventId, data)
-      message.success('Cập nhật sự kiện y tế thành công!')
+      toast.success('Cập nhật sự kiện y tế thành công!')
       onSuccess()
     } catch (error: unknown) {
       if (error instanceof Error) {
-        message.error(`Không thể cập nhật sự kiện y tế: ${error.message}`)
+        toast.error(`Không thể cập nhật sự kiện y tế: ${error.message}`)
       } else {
-        message.error('Không thể cập nhật sự kiện y tế')
+        toast.error('Không thể cập nhật sự kiện y tế')
       }
     } finally {
       setLoading(false)
@@ -213,6 +239,9 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
         {foundStudent && (
           <Form.Item label='Tên học sinh'>
             <Text strong>{foundStudent.fullname}</Text>
+            <div style={{ marginTop: 8 }}>
+              <b>Lớp:</b> {foundStudent.className}
+            </div>
             <Form.Item name='studentId' noStyle>
               <Input type='hidden' />
             </Form.Item>
@@ -231,20 +260,76 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({
           <TextArea rows={3} placeholder='Nhập ghi chú thêm nếu cần...' />
         </Form.Item>
 
-        <Form.Item
-          name='medicationIds'
-          label='Thuốc sử dụng'
-          rules={[{ required: true, message: 'Vui lòng chọn thuốc!' }]}
-        >
-          <Select mode='multiple' placeholder='Chọn thuốc' options={medicationOptions} />
+        <Form.Item label='Thuốc sử dụng' required>
+          <Select
+            mode='multiple'
+            placeholder='Chọn thuốc'
+            options={medicationOptions}
+            value={selectedMedications.map((m) => m.medicationId)}
+            onChange={(ids: number[]) => {
+              setSelectedMedications(
+                ids.map((id) => {
+                  const exist = selectedMedications.find((m) => m.medicationId === id)
+                  return exist || { medicationId: id, quantityUsed: 1 }
+                })
+              )
+            }}
+          />
+          {selectedMedications.map((item) => (
+            <div key={item.medicationId} style={{ margin: '8px 0 0 0' }}>
+              <span>{medicationOptions.find((opt) => opt.value === item.medicationId)?.label}:</span>
+              <Input
+                type='number'
+                min={1}
+                style={{ width: 100, marginLeft: 8 }}
+                value={item.quantityUsed}
+                onChange={(e) => {
+                  const val = Number(e.target.value)
+                  setSelectedMedications(
+                    selectedMedications.map((m) =>
+                      m.medicationId === item.medicationId ? { ...m, quantityUsed: val } : m
+                    )
+                  )
+                }}
+              />
+            </div>
+          ))}
         </Form.Item>
 
-        <Form.Item
-          name='medicalSupplyIds'
-          label='Vật tư y tế sử dụng'
-          rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế!' }]}
-        >
-          <Select mode='multiple' placeholder='Chọn vật tư y tế' options={medicalSupplyOptions} />
+        <Form.Item label='Vật tư y tế sử dụng' required>
+          <Select
+            mode='multiple'
+            placeholder='Chọn vật tư y tế'
+            options={medicalSupplyOptions}
+            value={selectedMedicalSupplies.map((m) => m.medicalSupplyId)}
+            onChange={(ids: number[]) => {
+              setSelectedMedicalSupplies(
+                ids.map((id) => {
+                  const exist = selectedMedicalSupplies.find((m) => m.medicalSupplyId === id)
+                  return exist || { medicalSupplyId: id, quantityUsed: 1 }
+                })
+              )
+            }}
+          />
+          {selectedMedicalSupplies.map((item) => (
+            <div key={item.medicalSupplyId} style={{ margin: '8px 0 0 0' }}>
+              <span>{medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)?.label}:</span>
+              <Input
+                type='number'
+                min={1}
+                style={{ width: 100, marginLeft: 8 }}
+                value={item.quantityUsed}
+                onChange={(e) => {
+                  const val = Number(e.target.value)
+                  setSelectedMedicalSupplies(
+                    selectedMedicalSupplies.map((m) =>
+                      m.medicalSupplyId === item.medicalSupplyId ? { ...m, quantityUsed: val } : m
+                    )
+                  )
+                }}
+              />
+            </div>
+          ))}
         </Form.Item>
 
         <Form.Item>

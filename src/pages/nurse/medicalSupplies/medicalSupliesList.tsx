@@ -104,6 +104,11 @@ const MedicalSuppliesList: React.FC = () => {
       key: 'type'
     },
     {
+      title: 'Số lượng',
+      dataIndex: 'quantity',
+      key: 'quantity'
+    },
+    {
       title: 'Ngày hết hạn',
       dataIndex: 'expiredDate',
       key: 'expiredDate',

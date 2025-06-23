@@ -14,6 +14,11 @@ interface Student {
   fullname?: string
   gender?: string
   email?: string
+  studentId?: string
+  studentName?: string
+  dateOfBirth?: string
+  classID?: string
+  classId?: string
 }
 
 interface Nurse {
@@ -33,12 +38,15 @@ interface MedicalEventDetailProps {
     nurse?: Nurse
     medications?: { $values: Medication[] }
     medicalSupplies?: { $values: MedicalSupply[] }
+    nurseName?: string
   }
   studentDetail?: Student | null
 }
 
 const MedicalEventDetail: React.FC<MedicalEventDetailProps> = ({ selectedEvent, studentDetail }) => {
-  const student = studentDetail || selectedEvent.student
+  // Log dữ liệu truyền vào để debug
+  console.log('selectedEvent:', selectedEvent)
+  console.log('studentDetail:', studentDetail)
   return (
     <div className='space-y-6'>
       <Descriptions bordered>
@@ -46,12 +54,7 @@ const MedicalEventDetail: React.FC<MedicalEventDetailProps> = ({ selectedEvent, 
         <Descriptions.Item label='Loại sự kiện'>{selectedEvent.type}</Descriptions.Item>
         <Descriptions.Item label='Mô tả'>{selectedEvent.description}</Descriptions.Item>
         <Descriptions.Item label='Ghi chú'>{selectedEvent.note}</Descriptions.Item>
-        <Descriptions.Item label='Mã học sinh'>{student?.studentCode || ''}</Descriptions.Item>
-        <Descriptions.Item label='Tên học sinh'>{student?.fullname || ''}</Descriptions.Item>
-        <Descriptions.Item label='Giới tính'>{student?.gender || ''}</Descriptions.Item>
-        <Descriptions.Item label='Y tá phụ trách'>{selectedEvent.nurse?.fullname || ''}</Descriptions.Item>
-        <Descriptions.Item label='Email y tá'>{selectedEvent.nurse?.email || ''}</Descriptions.Item>
-        <Descriptions.Item label='Số điện thoại y tá'>{selectedEvent.nurse?.phoneNumber || ''}</Descriptions.Item>
+        <Descriptions.Item label='Y tá phụ trách'>{selectedEvent.nurseName || ''}</Descriptions.Item>
         <Descriptions.Item label='Thuốc'>
           {selectedEvent.medications?.$values && selectedEvent.medications.$values.length > 0
             ? selectedEvent.medications.$values.map((med) => med.name).join(', ')

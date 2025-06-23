@@ -35,6 +35,11 @@ const Sidebar: React.FC = () => {
       key: path.CATEGORY_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,
       label: 'Quản lí Blog'
+    },
+    {
+      key: path.VACCINE_MANAGEMENT,
+      icon: <FileSearchOutlined className='text-lg' />,
+      label: 'Quản lí Vaccine'
     }
   ]
 

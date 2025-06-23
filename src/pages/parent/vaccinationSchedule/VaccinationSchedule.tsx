@@ -1,84 +1,76 @@
-import React, { useState } from 'react'
-import { Card, Table, Tag, Space, Button, Modal, Descriptions, Statistic } from 'antd'
-import { FileTextOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, HistoryOutlined, CalendarOutlined } from '@ant-design/icons'
+import React, { useState, useEffect } from 'react'
+import { Card, Table, Tag, Space, Button, Modal, Descriptions, message } from 'antd'
+import { FileTextOutlined, HistoryOutlined, CalendarOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import HistoryVaccination from './HistoryVaccination'
+import { getParentNotifications, VaccinationConsent, sendConsent } from '../../../apis/vaccination'
 
-interface ScheduleData {
-  key: string
-  eventType: string
-  grade: string
-  date: string
-  totalStudents: number
-  confirmed: number
-  rejected: number
-  pending: number
-  status: 'active' | 'completed' | 'cancelled'
-  document?: string
-  content?: string
-  confirmedStudents?: {
-    name: string
-    parentName: string
-    phone: string
-    confirmDate: string
-  }[]
-  rejectedStudents?: {
-    name: string
-    parentName: string
-    phone: string
-    reason: string
-  }[]
-  pendingStudents?: {
-    name: string
-    parentName: string
-    phone: string
-  }[]
+interface Child {
+  studentId: number
+  studentName: string
 }
 
-const mockData: ScheduleData[] = [
-  {
-    key: '1',
-    eventType: 'Tiêm chủng',
-    grade: 'Lớp 1',
-    date: '15/04/2024',
-    totalStudents: 30,
-    confirmed: 25,
-    rejected: 2,
-    pending: 3,
-    status: 'active',
-    document: 'thong-tin-tiem-chung.pdf',
-    content: 'Thông báo về đợt tiêm chủng định kỳ cho học sinh lớp 1',
-    confirmedStudents: [
-      {
-        name: 'Nguyễn Văn A',
-        parentName: 'Nguyễn Văn B',
-        phone: '0123456789',
-        confirmDate: '10/04/2024'
-      }
-    ],
-    rejectedStudents: [
-      {
-        name: 'Trần Thị C',
-        parentName: 'Trần Văn D',
-        phone: '0987654321',
-        reason: 'Học sinh đang bị ốm'
-      }
-    ],
-    pendingStudents: [
-      {
-        name: 'Lê Văn E',
-        parentName: 'Lê Thị F',
-        phone: '0123456788'
-      }
-    ]
-  }
-]
-
 const VaccinationSchedule: React.FC = () => {
-  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleData | null>(null)
+  const [data, setData] = useState<VaccinationConsent[]>([])
+  const [loading, setLoading] = useState(false)
+  const [selectedSchedule, setSelectedSchedule] = useState<VaccinationConsent | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [childrenList, setChildrenList] = useState<Child[]>([])
 
-  const handleViewDetails = (record: ScheduleData) => {
+  useEffect(() => {
+    fetchData()
+  }, [refreshKey])
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const res = await getParentNotifications()
+      const mapped = res.data.$values.map((item) => ({
+        ...item,
+        key: item.consentId.toString()
+      }))
+      setData(mapped)
+
+      // Lấy danh sách các con duy nhất từ dữ liệu lịch tiêm
+      const uniqueChildren: Child[] = []
+      const seen = new Set()
+      mapped.forEach((item) => {
+        if (!seen.has(item.studentId)) {
+          uniqueChildren.push({
+            studentId: item.studentId,
+            studentName: item.studentName
+          })
+          seen.add(item.studentId)
+        }
+      })
+      setChildrenList(uniqueChildren)
+    } catch (err) {
+      console.error(err)
+      message.error('Lấy dữ liệu lịch tiêm thất bại!')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleConsent = async (record: VaccinationConsent, isAgreed: boolean) => {
+    try {
+      const note = isAgreed ? 'Phụ huynh đồng ý' : 'Phụ huynh từ chối'
+      await sendConsent({
+        campaignId: record.campaignId,
+        studentId: record.studentId,
+        isAgreed,
+        note
+      })
+      message.success(isAgreed ? 'Đã đồng ý tiêm!' : 'Đã từ chối tiêm!')
+      setRefreshKey((prev) => prev + 1)
+    } catch (err) {
+      console.error(err)
+      message.error('Xử lý thất bại!')
+    }
+  }
+
+  const handleViewDetails = (record: VaccinationConsent) => {
     setSelectedSchedule(record)
     setIsModalOpen(true)
   }
@@ -88,52 +80,43 @@ const VaccinationSchedule: React.FC = () => {
     setSelectedSchedule(null)
   }
 
-  const columns: ColumnsType<ScheduleData> = [
+  const columns: ColumnsType<VaccinationConsent> = [
     {
-      title: 'Loại sự kiện',
-      dataIndex: 'eventType',
-      key: 'eventType'
+      title: 'Tên chiến dịch',
+      dataIndex: 'campaignName',
+      key: 'campaignName'
     },
     {
-      title: 'Khối/Lớp',
-      dataIndex: 'grade',
-      key: 'grade'
-    },
-    {
-      title: 'Ngày dự kiến',
-      dataIndex: 'date',
-      key: 'date'
+      title: 'Học sinh',
+      dataIndex: 'studentName',
+      key: 'studentName'
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const statusConfig = {
-          active: { color: 'blue', text: 'Đang diễn ra' },
-          completed: { color: 'green', text: 'Hoàn thành' },
-          cancelled: { color: 'red', text: 'Đã hủy' }
-        }
-        const config = statusConfig[status as keyof typeof statusConfig]
-        return <Tag color={config.color}>{config.text}</Tag>
+      dataIndex: 'isAgreed',
+      key: 'isAgreed',
+      render: (isAgreed: boolean | null) => {
+        if (isAgreed === true) return <Tag color='green'>Đã đồng ý</Tag>
+        if (isAgreed === false) return <Tag color='red'>Đã từ chối</Tag>
+        return <Tag color='orange'>Chờ phản hồi</Tag>
       }
     },
     {
       title: 'Hành động',
       key: 'action',
-      render: (_, record: ScheduleData) => (
+      render: (_, record) => (
         <Space>
-          {record.status === 'active' && (
-            <Space>
-              <Button type='primary' className='bg-green-500 hover:bg-green-600'>
+          {record.isAgreed === null && (
+            <>
+              <Button type='primary' className='bg-green-500' onClick={() => handleConsent(record, true)}>
                 Đồng ý
               </Button>
-              <Button type='primary' danger>
+              <Button type='primary' danger onClick={() => handleConsent(record, false)}>
                 Từ chối
               </Button>
-            </Space>
+            </>
           )}
-          <Button className='ml-10' type='link' icon={<FileTextOutlined />} onClick={() => handleViewDetails(record)}>
+          <Button type='link' icon={<FileTextOutlined />} onClick={() => handleViewDetails(record)}>
             Xem chi tiết
           </Button>
         </Space>
@@ -152,12 +135,14 @@ const VaccinationSchedule: React.FC = () => {
         <Card className='shadow-md'>
           <Table
             columns={columns}
-            dataSource={mockData}
+            dataSource={data}
+            loading={loading}
             pagination={{
               pageSize: 5,
               showSizeChanger: true,
               showTotal: (total) => `Tổng số ${total} kế hoạch`
             }}
+            rowKey='key'
           />
         </Card>
       </div>
@@ -167,7 +152,7 @@ const VaccinationSchedule: React.FC = () => {
           <HistoryOutlined className='text-3xl text-blue-500 mr-3' />
           <h1 className='text-2xl font-bold text-gray-800'>Lịch sử tiêm của con</h1>
         </div>
-        <HistoryVaccination />
+        <HistoryVaccination childrenList={childrenList} />
       </div>
 
       <Modal
@@ -182,68 +167,19 @@ const VaccinationSchedule: React.FC = () => {
         ]}
       >
         {selectedSchedule && (
-          <div className='space-y-6'>
-            <Descriptions title='Thông tin cơ bản' bordered>
-              <Descriptions.Item label='Loại sự kiện' span={3}>
-                {selectedSchedule.eventType}
-              </Descriptions.Item>
-              <Descriptions.Item label='Khối/Lớp' span={3}>
-                {selectedSchedule.grade}
-              </Descriptions.Item>
-              <Descriptions.Item label='Ngày dự kiến' span={3}>
-                {selectedSchedule.date}
-              </Descriptions.Item>
-              <Descriptions.Item label='Tài liệu đính kèm' span={3}>
-                <a href='#' className='text-blue-500 hover:text-blue-700'>
-                  {selectedSchedule.document}
-                </a>
-              </Descriptions.Item>
-              <Descriptions.Item label='Nội dung thông báo' span={3}>
-                {selectedSchedule.content}
-              </Descriptions.Item>
-            </Descriptions>
-
-            <div className='grid grid-cols-3 gap-4'>
-              <Card className='bg-green-50'>
-                <Statistic
-                  title='Đã xác nhận'
-                  value={selectedSchedule.confirmed}
-                  suffix={`/ ${selectedSchedule.totalStudents}`}
-                  valueStyle={{ color: '#3f8600' }}
-                  prefix={<CheckCircleOutlined />}
-                />
-              </Card>
-              <Card className='bg-red-50'>
-                <Statistic
-                  title='Từ chối'
-                  value={selectedSchedule.rejected}
-                  suffix={`/ ${selectedSchedule.totalStudents}`}
-                  valueStyle={{ color: '#cf1322' }}
-                  prefix={<CloseCircleOutlined />}
-                />
-              </Card>
-              <Card className='bg-yellow-50'>
-                <Statistic
-                  title='Chưa phản hồi'
-                  value={selectedSchedule.pending}
-                  suffix={`/ ${selectedSchedule.totalStudents}`}
-                  valueStyle={{ color: '#faad14' }}
-                  prefix={<ClockCircleOutlined />}
-                />
-              </Card>
-            </div>
-
-            {selectedSchedule.status === 'active' && (
-              <div className='flex justify-center space-x-4 mt-6'>
-                <Button type='primary' size='large' className='bg-green-500 hover:bg-green-600 px-8'>
-                  Đồng ý
-                </Button>
-                <Button type='primary' danger size='large' className='px-8'>
-                  Từ chối
-                </Button>
-              </div>
-            )}
-          </div>
+          <Descriptions bordered column={1}>
+            <Descriptions.Item label='Tên chiến dịch'>{selectedSchedule.campaignName}</Descriptions.Item>
+            <Descriptions.Item label='Học sinh'>{selectedSchedule.studentName}</Descriptions.Item>
+            <Descriptions.Item label='Trạng thái'>
+              {selectedSchedule.isAgreed === true && 'Đã đồng ý'}
+              {selectedSchedule.isAgreed === false && 'Đã từ chối'}
+              {selectedSchedule.isAgreed === null && 'Chờ phản hồi'}
+            </Descriptions.Item>
+            <Descriptions.Item label='Ghi chú'>{selectedSchedule.note || 'Không có'}</Descriptions.Item>
+            <Descriptions.Item label='Ngày xác nhận'>
+              {selectedSchedule.dateConfirmed || 'Chưa xác nhận'}
+            </Descriptions.Item>
+          </Descriptions>
         )}
       </Modal>
     </div>

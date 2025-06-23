@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Table, Button, Modal, Form, Input, Select, DatePicker, message, Card, Typography, Row, Col } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import {
   createVaccinationRecord,
   getConsentsByCampaign,
@@ -10,6 +11,8 @@ import {
   VaccinationCampaign,
   getVaccinationRecordsByCampaign
 } from '../../../apis/vaccination'
+
+dayjs.extend(utc)
 
 const { Title } = Typography
 const { Option } = Select
@@ -63,7 +66,6 @@ function ResultsAfterVaccination() {
     }
   }, [campaignId])
 
-  // Lấy danh sách chiến dịch
   const fetchAllCampaigns = async () => {
     try {
       const res = await getAllVaccinationCampaigns()
@@ -74,7 +76,6 @@ function ResultsAfterVaccination() {
     }
   }
 
-  // Lấy consent và record
   const fetchConsents = async (campaignId: number) => {
     try {
       const [consentsRes, recordsRes] = await Promise.all([
@@ -97,10 +98,10 @@ function ResultsAfterVaccination() {
           result: record?.result || '',
           immediateReaction: record?.immediateReaction || '',
           medication: record?.medication || '',
-          time: record?.dateInjected ? dayjs(record.dateInjected).format('DD/MM/YYYY HH:mm') : '',
+          time: record?.dateInjected || '',
           note: record?.note || '',
           recordId: record?.recordId,
-          isCompleted: !!record // Nếu đã có record thì xem là hoàn thành
+          isCompleted: !!record
         }
       })
       setRecords(mapped)
@@ -115,12 +116,17 @@ function ResultsAfterVaccination() {
     { title: 'Kết quả', dataIndex: 'result', key: 'result' },
     { title: 'Phản ứng với Vắc-Xin', dataIndex: 'immediateReaction', key: 'immediateReaction' },
     // { title: 'Uống thuốc', dataIndex: 'medication', key: 'medication' },
-    { title: 'Thời gian', dataIndex: 'time', key: 'time' },
+    { 
+      title: 'Thời gian', 
+      dataIndex: 'time', 
+      key: 'time',
+      render: (time) => time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : ''
+    },
     { title: 'Ghi chú', dataIndex: 'note', key: 'note' },
     {
       title: 'Hành động',
       key: 'action',
-      align: 'center', // Thêm dòng này
+      align: 'center',
       render: (_, record) => {
         if (record.isCompleted) {
           return <span style={{ color: 'green', fontWeight: 600 }}>Hoàn Thành</span>
@@ -139,7 +145,6 @@ function ResultsAfterVaccination() {
     setIsModalVisible(true)
   }
 
-  // Lấy ngày campaign hiện tại để giới hạn DatePicker
   const currentCampaign = campaigns.find((c) => c.campaignId === campaignId)
   const campaignDate = currentCampaign ? dayjs(currentCampaign.date) : null
 
@@ -229,6 +234,14 @@ function ResultsAfterVaccination() {
                 format='DD/MM/YYYY HH:mm'
                 style={{ width: '100%' }}
                 disabledDate={(date) => !campaignDate || !date.isSame(campaignDate, 'day')}
+                disabledTime={() => ({
+                  disabledHours: () =>
+                    Array.from({ length: 24 }, (_, i) => i).filter(
+                      (hour) => hour < 8 || hour > 16
+                    ),
+                  disabledMinutes: () => [],
+                  disabledSeconds: () => [],
+                })}
               />
             </Form.Item>
             <Form.Item name='note' label='Ghi chú'>

@@ -33,7 +33,7 @@ import BlogList from './pages/admin/blogManagement/BlogList'
 import BlogDetail from './pages/admin/blogManagement/BlogDetail'
 import MedicationList from './pages/nurse/Medication/MedicationList'
 import MedicalSuppliesList from './pages/nurse/medicalSupplies/medicalSupliesList'
-
+import Vaccination from './pages/admin/vaccineManagement/createVaccine'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -214,6 +214,10 @@ export default function useRouteElements() {
             {
               path: path.BLOG_DETAIL,
               element: <BlogDetail />
+            },
+            {
+              path: path.VACCINE_MANAGEMENT,
+              element: <Vaccination />
             }
           ]
         }

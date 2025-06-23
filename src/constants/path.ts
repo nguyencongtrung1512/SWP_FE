@@ -48,6 +48,7 @@ const path = {
   BLOG_MANAGEMENT: '/admin/blog/:id',
   CATEGORY_MANAGEMENT: '/admin/category-management',
   BLOG_LIST_BY_CATEGORY: '/admin/category/:categoryId/blogs',
-  BLOG_DETAIL: '/admin/blog-detail/:id'
+  BLOG_DETAIL: '/admin/blog-detail/:id',
+  VACCINE_MANAGEMENT: '/admin/vaccineManagement'
 }
 export default path

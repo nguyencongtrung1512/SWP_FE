@@ -1,22 +1,39 @@
 import React from 'react'
-import { HistoryOutlined } from '@ant-design/icons'
 import CreateSendMedicine from './CreateSendMedicine'
 import HistorySendMedicine from './HistorySendMedicine'
+import { Button } from 'antd'
 
 const MedicineSubmissions: React.FC = () => {
+  const [showCreate, setShowCreate] = React.useState(false)
+  const formRef = React.useRef<HTMLDivElement>(null)
+
+  const handleShowCreate = () => {
+    setShowCreate((prev) => {
+      const next = !prev
+      if (!prev) {
+        setTimeout(() => {
+          formRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }, 100) // Đợi form render xong
+      }
+      return next
+    })
+  }
+
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12'>
-      <div className='w-full mx-auto px-20'>
-        {/* Phần lịch sử đơn thuốc */}
-        <div className='bg-white rounded-2xl shadow-xl p-8 mb-8'>
-          <div className='flex items-center mb-6'>
-            <HistoryOutlined className='text-3xl text-blue-500 mr-3' />
-            <h1 className='text-2xl font-bold text-gray-800'>Lịch sử gửi thuốc</h1>
-          </div>
-          <HistorySendMedicine />
-        </div>
-        <CreateSendMedicine />
+    <div>
+      <div className='mb-4 flex justify-end'>
+        <Button type='primary' onClick={handleShowCreate}>
+          {showCreate ? 'Hủy form gửi thuốc' : 'Tạo đơn gửi thuốc'}
+        </Button>
       </div>
+      <div>
+        <HistorySendMedicine />
+      </div>
+      {showCreate && (
+        <div ref={formRef}>
+          <CreateSendMedicine />
+        </div>
+      )}
     </div>
   )
 }

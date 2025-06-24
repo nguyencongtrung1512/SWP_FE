@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { Spin, Table, Tag, Modal, Button, Form, Input, DatePicker, Descriptions } from 'antd'
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card'
+import { Button } from '../../../components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../components/ui/dialog'
+import { Badge } from '../../../components/ui/badge'
+import { Input } from '../../../components/ui/input'
+import { Textarea } from '../../../components/ui/textarea'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table'
+import { Calendar } from '@/components/ui/calendar'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../../components/ui/form'
+import { Eye, Edit, Calendar as CalendarIcon, Save, X } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import {
   getRequestHistory,
   updateRequest,
@@ -8,8 +20,6 @@ import {
   MedicationRequestUpdate,
   Medication
 } from '../../../apis/parentMedicationRequest'
-import dayjs from 'dayjs'
-import { EyeOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
 
 interface DetailedMedicationRequest extends Omit<MedicationRequestHistory, 'medications'> {
@@ -24,18 +34,27 @@ function HistorySendMedicine() {
   const [detailedRecord, setDetailedRecord] = useState<DetailedMedicationRequest | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [form] = Form.useForm()
 
-  const getStatusTag = (status: string) => {
+  const form = useForm()
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Pending':
-        return <Tag color='gold'>Chờ duyệt</Tag>
+        return (
+          <Badge variant='secondary' className='bg-yellow-100 text-yellow-800'>
+            Chờ duyệt
+          </Badge>
+        )
       case 'Approved':
-        return <Tag color='green'>Đã duyệt</Tag>
+        return (
+          <Badge variant='secondary' className='bg-green-100 text-green-800'>
+            Đã duyệt
+          </Badge>
+        )
       case 'Rejected':
-        return <Tag color='red'>Đã từ chối</Tag>
+        return <Badge variant='destructive'>Đã từ chối</Badge>
       default:
-        return <Tag>{status}</Tag>
+        return <Badge variant='outline'>{status}</Badge>
     }
   }
 
@@ -58,7 +77,7 @@ function HistorySendMedicine() {
   const handleOpenModal = async (record: MedicationRequestHistory) => {
     setModal({ open: true, record })
     setIsEditing(false)
-    form.resetFields()
+    form.reset()
     try {
       const detail = await getRequestById(record.requestId)
       setDetailedRecord(detail)
@@ -68,10 +87,10 @@ function HistorySendMedicine() {
         type: m.type,
         usage: m.usage,
         dosage: m.dosage,
-        expiredDate: m.expiredDate ? dayjs(m.expiredDate) : undefined,
+        expiredDate: m.expiredDate ? new Date(m.expiredDate) : undefined,
         note: m.note || ''
       }))
-      form.setFieldsValue({
+      form.reset({
         parentNote: detail.parentNote,
         medications: mappedMeds
       })
@@ -95,10 +114,7 @@ function HistorySendMedicine() {
         parentNote: values.parentNote,
         medications: values.medications.map((m) => ({
           ...m,
-          expiredDate:
-            m.expiredDate && typeof m.expiredDate !== 'string'
-              ? dayjs(m.expiredDate).format('YYYY-MM-DD')
-              : m.expiredDate || ''
+          expiredDate: m.expiredDate ? format(new Date(m.expiredDate), 'yyyy-MM-dd') : ''
         }))
       }
       await updateRequest(modal.record.requestId, data)
@@ -113,167 +129,302 @@ function HistorySendMedicine() {
     }
   }
 
-  const columns = [
-    {
-      title: 'Ngày hết hạn',
-      dataIndex: 'dateCreated',
-      key: 'dateCreated',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm')
-    },
-    { title: 'Học sinh', dataIndex: 'studentName', key: 'studentName' },
-    {
-      title: 'Tên thuốc',
-      key: 'medicineName',
-      render: (_: unknown, record: MedicationRequestHistory) => {
-        const meds = Array.isArray(record.medications) ? record.medications : record.medications?.$values || []
-        return meds.map((m: Medication) => m.name).join(', ')
-      }
-    },
-    { title: 'Trạng thái', dataIndex: 'status', key: 'status', render: (status: string) => getStatusTag(status) },
-    {
-      title: 'Thao tác',
-      key: 'action',
-      render: (_: unknown, record: MedicationRequestHistory) => (
-        <Button icon={<EyeOutlined />} onClick={() => handleOpenModal(record)} />
-      )
-    }
-  ]
-
-  const renderModalFooter = () => {
-    if (isEditing) {
-      return [
-        <Button key='cancel' onClick={() => setIsEditing(false)}>
-          Hủy
-        </Button>,
-        <Button key='save' type='primary' loading={isSaving} onClick={() => form.submit()}>
-          Lưu
-        </Button>
-      ]
-    }
-    return [
-      <Button key='close' onClick={handleCloseModal}>
-        Đóng
-      </Button>,
-      <Button
-        key='edit'
-        type='primary'
-        disabled={modal.record?.status !== 'Pending'}
-        onClick={() => setIsEditing(true)}
-      >
-        Chỉnh sửa
-      </Button>
-    ]
-  }
-
   return (
-    <Spin spinning={loading} tip='Đang tải...'>
-      <div className='bg-white rounded-2xl shadow-xl p-8'>
-        <h1 className='text-2xl font-bold text-gray-800 mb-6'>Lịch sử gửi thuốc</h1>
-        <Table columns={columns} dataSource={history} rowKey='requestId' loading={loading} />
-      </div>
+    <div className='min-h-screen bg-gradient-to-br from-blue-200 via-white to-purple-100 p-6'>
+      <Card className='shadow-xl border-0 bg-white/80 backdrop-blur-sm'>
+        <CardHeader className='bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg'>
+          <CardTitle className='text-2xl font-bold flex items-center gap-2'>
+            <CalendarIcon className='h-6 w-6' />
+            Lịch sử gửi thuốc
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='p-6'>
+          {loading ? (
+            <div className='flex items-center justify-center py-12'>
+              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+              <span className='ml-3 text-gray-600'>Đang tải...</span>
+            </div>
+          ) : (
+            <div className='rounded-lg border border-gray-200 overflow-hidden'>
+              <Table>
+                <TableHeader>
+                  <TableRow className='bg-gray-50'>
+                    <TableHead className='font-semibold'>Ngày tạo</TableHead>
+                    <TableHead className='font-semibold'>Học sinh</TableHead>
+                    <TableHead className='font-semibold'>Tên thuốc</TableHead>
+                    <TableHead className='font-semibold'>Trạng thái</TableHead>
+                    <TableHead className='font-semibold text-center'>Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {history.map((record) => (
+                    <TableRow key={record.requestId} className='hover:bg-gray-50 transition-colors'>
+                      <TableCell className='font-medium'>
+                        {format(new Date(record.dateCreated), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                      </TableCell>
+                      <TableCell>{record.studentName}</TableCell>
+                      <TableCell>
+                        {(Array.isArray(record.medications) ? record.medications : record.medications?.$values || [])
+                          .map((m: Medication) => m.name)
+                          .join(', ')}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(record.status)}</TableCell>
+                      <TableCell className='text-center'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() => handleOpenModal(record)}
+                          className='hover:bg-blue-50 hover:border-blue-300'
+                        >
+                          <Eye className='h-4 w-4' />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      <Modal
-        open={modal.open}
-        title={isEditing ? 'Chỉnh sửa gửi thuốc' : 'Chi tiết gửi thuốc'}
-        onCancel={handleCloseModal}
-        footer={renderModalFooter()}
-        width={600}
-      >
-        {isEditing ? (
-          // Chế độ chỉnh sửa
-          <Form form={form} layout='vertical' onFinish={handleSaveSubmit}>
-            <Form.Item name='parentNote' label='Lý do dùng thuốc' rules={[{ required: true, message: 'Nhập lý do!' }]}>
-              <Input.TextArea rows={2} />
-            </Form.Item>
-            <Form.List name='medications'>
-              {(fields) => (
-                <>
-                  {fields.map((field) => (
-                    <div key={field.key} style={{ marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'name']}
-                        label='Tên thuốc'
-                        rules={[{ required: true, message: 'Nhập tên thuốc!' }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'type']}
-                        label='Dạng thuốc'
-                        rules={[{ required: true, message: 'Nhập dạng thuốc!' }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'dosage']}
-                        label='Liều lượng'
-                        rules={[{ required: true, message: 'Nhập liều lượng!' }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'usage']}
-                        label='Cách dùng'
-                        rules={[{ required: true, message: 'Nhập cách dùng!' }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item {...field} name={[field.name, 'expiredDate']} label='Hạn sử dụng'>
-                        <DatePicker format='DD/MM/YYYY' />
-                      </Form.Item>
-                      <Form.Item {...field} name={[field.name, 'note']} label='Ghi chú'>
-                        <Input />
-                      </Form.Item>
+      <Dialog open={modal.open} onOpenChange={handleCloseModal}>
+        <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-bold text-gray-800'>
+              {isEditing ? 'Chỉnh sửa gửi thuốc' : 'Chi tiết gửi thuốc'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {isEditing ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSaveSubmit)} className='space-y-6'>
+                <FormField
+                  control={form.control}
+                  name='parentNote'
+                  rules={{ required: 'Nhập lý do!' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-sm font-semibold'>Lý do dùng thuốc</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder='Nhập lý do sử dụng thuốc...' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Medications form fields */}
+                <div className='space-y-4'>
+                  <h3 className='font-semibold text-gray-800 border-b pb-2'>Thông tin thuốc</h3>
+                  {detailedRecord && (
+                    <div className='space-y-4'>
+                      {(Array.isArray(detailedRecord.medications)
+                        ? detailedRecord.medications
+                        : detailedRecord.medications?.$values || []
+                      ).map((medication: Medication, index: number) => (
+                        <Card key={index} className='p-4 border border-gray-200'>
+                          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            <FormField
+                              control={form.control}
+                              name={`medications.${index}.name`}
+                              rules={{ required: 'Nhập tên thuốc!' }}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Tên thuốc</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`medications.${index}.type`}
+                              rules={{ required: 'Nhập dạng thuốc!' }}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Dạng thuốc</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`medications.${index}.dosage`}
+                              rules={{ required: 'Nhập liều lượng!' }}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Liều lượng</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`medications.${index}.usage`}
+                              rules={{ required: 'Nhập cách dùng!' }}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Cách dùng</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`medications.${index}.note`}
+                              render={({ field }) => (
+                                <FormItem className='md:col-span-2'>
+                                  <FormLabel>Ghi chú</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </Card>
+                      ))}
                     </div>
-                  ))}
-                </>
-              )}
-            </Form.List>
-          </Form>
-        ) : (
-          // Chế độ xem chi tiết
-          detailedRecord && (
-            <Descriptions bordered column={1} layout='vertical'>
-              <Descriptions.Item label='Học sinh'>{detailedRecord.studentName}</Descriptions.Item>
-              <Descriptions.Item label='Ngày gửi'>
-                {dayjs(detailedRecord.dateCreated).format('DD/MM/YYYY HH:mm')}
-              </Descriptions.Item>
-              <Descriptions.Item label='Trạng thái'>{getStatusTag(detailedRecord.status)}</Descriptions.Item>
-              <Descriptions.Item label='Lý do của phụ huynh'>{detailedRecord.parentNote}</Descriptions.Item>
-              {detailedRecord.nurseNote && (
-                <Descriptions.Item label='Ghi chú của y tá'>{detailedRecord.nurseNote}</Descriptions.Item>
-              )}
-              <Descriptions.Item label='Danh sách thuốc'>
-                <ul style={{ paddingLeft: 20, listStyle: 'disc' }}>
-                  {(Array.isArray(detailedRecord.medications)
-                    ? detailedRecord.medications
-                    : detailedRecord.medications?.$values || []
-                  ).map((m, idx) => (
-                    <li key={idx} style={{ marginBottom: 8 }}>
-                      <strong>{m.name}</strong> ({m.type}) - {m.dosage}
-                      <br />
-                      Cách dùng: {m.usage}
-                      <br />
-                      HSD: {m.expiredDate && dayjs(m.expiredDate).format('DD/MM/YYYY')}
-                      {m.note && (
-                        <>
-                          <br />
-                          Ghi chú: <em>{m.note}</em>
-                        </>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </Descriptions.Item>
-            </Descriptions>
-          )
-        )}
-      </Modal>
-    </Spin>
+                  )}
+                </div>
+              </form>
+            </Form>
+          ) : (
+            detailedRecord && (
+              <div className='space-y-6'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div className='space-y-2'>
+                    <label className='text-sm font-semibold text-gray-600'>Học sinh</label>
+                    <p className='text-gray-800 bg-gray-50 p-2 rounded'>{detailedRecord.studentName}</p>
+                  </div>
+                  <div className='space-y-2'>
+                    <label className='text-sm font-semibold text-gray-600'>Ngày gửi</label>
+                    <p className='text-gray-800 bg-gray-50 p-2 rounded'>
+                      {format(new Date(detailedRecord.dateCreated), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                    </p>
+                  </div>
+                  <div className='space-y-2'>
+                    <label className='text-sm font-semibold text-gray-600'>Trạng thái</label>
+                    <div className='bg-gray-50 p-2 rounded'>{getStatusBadge(detailedRecord.status)}</div>
+                  </div>
+                </div>
+
+                <div className='space-y-2'>
+                  <label className='text-sm font-semibold text-gray-600'>Lý do của phụ huynh</label>
+                  <p className='text-gray-800 bg-gray-50 p-3 rounded'>{detailedRecord.parentNote}</p>
+                </div>
+
+                {detailedRecord.nurseNote && (
+                  <div className='space-y-2'>
+                    <label className='text-sm font-semibold text-gray-600'>Ghi chú của y tá</label>
+                    <p className='text-gray-800 bg-blue-50 p-3 rounded border-l-4 border-blue-400'>
+                      {detailedRecord.nurseNote}
+                    </p>
+                  </div>
+                )}
+
+                <div className='space-y-4'>
+                  <label className='text-sm font-semibold text-gray-600'>Danh sách thuốc</label>
+                  <div className='space-y-3'>
+                    {(Array.isArray(detailedRecord.medications)
+                      ? detailedRecord.medications
+                      : detailedRecord.medications?.$values || []
+                    ).map((medication: Medication, index: number) => (
+                      <Card
+                        key={index}
+                        className='p-4 border border-gray-200 bg-gradient-to-r from-green-50 to-blue-50'
+                      >
+                        <div className='space-y-2'>
+                          <h4 className='font-semibold text-lg text-gray-800'>{medication.name}</h4>
+                          <div className='grid grid-cols-2 gap-4 text-sm'>
+                            <div>
+                              <span className='font-medium text-gray-600'>Dạng thuốc:</span>
+                              <span className='ml-2 text-gray-800'>{medication.type}</span>
+                            </div>
+                            <div>
+                              <span className='font-medium text-gray-600'>Liều lượng:</span>
+                              <span className='ml-2 text-gray-800'>{medication.dosage}</span>
+                            </div>
+                          </div>
+                          <div className='text-sm'>
+                            <span className='font-medium text-gray-600'>Cách dùng:</span>
+                            <span className='ml-2 text-gray-800'>{medication.usage}</span>
+                          </div>
+                          {medication.expiredDate && (
+                            <div className='text-sm'>
+                              <span className='font-medium text-gray-600'>HSD:</span>
+                              <span className='ml-2 text-gray-800'>
+                                {format(new Date(medication.expiredDate), 'dd/MM/yyyy', { locale: vi })}
+                              </span>
+                            </div>
+                          )}
+                          {medication.note && (
+                            <div className='text-sm'>
+                              <span className='font-medium text-gray-600'>Ghi chú:</span>
+                              <span className='ml-2 italic text-gray-700'>{medication.note}</span>
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+          )}
+
+          <DialogFooter className='gap-2'>
+            {isEditing ? (
+              <>
+                <Button variant='outline' onClick={() => setIsEditing(false)}>
+                  <X className='h-4 w-4 mr-2' />
+                  Hủy
+                </Button>
+                <Button
+                  onClick={form.handleSubmit(handleSaveSubmit)}
+                  disabled={isSaving}
+                  className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                >
+                  {isSaving ? (
+                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                  ) : (
+                    <Save className='h-4 w-4 mr-2' />
+                  )}
+                  Lưu
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant='outline' onClick={handleCloseModal}>
+                  Đóng
+                </Button>
+                <Button
+                  disabled={modal.record?.status !== 'Pending'}
+                  onClick={() => setIsEditing(true)}
+                  className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                >
+                  <Edit className='h-4 w-4 mr-2' />
+                  Chỉnh sửa
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
 

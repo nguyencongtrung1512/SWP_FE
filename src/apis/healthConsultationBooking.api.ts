@@ -39,3 +39,7 @@ export const cancelHealthConsultationBooking = (id: number) => {
 export const doneHealthConsultationBooking = (id: number) => {
   return http.patch(`/HealthConsultationBooking/${id}/done`)
 }
+
+export const getNurseListForHealthConsultation = () => {
+  return http.get('/HealthConsultationBooking/Nurses')
+}

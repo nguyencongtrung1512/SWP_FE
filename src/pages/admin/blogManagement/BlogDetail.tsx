@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Form, Input, Button, Upload, Spin } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -41,7 +41,7 @@ function BlogDetail() {
       const response = await blogApi.getBlogById(id!)
       console.log('API Response:', response)
       console.log('Blog data:', response.data)
-      console.log('Category from API:', response.data.categoryID) // Log category
+      console.log('Category from API:', response.data.categoryID)
 
       if (response.data) {
         const data = {
@@ -55,7 +55,6 @@ function BlogDetail() {
         console.log('Processed data:', data)
         setBlogData(data)
 
-        // Fetch category name
         try {
           const categoryResponse = await categoryApi.getCategoryById(data.categoryID)
           if (categoryResponse.data) {
@@ -102,7 +101,7 @@ function BlogDetail() {
   }
 
   const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp'
     const isLt2M = file.size / 1024 / 1024 < 2
 
     if (!isJpgOrPng) toast.error('Chỉ chấp nhận ảnh JPG/PNG!')
@@ -126,15 +125,18 @@ function BlogDetail() {
       formData.append('Title', values.title)
       formData.append('Description', values.description || '')
       formData.append('Content', content)
-      formData.append('CategoryID', blogData.categoryID !== undefined ? blogData.categoryID.toString() : '0') // Gửi categoryID
+      formData.append('CategoryID', blogData.categoryID !== undefined ? blogData.categoryID.toString() : '0')
 
       if (fileList.length > 0 && fileList[0].originFileObj) {
-        formData.append('Image', fileList[0].originFileObj) // Gửi file ảnh mới
+        formData.append('Image', fileList[0].originFileObj)
       }
 
       console.log('Submitting form data:', Object.fromEntries(formData))
-      await blogApi.updateBlog(id, formData) // Gửi FormData trực tiếp
-      toast.success('Cập nhật bài viết thành công!')
+      const res = await blogApi.updateBlog(id, formData)
+      if (res) {
+        toast.success('Cập nhật bài viết thành công!')
+        navigate(-1)
+      }
     } catch (error) {
       toast.error('Có lỗi xảy ra khi cập nhật bài viết!')
       console.error('Error updating blog:', error)

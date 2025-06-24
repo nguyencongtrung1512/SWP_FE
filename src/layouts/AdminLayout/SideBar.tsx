@@ -16,11 +16,11 @@ const Sidebar: React.FC = () => {
     //   icon: <FileSearchOutlined className='text-lg' />,
     //   label: 'DashBoard'
     // },
-    {
-      key: path.CENSOR_LIST,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Danh sách kiểm duyệt'
-    },
+    // {
+    //   key: path.CENSOR_LIST,
+    //   icon: <FileSearchOutlined className='text-lg' />,
+    //   label: 'Danh sách kiểm duyệt'
+    // },
     {
       key: path.USER_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,

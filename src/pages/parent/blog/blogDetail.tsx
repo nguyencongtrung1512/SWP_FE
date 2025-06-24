@@ -82,9 +82,9 @@ const BlogDetail: React.FC = () => {
           <h1 className='text-4xl md:text-5xl font-bold mb-6 text-gray-900'>{blog.title}</h1>
           <div className='flex items-center justify-center gap-2 mb-4'>
             <img 
-              src='https://cdn3.iconfinder.com/data/icons/web-design-and-development-2-6/512/87-1024.png'
+              src='https://static.vecteezy.com/system/resources/previews/000/420/605/original/avatar-icon-vector-illustration.jpg'
               alt=''
-              className='w-6 h-6 rounded-full object-cover'
+              className='w-6 h-6 rounded-full object-cover border border-gray-500 shadow-sm'
             />
             <span className='text-gray-600 text-md'>Được viết bởi</span>
             <span className='font-medium -ml-1'>{blog.authorName}</span>
@@ -97,13 +97,13 @@ const BlogDetail: React.FC = () => {
 
         <div className='mb-10 rounded-lg overflow-hidden relative w-full max-w-4xl mx-auto'>
           <img
-            src={`data:image/png;base64,${blog.image}`}
+            src={`data:image/webp;base64,${blog.image}`}
             alt=''
             className='w-full h-[500px] object-cover object-center block'
           />
         </div>
         <div 
-          className='prose prose-lg max-w-none mb-12 text-center'
+          className='prose prose-lg max-w-4xl mb-12 text-left ml-10 break-words overflow-hidden mr-10'
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
 
@@ -218,7 +218,7 @@ const BlogDetail: React.FC = () => {
                     alt=''
                     className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
                   /> */}
-                  <img src={`data:image/png;base64,${post.image}`} alt="blog image" />
+                  <img src={`data:image/webp;base64,${post.image}`} alt="blog image" />
                 </div>
                 <div className='p-4'>
                   <div className='bg-green-500 hover:bg-[#001a33] text-white inline-block px-3 py-1 rounded-md mb-2 text-sm font-medium transition-colors duration-200'>

@@ -16,16 +16,16 @@ const Sidebar: React.FC = () => {
     //   icon: <FileSearchOutlined className='text-lg' />,
     //   label: 'DashBoard'
     // },
-    {
-      key: path.HEALTH_RECORD_CENSORSHIP,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Kiểm duyệt hồ sơ sức khỏe'
-    },
-    {
-      key: path.SCHEDULE_VACCINATION,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Lập lịch tiêm'
-    },
+    // {
+    //   key: path.HEALTH_RECORD_CENSORSHIP,
+    //   icon: <FileSearchOutlined className='text-lg' />,
+    //   label: 'Kiểm duyệt hồ sơ sức khỏe'
+    // },
+    // {
+    //   key: path.SCHEDULE_VACCINATION,
+    //   icon: <FileSearchOutlined className='text-lg' />,
+    //   label: 'Lập lịch tiêm'
+    // },
     {
       key: path.RESULTS_AFTER_VACCINATION,
       icon: <FileSearchOutlined className='text-lg' />,

@@ -71,7 +71,7 @@ const CreateBlogForm: React.FC<CreateBlogFormProps> = ({
   }
 
   const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp'
     const isLt2M = file.size / 1024 / 1024 < 2
 
     if (!isJpgOrPng) message.error('Chỉ chấp nhận ảnh JPG/PNG!')

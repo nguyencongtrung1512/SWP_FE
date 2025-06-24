@@ -1,8 +1,9 @@
 import React from 'react'
-import { Form, Input, Select, DatePicker, Button, message, Checkbox } from 'antd'
+import { Form, Input, Select, DatePicker, Button, Checkbox } from 'antd'
 import { sendMedicationToStudent } from '../../../apis/parentMedicationRequest'
 import { getMyChildren } from '../../../api/parent.api'
 import dayjs from 'dayjs'
+import { toast } from 'react-toastify'
 
 const { TextArea } = Input
 const { Option } = Select
@@ -38,7 +39,7 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
         }
       } catch (error) {
         console.error('Failed to fetch students:', error)
-        message.error('Không thể tải danh sách học sinh.')
+        toast.error('Không thể tải danh sách học sinh.')
       }
     }
     fetchStudents()
@@ -62,12 +63,12 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
         ]
       }
       await sendMedicationToStudent(data)
-      message.success('Gửi thông tin thuốc thành công!')
+      toast.success('Gửi thông tin thuốc thành công!')
       form.resetFields()
       if (onSuccess) onSuccess()
     } catch (err) {
       console.error('Failed to send medicine:', err)
-      message.error('Gửi thông tin thuốc thất bại!')
+      toast.error('Gửi thông tin thuốc thất bại!')
     }
   }
 
@@ -143,7 +144,11 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
                 }
               ]}
             >
-              <DatePicker className='w-full' format='DD/MM/YYYY' />
+              <DatePicker
+                className='w-full'
+                format='DD/MM/YYYY'
+                disabledDate={(current) => current && current < dayjs().startOf('day')}
+              />
             </Form.Item>
           </div>
         </div>

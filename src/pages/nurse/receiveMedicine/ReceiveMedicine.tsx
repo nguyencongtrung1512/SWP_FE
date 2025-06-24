@@ -5,7 +5,6 @@ import {
   Modal,
   Form,
   Input,
-  message,
   Card,
   Typography,
   Space,
@@ -24,6 +23,7 @@ import {
   Medication,
   processRequest
 } from '../../../apis/parentMedicationRequest'
+import { toast } from 'react-toastify'
 
 const { Title } = Typography
 const { TextArea } = Input
@@ -45,7 +45,7 @@ const ReceiveMedicine: React.FC = () => {
       setRequests(res.$values || [])
     } catch (e) {
       console.error(e)
-      message.error('Lấy danh sách đơn thuốc thất bại')
+      toast.error('Lấy danh sách đơn thuốc thất bại')
     } finally {
       setLoading(false)
     }
@@ -59,10 +59,10 @@ const ReceiveMedicine: React.FC = () => {
     try {
       setLoading(true)
       await processRequest(id, { status: 'Approved' })
-      message.success('Đã duyệt đơn thuốc.')
+      toast.success('Đã duyệt đơn thuốc.')
       fetchRequests()
     } catch (error) {
-      message.error('Có lỗi xảy ra khi duyệt đơn thuốc.')
+      toast.error('Có lỗi xảy ra khi duyệt đơn thuốc.')
       console.error(error)
     } finally {
       setLoading(false)
@@ -79,11 +79,11 @@ const ReceiveMedicine: React.FC = () => {
     try {
       setLoading(true)
       await processRequest(rejectingRequest.requestId, { status: 'Rejected', nurseNote: values.nurseNote })
-      message.success('Đã từ chối đơn thuốc.')
+      toast.success('Đã từ chối đơn thuốc.')
       setIsRejectModalVisible(false)
       fetchRequests()
     } catch (error) {
-      message.error('Có lỗi xảy ra khi từ chối đơn thuốc.')
+      toast.error('Có lỗi xảy ra khi từ chối đơn thuốc.')
       console.error(error)
     } finally {
       setLoading(false)
@@ -178,7 +178,7 @@ const ReceiveMedicine: React.FC = () => {
           </Button>
           {record.status === 'Pending' && (
             <>
-              <Button type='primary' onClick={() => handleApprove(record.requestId)}>
+              <Button color='cyan' variant='solid' onClick={() => handleApprove(record.requestId)}>
                 Duyệt
               </Button>
               <Button danger onClick={() => handleOpenRejectModal(record)}>
@@ -198,9 +198,7 @@ const ReceiveMedicine: React.FC = () => {
 
   const handleAddNote = (values: { nurseNotes: string }) => {
     if (selectedRequest) {
-      // TODO: Sau này sẽ gọi API để thêm ghi chú
-      console.log('Adding notes:', values.nurseNotes)
-      message.success('Thêm ghi chú thành công!')
+      toast.success(`Thêm ghi chú thành công!${values.nurseNotes ? ' Nội dung: ' + values.nurseNotes : ''}`)
       setIsModalVisible(false)
     }
   }

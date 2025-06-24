@@ -34,6 +34,7 @@ import BlogDetail from './pages/admin/blogManagement/BlogDetail'
 import MedicationList from './pages/nurse/Medication/MedicationList'
 import MedicalSuppliesList from './pages/nurse/medicalSupplies/medicalSupliesList'
 import Vaccination from './pages/admin/vaccineManagement/createVaccine'
+import AppointmentPage from './pages/parent/privateConsultation/AppointmentPage'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -82,8 +83,8 @@ export default function useRouteElements() {
               element: <SendMedicine />
             },
             {
-              path: path.privateConsultation,
-              element: <PrivateConsultation />
+              path: path.Appointment,
+              element: <AppointmentPage />
             },
             {
               path: path.vaccinationSchedule,

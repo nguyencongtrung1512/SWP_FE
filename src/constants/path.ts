@@ -7,6 +7,7 @@ const path = {
   blog: '/blog',
   blogDetail: '/blog/:id',
   // ============ Parent ============
+  Appointment:'/Appointment',
   profile: '/parent/profile',
   healthRecord: '/parent/health-record', //khai báo sức khỏe của con
   sendMedicine: '/parent/send-medicine', //gửi thuốc

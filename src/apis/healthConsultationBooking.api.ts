@@ -6,6 +6,7 @@ export interface HealthConsultationBookingPayload {
   parentId: number
   scheduledTime: string
   reason: string
+  studentCode: string
 }
 
 export const createHealthConsultationBookingByNurse = (data: HealthConsultationBookingPayload) => {
@@ -29,15 +30,15 @@ export const getHealthConsultationBookingById = (id: number) => {
 }
 
 export const confirmHealthConsultationBooking = (id: number) => {
-  return http.patch(`/HealthConsultationBooking/${id}/confirm`)
+  return http.put(`/HealthConsultationBooking/${id}/confirm`)
 }
 
 export const cancelHealthConsultationBooking = (id: number) => {
-  return http.patch(`/HealthConsultationBooking/${id}/cancel`)
+  return http.put(`/HealthConsultationBooking/${id}/cancel`)
 }
 
 export const doneHealthConsultationBooking = (id: number) => {
-  return http.patch(`/HealthConsultationBooking/${id}/done`)
+  return http.put(`/HealthConsultationBooking/${id}/done`)
 }
 
 export const getNurseListForHealthConsultation = () => {

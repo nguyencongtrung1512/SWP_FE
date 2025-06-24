@@ -26,13 +26,13 @@ function Header() {
   const [userData, setUserData] = useState<AccountInfo | null>(null)
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLDivElement>(null)
-  
+
   const handleLogout = () => {
     logout()
     setOpen(false)
     navigate(path.login)
   }
-  
+
   useEffect(() => {
     fetchUser()
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,7 +40,7 @@ function Header() {
         setOpen(false)
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
@@ -89,8 +89,8 @@ function Header() {
         <a href={path.medicalEvent} className='text-gray-900 hover:text-blue-500 transition-colors'>
           Báo cáo y tế
         </a>
-        <a href={path.privateConsultation} className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Tư vấn riêng
+        <a href={path.Appointment} className='text-gray-900 hover:text-blue-500 transition-colors'>
+          Đặt lịch tư vấn
         </a>
         <a href={path.blog} className='text-gray-900 hover:text-blue-500 transition-colors'>
           Blog
@@ -99,25 +99,25 @@ function Header() {
       {/* Avatar user - only shown when logged in */}
       {isAuthenticated && user ? (
         <div className='relative' ref={dropdownRef}>
-          <button 
-            className='flex items-center space-x-2 focus:outline-none rounded-full hover:bg-gray-100 p-1 transition-colors' 
+          <button
+            className='flex items-center space-x-2 focus:outline-none rounded-full hover:bg-gray-100 p-1 transition-colors'
             onClick={() => setOpen(!open)}
           >
-            <img 
+            <img
               src={
-                userData?.image 
-                  ? `data:image/png;base64,${userData.image}` 
+                userData?.image
+                  ? `data:image/png;base64,${userData.image}`
                   : 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'
-              } 
-              alt='avatar' 
+              }
+              alt='avatar'
               className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
             />
             <span className='font-semibold text-gray-800 mr-1'>{user.name}</span>
           </button>
           {open && (
             <div className='absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200'>
-              <a 
-                href={path.profile} 
+              <a
+                href={path.profile}
                 className='flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors'
                 onClick={() => setOpen(false)}
               >

@@ -8,6 +8,7 @@ import { ScrollArea } from '../../../components/ui/scroll-area'
 import { User, Calendar, FileText, Stethoscope, GraduationCap, Hash } from 'lucide-react'
 import { getAllMedicalEventsForParent } from '../../../api/parent.api'
 import MedicalEventDetail from './medicalEventDetail'
+import Loading from '../../../components/Loading/Loading'
 
 // Định nghĩa lại type cho MedicationUsed và MedicalSupplyUsed
 interface MedicationUsed {
@@ -129,13 +130,7 @@ const MedicalEventParent: React.FC = () => {
   }
 
   if (loading) {
-    return (
-      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center'>
-        <div className='bg-white rounded-xl shadow-lg p-8 flex flex-col items-center'>
-          <div className='text-gray-400 text-5xl mb-2 animate-bounce'>🏥</div>
-        </div>
-      </div>
-    )
+    return <Loading />
   }
 
   if (error) {
@@ -182,10 +177,11 @@ const MedicalEventParent: React.FC = () => {
                     {students.map((stu) => (
                       <div
                         key={stu.studentId}
-                        className={`cursor-pointer p-3 rounded-xl transition-all duration-300 border-2 hover:shadow-xl hover:scale-105 ${selectedStudentId === stu.studentId
-                          ? 'border-blue-500 bg-gradient-to-r from-blue-100 to-indigo-100 shadow-lg scale-105'
-                          : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50'
-                          }`}
+                        className={`cursor-pointer p-3 rounded-xl transition-all duration-300 border-2 hover:shadow-xl hover:scale-105 ${
+                          selectedStudentId === stu.studentId
+                            ? 'border-blue-500 bg-gradient-to-r from-blue-100 to-indigo-100 shadow-lg scale-105'
+                            : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50'
+                        }`}
                         onClick={() => setSelectedStudentId(stu.studentId)}
                       >
                         <div className='flex items-start gap-2'>

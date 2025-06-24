@@ -1,3 +1,3 @@
-import PrivateConsultation from './privateConsultation'
+import PrivateConsultation from './AppointmentList'
 
 export default PrivateConsultation

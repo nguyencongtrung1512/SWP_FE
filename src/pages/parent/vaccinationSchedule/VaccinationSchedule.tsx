@@ -4,6 +4,10 @@ import { FileTextOutlined, HistoryOutlined, CalendarOutlined } from '@ant-design
 import type { ColumnsType } from 'antd/es/table'
 import HistoryVaccination from './HistoryVaccination'
 import { getParentNotifications, VaccinationConsent, sendConsent } from '../../../apis/vaccination'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
 
 interface Child {
   studentId: number
@@ -32,7 +36,6 @@ const VaccinationSchedule: React.FC = () => {
       }))
       setData(mapped)
 
-      // Lấy danh sách các con duy nhất từ dữ liệu lịch tiêm
       const uniqueChildren: Child[] = []
       const seen = new Set()
       mapped.forEach((item) => {
@@ -177,7 +180,9 @@ const VaccinationSchedule: React.FC = () => {
             </Descriptions.Item>
             <Descriptions.Item label='Ghi chú'>{selectedSchedule.note || 'Không có'}</Descriptions.Item>
             <Descriptions.Item label='Ngày xác nhận'>
-              {selectedSchedule.dateConfirmed || 'Chưa xác nhận'}
+              {selectedSchedule.dateConfirmed
+                ? dayjs.utc(selectedSchedule.dateConfirmed).local().format('DD/MM/YYYY HH:mm')
+                : 'Chưa xác nhận'}
             </Descriptions.Item>
           </Descriptions>
         )}

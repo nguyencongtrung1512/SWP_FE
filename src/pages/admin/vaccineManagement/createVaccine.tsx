@@ -27,6 +27,9 @@ import {
   Vaccine
 } from '../../../apis/vaccination'
 import { getAllClasses, Class } from '../../../apis/class'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 
 const { Title } = Typography
 const { Option } = Select
@@ -72,12 +75,12 @@ const ScheduleVaccination: React.FC = () => {
   const fetchCampaigns = async () => {
     try {
       const res = await getAllVaccinationCampaigns()
-      const campaignsData = res.data?.$values || [] // Lấy đúng $values
+      const campaignsData = res.data?.$values || []
 
       setCampaigns(
         campaignsData.map((item) => ({
           ...item,
-          key: item.campaignId.toString() // key cho Table
+          key: item.campaignId.toString()
         }))
       )
     } catch (err) {
@@ -102,7 +105,7 @@ const ScheduleVaccination: React.FC = () => {
       const payload = {
         name: values.name,
         vaccineId: values.vaccineId,
-        date: values.date.toISOString(),
+        date: values.date.format(),
         description: values.description,
         classIds: values.classIds
       }
@@ -119,7 +122,12 @@ const ScheduleVaccination: React.FC = () => {
   const columns: ColumnsType<VaccinationCampaign> = [
     { title: 'Tên chiến dịch', dataIndex: 'name', key: 'name' },
     { title: 'Vaccine', dataIndex: 'vaccineName', key: 'vaccineName' },
-    { title: 'Ngày dự kiến', dataIndex: 'date', key: 'date' },
+    {
+      title: 'Ngày dự kiến',
+      dataIndex: 'date',
+      key: 'date',
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm')
+    },
     {
       title: 'Hành động',
       key: 'action',
@@ -172,10 +180,10 @@ const ScheduleVaccination: React.FC = () => {
       children: (
         <Card className='max-w-3xl'>
           <Form form={campaignForm} layout='vertical' onFinish={handleCreateCampaign}>
-            <Form.Item name='name' label='Tên chiến dịch' rules={[{ required: true }]}>
+            <Form.Item name='name' label='Tên chiến dịch' rules={[{ required: true, message: 'Vui lòng nhập tên chiến dịch' }]}>
               <Input placeholder='Nhập tên chiến dịch' />
             </Form.Item>
-            <Form.Item name='vaccineId' label='Vaccine' rules={[{ required: true }]}>
+            <Form.Item name='vaccineId' label='Vaccine' rules={[{ required: true, message: 'Vui lòng chọn vaccine' }]}>
               <Select placeholder='Chọn vaccine'>
                 {vaccines.map((v) => (
                   <Option key={v.vaccineId} value={v.vaccineId}>
@@ -184,13 +192,28 @@ const ScheduleVaccination: React.FC = () => {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item name='date' label='Ngày tiêm' rules={[{ required: true }]}>
-              <DatePicker showTime style={{ width: '100%' }} />
+            <Form.Item name='date' label='Ngày tiêm' rules={[{ required: true, message: 'Vui lòng chọn ngày tiêm' }]}>
+              <DatePicker
+                showTime
+                style={{ width: '100%' }}
+                disabledDate={(current) => {
+                  // return current && current.isBefore(new Date(), 'day')
+                  return current && current < dayjs().add(2, 'day').startOf('day')
+                }}
+                disabledTime={() => ({
+                  disabledHours: () =>
+                    Array.from({ length: 24 }, (_, i) => i).filter(
+                      (hour) => hour < 8 || hour > 16
+                    ),
+                  disabledMinutes: () => [],
+                  disabledSeconds: () => [],
+                })}
+              />
             </Form.Item>
-            <Form.Item name='description' label='Mô tả' rules={[{ required: true }]}>
+            <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
               <Input.TextArea rows={3} />
             </Form.Item>
-            <Form.Item name='classIds' label='Lớp áp dụng' rules={[{ required: true }]}>
+            <Form.Item name='classIds' label='Lớp áp dụng' rules={[{ required: true, message: 'Vui lòng chọn lớp' }]}>
               <Select mode='multiple' placeholder='Chọn lớp'>
                 {classes.map((cls) => (
                   <Option key={cls.classId} value={cls.classId}>
@@ -242,7 +265,7 @@ const ScheduleVaccination: React.FC = () => {
           <Descriptions bordered column={1}>
             <Descriptions.Item label='Tên chiến dịch'>{selectedCampaign.name}</Descriptions.Item>
             <Descriptions.Item label='Vaccine'>{selectedCampaign.vaccineName}</Descriptions.Item>
-            <Descriptions.Item label='Ngày dự kiến'>{selectedCampaign.date}</Descriptions.Item>
+            <Descriptions.Item label='Ngày dự kiến'>{dayjs.utc(selectedCampaign.date).local().format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedCampaign.description}</Descriptions.Item>
           </Descriptions>
         )}

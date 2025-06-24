@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Card, Select, message, Spin } from 'antd'
+import { Table, Card, Select, Spin } from 'antd'
 import { getRecordsByStudent } from '../../../apis/vaccination'
-
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 const { Option } = Select
 
 interface VaccinationRecord {
@@ -28,7 +30,7 @@ const columns = [
     title: 'Ngày tiêm',
     dataIndex: 'dateInjected',
     key: 'dateInjected',
-    render: (date: string) => (date ? new Date(date).toLocaleString('vi-VN') : '')
+    render: (date: string) => (date ? dayjs.utc(date).local().format('DD/MM/YYYY HH:mm') : '')
   },
   { title: 'Kết quả', dataIndex: 'result', key: 'result' },
   { title: 'Phản ứng ngay', dataIndex: 'immediateReaction', key: 'immediateReaction' },
@@ -43,11 +45,20 @@ const HistoryVaccination: React.FC<HistoryVaccinationProps> = ({ childrenList })
   useEffect(() => {
     if (!selectedStudentId) return
     setLoading(true)
-    getRecordsByStudent(selectedStudentId)
-      .then((res) => setRecords(res.data))
-      .catch(() => message.error('Không lấy được lịch sử tiêm!'))
-      .finally(() => setLoading(false))
+    fetchRecords(selectedStudentId)
   }, [selectedStudentId])
+
+  const fetchRecords = async (studentId: number) => {
+    try {
+      const response = await getRecordsByStudent(studentId)
+      if (response.data) 
+        setRecords(response?.data?.$values || [])
+    } catch (error) {
+      console.error('Error fetching records:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <Card>

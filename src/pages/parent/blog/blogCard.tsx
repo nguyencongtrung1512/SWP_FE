@@ -9,7 +9,7 @@ const BlogCard = ({ post }: { post: Blog }) => {
       <div className='flex flex-col md:flex-row h-auto min-h-[300px]'>
         <div className='w-full md:w-1/2 h-64 md:h-auto relative overflow-hidden'>
           <img
-            src={`data:image/png;base64,${post.image}`}
+            src={`data:image/webp;base64,${post.image}`}
             alt={post.title}
             className='w-full h-full object-cover absolute inset-0 transition-transform duration-500 hover:scale-110'
           />

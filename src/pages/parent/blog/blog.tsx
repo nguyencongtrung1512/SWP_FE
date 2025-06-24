@@ -36,6 +36,7 @@ const BlogPage: React.FC = () => {
     try {
       const response = await blogApi.getAllBlogs()
       if (response.data && response.data.$values) {
+        console.log('Blogs fetched:', response.data.$values)
         setBlogs(response.data.$values)
       }
     } catch (error) { 
@@ -190,7 +191,7 @@ const BlogPage: React.FC = () => {
                   <div key={post.blogID} className='flex gap-3 cursor-pointer' onClick={() => handlePostClick(post.blogID)}>
                     <div className='w-20 h-20 min-w-[80px] rounded overflow-hidden relative'>
                       <img 
-                        src={`data:image/png;base64,${post.image}`}
+                        src={`data:image/webp;base64,${post.image}`}
                         alt=''
                         className='w-full h-full object-cover absolute inset-0 transition-transform duration-500 hover:scale-110'
                       />

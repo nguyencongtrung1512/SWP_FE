@@ -130,9 +130,7 @@ const ProfileParent = () => {
     <div className='min-h-screen bg-gray-50 py-8 px-8'>
       <h1 className='text-2xl font-bold mb-6'>Hồ sơ của tôi</h1>
       <div className='flex gap-8'>
-        {/* Thông tin phụ huynh bên trái */}
         <div className='bg-white rounded-2xl shadow p-8 w-[350px] flex flex-col items-center'>
-          {/* Avatar */}
           <div className='w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center mb-2 text-gray-400 text-2xl relative overflow-hidden'>
             {accountInfo?.image ? (
               <img
@@ -164,9 +162,7 @@ const ProfileParent = () => {
           </div>
         </div>
 
-        {/* Phần phải: Tabs + Danh sách con */}
         <div className='flex-1 flex flex-col gap-6'>
-          {/* Tabs và nút chỉnh sửa */}
           <div className='flex justify-between items-center'>
             <div className='space-x-2'>
               <button className='px-4 py-2 bg-gray-100 rounded-full font-medium'>Con của tôi</button>
@@ -187,7 +183,6 @@ const ProfileParent = () => {
             </div>
           </div>
 
-          {/* Danh sách con */}
           <div className='bg-white rounded-2xl shadow p-6'>
             <div className='flex justify-between items-center mb-4'>
               <div className='text-lg font-semibold'>Danh sách con</div>

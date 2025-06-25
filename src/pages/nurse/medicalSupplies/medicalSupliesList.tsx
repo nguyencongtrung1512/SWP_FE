@@ -121,7 +121,8 @@ const MedicalSuppliesList: React.FC = () => {
           return '-'
         }
         return parsedDate.format('DD/MM/YYYY')
-      }
+      },
+      sorter: (a: MedicalSupply, b: MedicalSupply) => a.expiredDate.localeCompare(b.expiredDate)
     },
     {
       title: 'Thao tác',

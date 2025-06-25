@@ -4,7 +4,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined
 import { getAllMedications, deleteMedication } from '../../../apis/medication'
 import type { Medication } from '../../../apis/medication'
 import CreateMedication from './Create'
-import UpdateMedication from './update'
+import UpdateMedication from './Update'
 import MedicationDetail from './Detail'
 import dayjs from 'dayjs'
 
@@ -43,7 +43,6 @@ const MedicationList: React.FC = () => {
   useEffect(() => {
     let result = [...medications]
 
-    // Lọc theo từ khóa tìm kiếm
     if (searchText) {
       result = result.filter(
         (medication) =>
@@ -52,12 +51,10 @@ const MedicationList: React.FC = () => {
       )
     }
 
-    // Lọc theo loại thuốc
     if (selectedType) {
       result = result.filter((medication) => medication.type === selectedType)
     }
 
-    // Lọc theo ngày hết hạn
     if (selectedDate) {
       result = result.filter((medication) => dayjs(medication.expiredDate).isSame(selectedDate, 'day'))
     }
@@ -114,7 +111,8 @@ const MedicationList: React.FC = () => {
       title: 'Ngày hết hạn',
       dataIndex: 'expiredDate',
       key: 'expiredDate',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY')
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
+      sorter: (a: Medication, b: Medication) => a.expiredDate.localeCompare(b.expiredDate)
     },
     {
       title: 'Thao tác',
@@ -156,7 +154,6 @@ const MedicationList: React.FC = () => {
     }
   ]
 
-  // Lấy danh sách các loại thuốc duy nhất
   const uniqueTypes = Array.from(new Set(medications.map((med) => med.type)))
 
   return (

@@ -81,7 +81,7 @@ function Header() {
           Khai báo sức khỏe
         </a>
         <a href={path.vaccinationSchedule} className='text-gray-900 hover:text-blue-500 transition-colors'>
-          Lịch tiêm chủng
+          Lịch y tế
         </a>
         <a href={path.sendMedicine} className='text-gray-900 hover:text-blue-500 transition-colors'>
           Gửi thuốc

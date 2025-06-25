@@ -16,11 +16,11 @@ const Sidebar: React.FC = () => {
     //   icon: <FileSearchOutlined className='text-lg' />,
     //   label: 'DashBoard'
     // },
-    // {
-    //   key: path.HEALTH_RECORD_CENSORSHIP,
-    //   icon: <FileSearchOutlined className='text-lg' />,
-    //   label: 'Kiểm duyệt hồ sơ sức khỏe'
-    // },
+    {
+      key: path.HEALTH_RECORD_CENSORSHIP,
+      icon: <FileSearchOutlined className='text-lg' />,
+      label: 'Hồ sơ sức khỏe'
+    },
     // {
     //   key: path.SCHEDULE_VACCINATION,
     //   icon: <FileSearchOutlined className='text-lg' />,
@@ -31,6 +31,11 @@ const Sidebar: React.FC = () => {
       icon: <FileSearchOutlined className='text-lg' />,
       label: 'Kết quả tiêm'
     },
+    // {
+    //   key: path.RESULTS_AFTER_HEALTHCHECK,
+    //   icon: <FileSearchOutlined className='text-lg' />,
+    //   label: 'Kết quả khám sức khỏe'
+    // },
     {
       key: path.RECEIVE_MEDICINE,
       icon: <FileSearchOutlined className='text-lg' />,

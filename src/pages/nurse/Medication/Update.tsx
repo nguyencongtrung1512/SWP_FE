@@ -110,8 +110,13 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
           <DatePicker
             style={{ width: '100%' }}
             format='DD/MM/YYYY'
-            placeholder='Chọn ngày hết hạn'
-            disabledDate={(current) => current && current < dayjs().startOf('day')}
+            placeholder='Chọn ngày hết hạn cách hiện tại ít nhất 5 tháng và không quá 5 năm'
+            disabledDate={(current) => {
+              const now = dayjs()
+              const minDate = now.add(5, 'months')
+              const maxDate = now.add(5, 'years')
+              return current && (current < minDate || current > maxDate)
+            }}
           />
         </Form.Item>
 

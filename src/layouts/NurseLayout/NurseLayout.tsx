@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Layout } from 'antd'
 import Sidebar from './Sidebar'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { LogoutOutlined } from '@ant-design/icons'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
 import { getAccountInfo } from '../../api/parent.api'
+import NurseProfileModal from '../../pages/nurse/profile/NurseProfile'
 import path from '../../constants/path'
 
 interface AccountInfo {
@@ -26,6 +27,7 @@ const { Header, Content } = Layout
 
 const NurseLayout: React.FC = () => {
   const [open, setOpen] = useState(false)
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
   const { logout } = useAuth()
   const [userData, setUserData] = useState<AccountInfo | null>(null)
   const navigate = useNavigate()
@@ -62,6 +64,16 @@ const NurseLayout: React.FC = () => {
     }
   }
 
+  const handleProfileClick = () => {
+    setOpen(false)
+    setProfileModalOpen(true)
+  }
+
+  const handleProfileModalClose = () => {
+    setProfileModalOpen(false)
+    fetchUser()
+  }
+
   return (
     <Layout className='min-h-screen bg-gray-50'>
       <Sidebar />
@@ -88,6 +100,13 @@ const NurseLayout: React.FC = () => {
             {open && (
               <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200'>
                 <button
+                  className='w-full flex items-center px-3 py-2 text-gray-700 hover:bg-blue-50 transition-colors text-sm'
+                  onClick={handleProfileClick}
+                >
+                  <UserOutlined className='mr-2' />
+                  <span>Hồ sơ</span>
+                </button>
+                <button
                   className='w-full flex items-center px-3 py-2 text-red-500 hover:bg-blue-50 transition-colors text-sm'
                   onClick={handleLogout}
                 >
@@ -102,6 +121,17 @@ const NurseLayout: React.FC = () => {
           <Outlet />
         </Content>
       </Layout>
+      <NurseProfileModal
+        open={profileModalOpen}
+        onClose={handleProfileModalClose}
+        userData={userData ? {
+          email: userData.email,
+          fullname: userData.fullname,
+          address: userData.address,
+          phoneNumber: userData.phoneNumber,
+          image: userData.image
+        } : undefined}
+      />
     </Layout>
   )
 }

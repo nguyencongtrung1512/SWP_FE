@@ -18,6 +18,7 @@ import NurseCard from './NurseCard'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 import Loading from '../../../components/Loading/Loading'
+import SuccessModal from './successModal'
 
 interface AppointmentFormProps {
   onSubmit: (data: AppointmentFormData) => void
@@ -55,6 +56,8 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
   const [nurses, setNurses] = useState<Nurse[]>([])
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [successDetails, setSuccessDetails] = useState<{ date?: string; time?: string; consultant?: string }>()
 
   useEffect(() => {
     const fetchNurses = async () => {
@@ -130,7 +133,14 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
         reason: formData.reason,
         studentCode: formData.studentCode
       })
-      toast.success('Đã đặt lịch tư vấn thành công!')
+      // Lấy thông tin y tá
+      const nurse = nurses.find((n) => n.accountID === selectedNurse)
+      setSuccessDetails({
+        date: selectedDate ? format(selectedDate, 'dd/MM/yyyy', { locale: vi }) : '',
+        time: selectedTime,
+        consultant: nurse ? nurse.fullname : ''
+      })
+      setShowSuccess(true)
       // Reset form
       setSelectedStudent('')
       setSelectedNurse(null)
@@ -166,108 +176,111 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
   }
 
   return (
-    <Card className='w-full'>
-      <CardHeader>
-        <CardTitle className='text-2xl font-bold text-center text-green-700'>Đặt lịch tư vấn sức khỏe</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Student Selection */}
-          <div className='space-y-2'>
-            <Label htmlFor='student'>Chọn học sinh</Label>
-            <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-              <SelectTrigger>
-                <SelectValue placeholder='Chọn học sinh...' />
-              </SelectTrigger>
-              <SelectContent>
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.studentCode}>
-                    {student.studentCode} - {student.fullname} (Lớp {student.className})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Nurse Selection */}
-          <div className='space-y-3'>
-            <Label>Chọn y tá</Label>
-            <div className='grid gap-3'>
-              {nurses.map((nurse) => (
-                <NurseCard
-                  key={nurse.accountID}
-                  nurse={nurse}
-                  isSelected={selectedNurse === nurse.accountID}
-                  onSelect={setSelectedNurse}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Date and Time Selection */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+    <>
+      <SuccessModal isOpen={showSuccess} onClose={() => setShowSuccess(false)} appointmentDetails={successDetails} />
+      <Card className='w-full'>
+        <CardHeader>
+          <CardTitle className='text-2xl font-bold text-center text-green-700'>Đặt lịch tư vấn sức khỏe</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            {/* Student Selection */}
             <div className='space-y-2'>
-              <Label>Chọn ngày</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant='outline'
-                    className={
-                      'w-full justify-start text-left font-normal' + (!selectedDate ? ' text-muted-foreground' : '')
-                    }
-                  >
-                    <CalendarIcon className='mr-2 h-4 w-4' />
-                    {selectedDate ? format(selectedDate, 'PPP', { locale: vi }) : 'Chọn ngày'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className='w-auto p-0' align='start'>
-                  <Calendar
-                    mode='single'
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                    className='p-3 pointer-events-auto'
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className='space-y-2'>
-              <Label>Chọn giờ</Label>
-              <Select value={selectedTime} onValueChange={setSelectedTime}>
+              <Label htmlFor='student'>Chọn học sinh</Label>
+              <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                 <SelectTrigger>
-                  <SelectValue placeholder='Chọn giờ...' />
+                  <SelectValue placeholder='Chọn học sinh...' />
                 </SelectTrigger>
                 <SelectContent>
-                  {timeSlots.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
+                  {students.map((student) => (
+                    <SelectItem key={student.id} value={student.studentCode}>
+                      {student.studentCode} - {student.fullname} (Lớp {student.className})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          {/* Reason */}
-          <div className='space-y-2'>
-            <Label htmlFor='reason'>Lý do tư vấn</Label>
-            <Textarea
-              id='reason'
-              placeholder='Mô tả triệu chứng hoặc vấn đề sức khỏe cần tư vấn...'
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className='min-h-[100px]'
-            />
-          </div>
+            {/* Nurse Selection */}
+            <div className='space-y-3'>
+              <Label>Chọn y tá</Label>
+              <div className='grid gap-3'>
+                {nurses.map((nurse) => (
+                  <NurseCard
+                    key={nurse.accountID}
+                    nurse={nurse}
+                    isSelected={selectedNurse === nurse.accountID}
+                    onSelect={setSelectedNurse}
+                  />
+                ))}
+              </div>
+            </div>
 
-          <Button type='submit' className='w-full bg-green-600 hover:bg-green-700' disabled={loading}>
-            {loading ? 'Đang gửi...' : 'Đặt lịch tư vấn'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            {/* Date and Time Selection */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='space-y-2'>
+                <Label>Chọn ngày</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant='outline'
+                      className={
+                        'w-full justify-start text-left font-normal' + (!selectedDate ? ' text-muted-foreground' : '')
+                      }
+                    >
+                      <CalendarIcon className='mr-2 h-4 w-4' />
+                      {selectedDate ? format(selectedDate, 'PPP', { locale: vi }) : 'Chọn ngày'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='w-auto p-0' align='start'>
+                    <Calendar
+                      mode='single'
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className='p-3 pointer-events-auto'
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className='space-y-2'>
+                <Label>Chọn giờ</Label>
+                <Select value={selectedTime} onValueChange={setSelectedTime}>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Chọn giờ...' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Reason */}
+            <div className='space-y-2'>
+              <Label htmlFor='reason'>Lý do tư vấn</Label>
+              <Textarea
+                id='reason'
+                placeholder='Mô tả triệu chứng hoặc vấn đề sức khỏe cần tư vấn...'
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className='min-h-[100px]'
+              />
+            </div>
+
+            <Button type='submit' className='w-full bg-green-600 hover:bg-green-700' disabled={loading}>
+              {loading ? 'Đang gửi...' : 'Đặt lịch tư vấn'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   )
 }
 

@@ -25,9 +25,30 @@ interface AppointmentListProps {
   appointments: Appointment[]
 }
 
-const AppointmentList = ({ appointments, onCancel }: AppointmentListProps & { onCancel?: (id: number) => void }) => {
+const AppointmentList = ({
+  appointments,
+  onCancel,
+  reload
+}: AppointmentListProps & { onCancel?: (id: number) => void; reload?: boolean }) => {
   const [showAll, setShowAll] = useState(false)
-  const sortedAppointments = [...appointments].sort((a, b) => new Date(b.scheduledTime).getTime() - new Date(a.scheduledTime).getTime())
+  const [internalAppointments, setInternalAppointments] = useState(appointments)
+
+  useEffect(() => {
+    setInternalAppointments(appointments)
+  }, [appointments])
+
+  useEffect(() => {
+    // Gọi lại API hoặc cập nhật danh sách khi reload thay đổi
+    if (reload !== undefined) {
+      // Giả sử có hàm fetchAppointments, bạn có thể gọi lại ở đây nếu cần
+      // fetchAppointments()
+      setShowAll(false)
+    }
+  }, [reload])
+
+  const sortedAppointments = [...internalAppointments].sort(
+    (a, b) => new Date(b.scheduledTime).getTime() - new Date(a.scheduledTime).getTime()
+  )
   const visibleAppointments = showAll ? sortedAppointments : sortedAppointments.slice(0, 3)
 
   const getStatusColor = (status: Appointment['status']) => {

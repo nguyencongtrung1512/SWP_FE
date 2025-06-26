@@ -27,7 +27,7 @@ interface DetailedMedicationRequest extends Omit<MedicationRequestHistory, 'medi
   nurseNote?: string
 }
 
-function HistorySendMedicine() {
+function HistorySendMedicine({ reload }: { reload?: boolean }) {
   const [history, setHistory] = useState<MedicationRequestHistory[]>([])
   const [loading, setLoading] = useState(false)
   const [modal, setModal] = useState<{ open: boolean; record?: MedicationRequestHistory }>({ open: false })
@@ -73,6 +73,12 @@ function HistorySendMedicine() {
   useEffect(() => {
     fetchHistory()
   }, [])
+
+  React.useEffect(() => {
+    if (reload !== undefined) {
+      fetchHistory()
+    }
+  }, [reload])
 
   const handleOpenModal = async (record: MedicationRequestHistory) => {
     setModal({ open: true, record })

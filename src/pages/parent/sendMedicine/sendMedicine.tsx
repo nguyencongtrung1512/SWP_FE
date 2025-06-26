@@ -6,6 +6,7 @@ import { Button } from 'antd'
 const MedicineSubmissions: React.FC = () => {
   const [showCreate, setShowCreate] = React.useState(false)
   const formRef = React.useRef<HTMLDivElement>(null)
+  const [reloadHistory, setReloadHistory] = React.useState(false)
 
   const handleShowCreate = () => {
     setShowCreate((prev) => {
@@ -19,6 +20,11 @@ const MedicineSubmissions: React.FC = () => {
     })
   }
 
+  const handleSuccess = () => {
+    setReloadHistory((prev) => !prev)
+    setShowCreate(false)
+  }
+
   return (
     <div>
       <div className='mb-4 flex justify-end'>
@@ -26,12 +32,10 @@ const MedicineSubmissions: React.FC = () => {
           {showCreate ? 'Hủy form gửi thuốc' : 'Tạo đơn gửi thuốc'}
         </Button>
       </div>
-      <div>
-        <HistorySendMedicine />
-      </div>
+      <HistorySendMedicine reload={reloadHistory} />
       {showCreate && (
         <div ref={formRef}>
-          <CreateSendMedicine />
+          <CreateSendMedicine onSuccess={handleSuccess} />
         </div>
       )}
     </div>

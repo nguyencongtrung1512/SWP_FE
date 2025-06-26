@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Table, Card, Typography, Space, Modal, Descriptions, Tag, Tooltip } from 'antd'
+import { Button, Table, Card, Typography, Space, Modal, Descriptions, Tag, Tooltip, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { getAllMedicalEvents, MedicalEvent, deleteMedicalEvent, getMedicalEventById } from '../../../apis/medicalEvent'
@@ -16,16 +16,34 @@ const MedicalReport: React.FC = () => {
   const [medicalEvents, setMedicalEvents] = useState<MedicalEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [detailEvent, setDetailEvent] = useState<MedicalEvent | null>(null)
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
 
   useEffect(() => {
     fetchMedicalEvents()
   }, [])
 
+  useEffect(() => {
+    // Sắp xếp lại khi medicalEvents hoặc sortOrder thay đổi
+    setMedicalEvents((prev) =>
+      [...prev].sort((a, b) => {
+        const dateA = new Date(a.date).getTime()
+        const dateB = new Date(b.date).getTime()
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+      })
+    )
+  }, [sortOrder])
+
   const fetchMedicalEvents = async () => {
     try {
       setLoading(true)
       const response = await getAllMedicalEvents()
-      setMedicalEvents(response.data.$values)
+      // Sắp xếp theo sortOrder khi fetch
+      const sorted = [...response.data.$values].sort((a, b) => {
+        const dateA = new Date(a.date).getTime()
+        const dateB = new Date(b.date).getTime()
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+      })
+      setMedicalEvents(sorted)
     } catch {
       // ignore
     } finally {
@@ -125,6 +143,17 @@ const MedicalReport: React.FC = () => {
 
         <Card>
           <Title level={5}>Danh sách báo cáo</Title>
+          <div style={{ marginBottom: 16 }}>
+            <Select
+              value={sortOrder}
+              style={{ width: 200 }}
+              onChange={(val) => setSortOrder(val)}
+              options={[
+                { value: 'desc', label: 'Thời gian: Gần nhất' },
+                { value: 'asc', label: 'Thời gian: Xa nhất' }
+              ]}
+            />
+          </div>
           <Table columns={columns} dataSource={medicalEvents} rowKey='medicalEventId' loading={loading} />
         </Card>
 

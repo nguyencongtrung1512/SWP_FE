@@ -37,7 +37,7 @@ const AppointmentList = ({ appointments, onCancel }: AppointmentListProps & { on
       case 'Pending':
         return 'bg-yellow-500'
       case 'Done':
-        return 'bg-blue-500'
+        return 'bg-green-500'
       case 'Cancelled':
         return 'bg-red-500'
       default:
@@ -46,7 +46,7 @@ const AppointmentList = ({ appointments, onCancel }: AppointmentListProps & { on
   }
 
   const getStatusText = (status: Appointment['status']) => {
-    switch (status.toLowerCase()) {
+    switch (status) {
       case 'Confirmed':
         return 'Đã xác nhận'
       case 'Pending':

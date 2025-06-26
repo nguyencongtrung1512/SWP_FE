@@ -60,13 +60,13 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
     const fetchNurses = async () => {
       try {
         const res = await getNurseListForHealthConsultation()
+        console.log('Kết quả API:', res.data)
         const nursesData = Array.isArray(res.data) ? res.data : res.data?.$values || []
         setNurses(nursesData)
         if (!nursesData.length) {
           toast.warn('Không có y tá nào khả dụng!')
         }
       } catch (err) {
-        toast.error('Không thể tải danh sách y tá!')
         console.log('Lỗi lấy danh sách y tá:', err)
       }
     }
@@ -138,8 +138,24 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
       setSelectedTime('')
       setReason('')
       if (onSubmit) onSubmit(formData)
-    } catch {
-      toast.error('Đặt lịch tư vấn thất bại!')
+    } catch (err: unknown) {
+      // Nếu backend trả về message lỗi, hiển thị ra toast
+      let message: string | undefined
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: unknown }).response === 'object' &&
+        (err as { response?: { data?: { message?: string } } }).response !== undefined
+      ) {
+        const response = (err as { response: { data?: { message?: string } } }).response
+        message = response?.data?.message
+      }
+      if (message) {
+        toast.error(message)
+      } else {
+        toast.error('Đặt lịch tư vấn thất bại!')
+      }
     } finally {
       setLoading(false)
     }

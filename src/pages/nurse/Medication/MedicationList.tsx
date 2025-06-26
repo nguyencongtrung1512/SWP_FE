@@ -21,6 +21,7 @@ const MedicationList: React.FC = () => {
   const [searchText, setSearchText] = useState('')
   const [selectedType, setSelectedType] = useState<string>('')
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null)
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
 
   const fetchMedications = async () => {
     try {
@@ -59,8 +60,15 @@ const MedicationList: React.FC = () => {
       result = result.filter((medication) => dayjs(medication.expiredDate).isSame(selectedDate, 'day'))
     }
 
+    // Sắp xếp theo ngày hết hạn
+    result = result.sort((a, b) => {
+      const dateA = new Date(a.expiredDate).getTime()
+      const dateB = new Date(b.expiredDate).getTime()
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+    })
+
     setFilteredMedications(result)
-  }, [medications, searchText, selectedType, selectedDate])
+  }, [medications, searchText, selectedType, selectedDate, sortOrder])
 
   const handleDelete = async (id: number) => {
     try {
@@ -187,6 +195,17 @@ const MedicationList: React.FC = () => {
               onChange={handleDateChange}
               value={selectedDate}
               format='DD/MM/YYYY'
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              style={{ width: '100%' }}
+              value={sortOrder}
+              onChange={setSortOrder}
+              options={[
+                { value: 'desc', label: 'Ngày hết hạn: Gần nhất' },
+                { value: 'asc', label: 'Ngày hết hạn: Xa nhất' }
+              ]}
             />
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>

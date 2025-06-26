@@ -26,7 +26,7 @@ export const registerMessage: Record<string, string> = {
   'Failed to generate OTP.': 'Không thể tạo mã OTP.',
   'Failed to send OTP email.': 'Gửi email chứa OTP thất bại.',
   'Registration successful. An OTP has been sent to your email. Please verify to activate your account.':
-  'Đăng ký thành công. Một mã OTP đã được gửi đến email của bạn. Vui lòng xác minh để kích hoạt tài khoản.',
+    'Đăng ký thành công. Một mã OTP đã được gửi đến email của bạn. Vui lòng xác minh để kích hoạt tài khoản.',
   'Failed to create nurse account.': 'Không thể tạo tài khoản y tá.',
   'Nurse account created successfully.': 'Tạo tài khoản y tá thành công!',
   'Email already exists.': 'Email đã tồn tại.'
@@ -69,9 +69,9 @@ export const healthRecordMessage: Record<string, string> = {
 }
 
 export const sendMedicineMessage: Record<string, string> = {
-  "You are not the parent of this student.": "Bạn không phải là phụ huynh của học sinh này.",
-  "Failed to send medication request.": "Gửi yêu cầu gửi thuốc không thành công.",
-  "Medication request sent successfully.": "Yêu cầu gửi thuốc thành công!",
+  'You are not the parent of this student.': 'Bạn không phải là phụ huynh của học sinh này.',
+  'Failed to send medication request.': 'Gửi yêu cầu gửi thuốc không thành công.',
+  'Medication request sent successfully.': 'Yêu cầu gửi thuốc thành công!'
 }
 
 type MessageSource =
@@ -95,7 +95,7 @@ export function translateMessage(message: string, source: MessageSource): string
     healthRecord: healthRecordMessage,
     account: accountMessage,
     parent: parentMessage,
-    sendMedicine: sendMedicineMessage,
+    sendMedicine: sendMedicineMessage
   }
 
   return dictionaries[source][message] || message

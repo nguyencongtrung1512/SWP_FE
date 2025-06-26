@@ -254,6 +254,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             {selectedMedications.map((item) => (
               <div key={item.medicationId} style={{ margin: '8px 0 0 0' }}>
                 <span>{medicationOptions.find((opt) => opt.value === item.medicationId)?.label}:</span>
+                <span style={{ marginLeft: 8 }}>Số lượng:</span>
                 <Input
                   type='number'
                   min={1}
@@ -290,6 +291,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             {selectedMedicalSupplies.map((item) => (
               <div key={item.medicalSupplyId} style={{ margin: '8px 0 0 0' }}>
                 <span>{medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)?.label}:</span>
+                <span style={{ marginLeft: 8 }}>Số lượng:</span>
                 <Input
                   type='number'
                   min={1}

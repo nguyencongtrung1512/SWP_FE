@@ -25,8 +25,9 @@ const NurseCard = ({ nurse, isSelected, onSelect }: NurseCardProps) => {
         <div className='flex items-center space-x-3'>
           <img
             src={
-              nurse.image ||
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm8UvwNxX9OZn524JCfZXSvNYRYwu_55RO0w&s'
+              nurse.image
+                ? `data:image/png;base64,${nurse.image}`
+                : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm8UvwNxX9OZn524JCfZXSvNYRYwu_55RO0w&s'
             }
             alt={nurse.fullname}
             className='w-12 h-12 rounded-full object-cover'

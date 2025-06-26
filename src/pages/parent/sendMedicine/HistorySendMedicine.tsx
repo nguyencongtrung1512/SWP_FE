@@ -6,7 +6,6 @@ import { Badge } from '../../../components/ui/badge'
 import { Input } from '../../../components/ui/input'
 import { Textarea } from '../../../components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table'
-import { Calendar } from '@/components/ui/calendar'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../../components/ui/form'
 import { Eye, Edit, Calendar as CalendarIcon, Save, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -21,6 +20,7 @@ import {
   Medication
 } from '../../../apis/parentMedicationRequest'
 import { toast } from 'react-toastify'
+import MedicationNoData from '../../../components/nodata/medicationNoData'
 
 interface DetailedMedicationRequest extends Omit<MedicationRequestHistory, 'medications'> {
   medications: Medication[] | { $values: Medication[] }
@@ -144,6 +144,8 @@ function HistorySendMedicine() {
               <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
               <span className='ml-3 text-gray-600'>Đang tải...</span>
             </div>
+          ) : history.length === 0 ? (
+            <MedicationNoData />
           ) : (
             <div className='rounded-lg border border-gray-200 overflow-hidden'>
               <Table>
@@ -348,35 +350,36 @@ function HistorySendMedicine() {
                         className='p-4 border border-gray-200 bg-gradient-to-r from-green-50 to-blue-50'
                       >
                         <div className='space-y-2'>
-                          <h4 className='font-semibold text-lg text-gray-800'>{medication.name}</h4>
-                          <div className='grid grid-cols-2 gap-4 text-sm'>
-                            <div>
-                              <span className='font-medium text-gray-600'>Dạng thuốc:</span>
-                              <span className='ml-2 text-gray-800'>{medication.type}</span>
+                          <h4 className='font-semibold text-lg text-blue-700'> Thuốc: {medication.name}</h4>
+                          <div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm'>
+                            <div className='flex items-center'>
+                              <span className='font-medium text-gray-600 w-32 block'>Dạng thuốc:</span>
+                              <span className='text-gray-800'>{medication.type}</span>
                             </div>
-                            <div>
-                              <span className='font-medium text-gray-600'>Liều lượng:</span>
-                              <span className='ml-2 text-gray-800'>{medication.dosage}</span>
+                            <div className='flex items-center'>
+                              <span className='font-medium text-gray-600 w-32 block'>Liều lượng:</span>
+                              <span className='text-gray-800'>{medication.dosage}</span>
                             </div>
+                            <div className='flex items-center'>
+                              <span className='font-medium text-gray-600 w-32 block'>Cách dùng:</span>
+                              <span className='text-gray-800'>{medication.usage}</span>
+                            </div>
+                            {medication.expiredDate && (
+                              <div className='flex items-center'>
+                                <span className='font-medium text-gray-600 w-32 block'>HSD:</span>
+                                <span className='text-gray-800'>
+                                  {format(new Date(medication.expiredDate), 'dd/MM/yyyy', { locale: vi })}
+                                </span>
+                              </div>
+                            )}
+                            {medication.note && (
+                              <div className='flex items-center md:col-span-2'>
+                                <span className='font-medium text-gray-600 w-32 block'>Ghi chú:</span>
+                                <span className='italic text-gray-700'>{medication.note}</span>
+                              </div>
+                            )}
                           </div>
-                          <div className='text-sm'>
-                            <span className='font-medium text-gray-600'>Cách dùng:</span>
-                            <span className='ml-2 text-gray-800'>{medication.usage}</span>
-                          </div>
-                          {medication.expiredDate && (
-                            <div className='text-sm'>
-                              <span className='font-medium text-gray-600'>HSD:</span>
-                              <span className='ml-2 text-gray-800'>
-                                {format(new Date(medication.expiredDate), 'dd/MM/yyyy', { locale: vi })}
-                              </span>
-                            </div>
-                          )}
-                          {medication.note && (
-                            <div className='text-sm'>
-                              <span className='font-medium text-gray-600'>Ghi chú:</span>
-                              <span className='ml-2 italic text-gray-700'>{medication.note}</span>
-                            </div>
-                          )}
+                          <div className='border-b border-gray-200 mt-2' />
                         </div>
                       </Card>
                     ))}
@@ -411,14 +414,15 @@ function HistorySendMedicine() {
                 <Button variant='outline' onClick={handleCloseModal}>
                   Đóng
                 </Button>
-                <Button
-                  disabled={modal.record?.status !== 'Pending'}
-                  onClick={() => setIsEditing(true)}
-                  className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                >
-                  <Edit className='h-4 w-4 mr-2' />
-                  Chỉnh sửa
-                </Button>
+                {modal.record?.status === 'Pending' && (
+                  <Button
+                    onClick={() => setIsEditing(true)}
+                    className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                  >
+                    <Edit className='h-4 w-4 mr-2' />
+                    Chỉnh sửa
+                  </Button>
+                )}
               </>
             )}
           </DialogFooter>

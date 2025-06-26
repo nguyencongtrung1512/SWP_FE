@@ -18,9 +18,10 @@ interface CreateConsultationProps {
   onCancel: () => void
   onSuccess: () => void
   students: LocalStudent[]
+  consultationRequests: { scheduledTime: string }[]
 }
 
-function CreateConsultation({ visible, onCancel, onSuccess, students }: CreateConsultationProps) {
+function CreateConsultation({ visible, onCancel, onSuccess, students, consultationRequests }: CreateConsultationProps) {
   const [form] = Form.useForm()
 
   const handleCreateRequest = async () => {
@@ -37,9 +38,13 @@ function CreateConsultation({ visible, onCancel, onSuccess, students }: CreateCo
         studentId: Number(student.id),
         nurseId: Number(nurseId),
         parentId: student.parentId || 0,
-        scheduledTime: values.suggestedTime.format('YYYY-MM-DDTHH:mm:00'),
+        scheduledTime: values.suggestedTime ? values.suggestedTime.format('YYYY-MM-DDTHH:mm:00') : '',
         reason: values.reason,
         studentCode: student.studentCode || ''
+      }
+      if (!values.suggestedTime) {
+        toast.error('Vui lòng chọn thời gian hợp lệ!')
+        return
       }
       console.log('payload gửi BE:', payload)
       await createHealthConsultationBookingByNurse(payload)
@@ -94,7 +99,7 @@ function CreateConsultation({ visible, onCancel, onSuccess, students }: CreateCo
       width={800}
     >
       <Form form={form} layout='vertical' onFinish={handleCreateRequest}>
-        <Form.Item name='studentId' label='Học sinh' rules={[{ required: true, toast: 'Vui lòng chọn học sinh!' }]}>
+        <Form.Item name='studentId' label='Học sinh' rules={[{ required: true, message: 'Vui lòng chọn học sinh!' }]}>
           <Select
             placeholder='Chọn học sinh'
             options={students.map((student) => ({
@@ -104,7 +109,7 @@ function CreateConsultation({ visible, onCancel, onSuccess, students }: CreateCo
           />
         </Form.Item>
 
-        <Form.Item name='reason' label='Lý do mời tư vấn' rules={[{ required: true, toast: 'Vui lòng nhập lý do!' }]}>
+        <Form.Item name='reason' label='Lý do mời tư vấn' rules={[{ required: true, message: 'Vui lòng nhập lý do!' }]}>
           <TextArea rows={4} placeholder='Nhập lý do mời tư vấn...' />
         </Form.Item>
 
@@ -112,7 +117,7 @@ function CreateConsultation({ visible, onCancel, onSuccess, students }: CreateCo
           name='suggestedTime'
           label='Thời gian gợi ý'
           rules={[
-            { required: true, toast: 'Vui lòng chọn thời gian!' },
+            { required: true, message: 'Vui lòng chọn thời gian!' },
             {
               validator: (_, value) => {
                 if (!value) return Promise.resolve()
@@ -121,6 +126,14 @@ function CreateConsultation({ visible, onCancel, onSuccess, students }: CreateCo
                 const timeStr = `${hour}:${minute}`
                 if (!timeSlots.includes(timeStr)) {
                   return Promise.reject('Chỉ được chọn các khung giờ quy định!')
+                }
+                // Validate trùng giờ trong 1 ngày
+                const picked = value.format('YYYY-MM-DD HH:mm')
+                const isDuplicate = consultationRequests.some((req) =>
+                  dayjs(req.scheduledTime).format('YYYY-MM-DD HH:mm') === picked
+                )
+                if (isDuplicate) {
+                  return Promise.reject('Đã có lịch tư vấn vào khung giờ này trong ngày, vui lòng chọn thời gian khác!')
                 }
                 return Promise.resolve()
               }

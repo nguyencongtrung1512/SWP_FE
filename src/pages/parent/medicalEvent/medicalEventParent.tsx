@@ -156,7 +156,7 @@ const MedicalEventParent: React.FC = () => {
   const selectedStudent = medicalEvents.find((s) => s.studentId === selectedStudentId)
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100'>
+    <div className='min-h-screen bg-gradient-to-br from-blue-100 to-cyan-50'>
       <div className='container mx-auto p-4'>
         <div className='mb-6'>
           <h1 className='text-2xl font-extrabold text-gray-800 mb-1 tracking-tight drop-shadow'>Sức khỏe con em</h1>

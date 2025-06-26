@@ -130,7 +130,7 @@ function HistorySendMedicine() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-200 via-white to-purple-100 p-6'>
+    <div className='min-h-screen bg-gradient-to-br from-blue-100 to-cyan-50 p-6'>
       <Card className='shadow-xl border-0 bg-white/80 backdrop-blur-sm'>
         <CardHeader className='bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg'>
           <CardTitle className='text-2xl font-bold flex items-center gap-2'>

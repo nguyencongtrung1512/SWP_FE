@@ -105,7 +105,7 @@ const UserList: React.FC = () => {
         fetchUsers()
       }
     } catch (err) {
-      
+
     }
   }
 
@@ -165,7 +165,7 @@ const UserList: React.FC = () => {
         ...values,
         dateOfBirth: formattedDate
       }
-      
+
       console.log('Formatted Values:', formattedValues)
       const result: any = await createNurse(formattedValues)
 
@@ -247,7 +247,7 @@ const UserList: React.FC = () => {
                 Vô hiệu hóa
               </Button>
             </Popconfirm>
-          ):(
+          ) : (
             <Popconfirm
               title='Kích hoạt người dùng'
               description='Bạn có chắc chắn muốn kích hoạt người dùng này?'
@@ -308,8 +308,8 @@ const UserList: React.FC = () => {
                   { value: 'Nurse', label: 'Y tá' }
                 ]}
               />
-              <Button 
-                type='primary' 
+              <Button
+                type='primary'
                 onClick={handleOpenNurseModal}
               >
                 <FaPlus />Tạo tài khoản cho Y tá
@@ -330,17 +330,13 @@ const UserList: React.FC = () => {
             <Descriptions.Item label='Email'>{selectedUser.email}</Descriptions.Item>
             <Descriptions.Item label='Họ và tên'>{selectedUser.fullname}</Descriptions.Item>
             <Descriptions.Item label='Địa chỉ'>{selectedUser.address}</Descriptions.Item>
-            <Descriptions.Item label='Ngày sinh'>{selectedUser.dateOfBirth.split('T')[0]}</Descriptions.Item>
+            <Descriptions.Item label='Ngày sinh'>{selectedUser.dateOfBirth ? dayjs(selectedUser.dateOfBirth).format('DD/MM/YYYY') : ''}</Descriptions.Item>
             <Descriptions.Item label='Số điện thoại'>{selectedUser.phoneNumber}</Descriptions.Item>
             <Descriptions.Item label='Vai trò'>{selectedUser.role.roleName}</Descriptions.Item>
             <Descriptions.Item label='Trạng thái'>
               <Tag color={selectedUser.status === 'Active' ? 'green' : 'volcano'}>
                 {selectedUser.status === 'Active' ? 'Đang hoạt động' : 'Vô hiệu hóa'}
               </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label='Ngày tạo'>{new Date(selectedUser.createdAt).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label='Cập nhật lần cuối'>
-              {new Date(selectedUser.updateAt).toLocaleString()}
             </Descriptions.Item>
           </Descriptions>
         </Modal>

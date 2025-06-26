@@ -9,13 +9,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import { getNurseListForHealthConsultation, createHealthConsultationBookingByParent } from '../../../apis/healthConsultationBooking.api'
+import {
+  getNurseListForHealthConsultation,
+  createHealthConsultationBookingByParent
+} from '../../../apis/healthConsultationBooking.api'
 import { getMyChildren } from '../../../api/parent.api'
 import NurseCard from './NurseCard'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 import Loading from '../../../components/Loading/Loading'
-
 
 interface AppointmentFormProps {
   onSubmit: (data: AppointmentFormData) => void
@@ -58,9 +60,14 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
     const fetchNurses = async () => {
       try {
         const res = await getNurseListForHealthConsultation()
-        setNurses(res.data?.$values || [])
-      } catch {
-        console.log('Không thể tải danh sách y tá!')
+        const nursesData = Array.isArray(res.data) ? res.data : res.data?.$values || []
+        setNurses(nursesData)
+        if (!nursesData.length) {
+          toast.warn('Không có y tá nào khả dụng!')
+        }
+      } catch (err) {
+        toast.error('Không thể tải danh sách y tá!')
+        console.log('Lỗi lấy danh sách y tá:', err)
       }
     }
     const fetchStudents = async () => {

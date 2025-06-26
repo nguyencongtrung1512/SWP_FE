@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Table, Tag, Button, Space, Modal, Tabs, Typography, Select, Row, Col, Card } from 'antd'
+import { Table, Button, Space, Modal, Tabs, Typography, Select, Row, Col, Card } from 'antd'
 import type { TabsProps } from 'antd'
 import { getAllClasses } from '../../../apis/class'
 import { getAllHealthRecords } from '../../../apis/healthRecord'
@@ -20,8 +20,10 @@ interface HealthRecord {
   status: string
   height?: number
   weight?: number
-  bmi?: number
-  nutritionStatus?: string
+  // bmi?: number
+  // nutritionStatus?: string
+  leftEye?: number
+  rightEye?: number
   note?: string
   classId: number
   allergies?: string[]
@@ -117,8 +119,10 @@ const HealthRecordCensorship: React.FC = () => {
             studentCode: record.studentCode || student.studentCode,
             height: record.height,
             weight: record.weight,
-            bmi: record.bmi,
-            nutritionStatus: record.nutritionStatus,
+            // bmi: record.bmi,
+            // nutritionStatus: record.nutritionStatus,
+            leftEye: record.leftEye,
+            rightEye: record.rightEye,
             note: record.note,
             classId: student.classId || 0,
             status: 'Active',
@@ -178,6 +182,14 @@ const HealthRecordCensorship: React.FC = () => {
               <Text className='ml-2'>{selectedRecord?.weight ? `${selectedRecord.weight} kg` : 'Chưa có thông tin'}</Text>
             </div>
             <div>
+              <Text strong>Chỉ số do mắt trái:</Text>
+              <Text className='ml-2'>{selectedRecord?.leftEye ? `${selectedRecord.leftEye}/10` : 'Chưa có thông tin'}</Text>
+            </div>
+            <div>
+              <Text strong>Chỉ số do mắt phải:</Text>
+              <Text className='ml-2'>{selectedRecord?.rightEye ? `${selectedRecord.rightEye}/10` : 'Chưa có thông tin'}</Text>
+            </div>
+            {/* <div>
               <Text strong>BMI:</Text>
               <Text className='ml-2'>{selectedRecord?.bmi ? selectedRecord.bmi.toFixed(2) : 'Chưa có thông tin'}</Text>
             </div>
@@ -196,48 +208,48 @@ const HealthRecordCensorship: React.FC = () => {
                   </Tag>
                 ) : 'Chưa có thông tin'}
               </Text>
-            </div>
+            </div> */}
           </div>
           <div>
             <Text strong>Ghi chú: </Text>
-            <Text>{selectedRecord?.note}</Text>
+            <Text>{selectedRecord?.note ? selectedRecord.note : 'Chưa có thông tin'}</Text>
           </div>
         </div>
       )
     },
-    {
-      key: '2',
-      label: 'Lịch sử tiêm',
-      children: (
-        <div className='space-y-4 text-center'>
-          {selectedRecord?.vaccinationHistory && selectedRecord.vaccinationHistory.length > 0 ? (
-            <Table
-              dataSource={selectedRecord.vaccinationHistory}
-              columns={[
-                {
-                  title: 'Ngày tiêm',
-                  dataIndex: 'date',
-                  key: 'date'
-                },
-                {
-                  title: 'Vaccine',
-                  dataIndex: 'vaccine',
-                  key: 'vaccine'
-                },
-                {
-                  title: 'Ghi chú',
-                  dataIndex: 'notes',
-                  key: 'notes'
-                }
-              ]}
-              pagination={false}
-            />
-          ) : (
-            <Text type='secondary'>Chưa có lịch sử tiêm</Text>
-          )}
-        </div>
-      )
-    }
+    // {
+    //   key: '2',
+    //   label: 'Lịch sử tiêm',
+    //   children: (
+    //     <div className='space-y-4 text-center'>
+    //       {selectedRecord?.vaccinationHistory && selectedRecord.vaccinationHistory.length > 0 ? (
+    //         <Table
+    //           dataSource={selectedRecord.vaccinationHistory}
+    //           columns={[
+    //             {
+    //               title: 'Ngày tiêm',
+    //               dataIndex: 'date',
+    //               key: 'date'
+    //             },
+    //             {
+    //               title: 'Vaccine',
+    //               dataIndex: 'vaccine',
+    //               key: 'vaccine'
+    //             },
+    //             {
+    //               title: 'Ghi chú',
+    //               dataIndex: 'notes',
+    //               key: 'notes'
+    //             }
+    //           ]}
+    //           pagination={false}
+    //         />
+    //       ) : (
+    //         <Text type='secondary'>Chưa có lịch sử tiêm</Text>
+    //       )}
+    //     </div>
+    //   )
+    // }
   ]
 
   const columns = [

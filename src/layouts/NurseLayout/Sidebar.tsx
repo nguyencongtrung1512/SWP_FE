@@ -27,9 +27,9 @@ const Sidebar: React.FC = () => {
     //   label: 'Lập lịch tiêm'
     // },
     {
-      key: path.RESULTS_AFTER_VACCINATION,
+      key: path.MEDICAL_RESULT,
       icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Kết quả tiêm'
+      label: 'Kết quả y tế'
     },
     // {
     //   key: path.RESULTS_AFTER_HEALTHCHECK,
@@ -61,11 +61,11 @@ const Sidebar: React.FC = () => {
       icon: <FileSearchOutlined className='text-lg' />,
       label: 'Vật tư y tế'
     },
-    {
-      key: path.MEDICAL_PLAN,
-      icon: <FileSearchOutlined className='text-lg' />,
-      label: 'Kế hoạch y tế'
-    },
+    // {
+    //   key: path.MEDICAL_PLAN,
+    //   icon: <FileSearchOutlined className='text-lg' />,
+    //   label: 'Kế hoạch y tế'
+    // },
     {
       key: path.NURSE_CATEGORY_MANAGEMENT,
       icon: <FileSearchOutlined className='text-lg' />,

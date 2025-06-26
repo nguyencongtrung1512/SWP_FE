@@ -112,5 +112,5 @@ export const getFollowUpsByRecord = (recordId: number) => {
 }
 
 export const getRecordsByStudent = (studentId: number) => {
-  return http.get<any[]>(`/Vaccination/RecordsByStudent/${studentId}`)
+  return http.get<ApiResponse<VaccinationRecord>>(`/Vaccination/RecordsByStudent/${studentId}`)
 }

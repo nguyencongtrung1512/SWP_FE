@@ -8,32 +8,26 @@ import {
   MedicineBoxOutlined,
   PlusOutlined
 } from '@ant-design/icons'
-import { getAccountInfo, getMyChildren, Student, addHealthRecord, getHealthRecordsByStudentId, editHealthRecord } from '../../../api/parent.api'
+import { getAccountInfo, getMyChildren, Student, addHealthRecord, getHealthRecordsByStudentId, editHealthRecord, HealthRecordData } from '../../../api/parent.api'
 import HealthRecordModal from './healthRecordModal'
 import dayjs from 'dayjs'
 import { translateMessage } from '../../../utils/message'
 import { toast } from 'react-toastify'
 
-interface HealthRecordData {
+interface HealthRecord {
   weight: number
   height: number
   note: string
   parentID: number
   studentCode: string
-}
-
-interface HealthRecord {
-  weight: number
-  height: number
-  bmi: number
-  nutritionStatus: string
-  note: string
+  leftEye: number
+  rightEye: number
 }
 
 interface StudentWithHealthRecord extends Student {
   studentId: number
   className: string
-  healthRecord?: HealthRecord
+  healthRecord?: HealthRecordData
 }
 
 const HealthRecord = () => {
@@ -87,8 +81,10 @@ const HealthRecord = () => {
               healthRecord: {
                 weight: record.weight,
                 height: record.height,
-                bmi: record.bmi,
-                nutritionStatus: record.nutritionStatus,
+                // bmi: record.bmi,
+                // nutritionStatus: record.nutritionStatus,
+                leftEye: record.leftEye,
+                rightEye: record.rightEye,
                 note: record.note
               }
             })
@@ -122,7 +118,7 @@ const HealthRecord = () => {
     }
   }
 
-  const handleEditHealthRecord = async (healthRecordData: HealthRecordData) => {
+  const handleEditHealthRecord = async (healthRecordData: HealthRecord) => {
     if (!selectedStudent || !healthRecordIds[selectedStudent.studentId]) {
       toast.error('Không tìm thấy thông tin hồ sơ sức khỏe!')
       return
@@ -138,8 +134,10 @@ const HealthRecord = () => {
           healthRecord: {
             weight: response.data.weight,
             height: response.data.height,
-            bmi: response.data.bmi,
-            nutritionStatus: response.data.nutritionStatus,
+            // bmi: response.data.bmi,
+            // nutritionStatus: response.data.nutritionStatus,
+            leftEye: response.data.leftEye,
+            rightEye: response.data.rightEye,
             note: response.data.note
           }
         }
@@ -163,7 +161,7 @@ const HealthRecord = () => {
     }
   }
 
-  const handleAddHealthRecord = async (healthRecordData: HealthRecordData) => {
+  const handleAddHealthRecord = async (healthRecordData: HealthRecord) => {
     if (!selectedStudent || !account?.accountID) {
       toast.error('Không tìm thấy thông tin phụ huynh và học sinh!')
       return
@@ -175,7 +173,9 @@ const HealthRecord = () => {
         studentCode: selectedStudent.studentCode,
         weight: healthRecordData.weight,
         height: healthRecordData.height,
-        note: healthRecordData.note?.trim() ? healthRecordData.note : 'Không có'
+        leftEye: healthRecordData.leftEye,
+        rightEye: healthRecordData.rightEye,
+        note: ''
       })
 
       if (response.success && response.data) {
@@ -184,8 +184,10 @@ const HealthRecord = () => {
           healthRecord: {
             weight: response.data.weight,
             height: response.data.height,
-            bmi: response.data.bmi,
-            nutritionStatus: response.data.nutritionStatus,
+            // bmi: response.data.bmi,
+            // nutritionStatus: response.data.nutritionStatus,
+            leftEye: response.data.leftEye,
+            rightEye: response.data.rightEye,
             note: response.data.note
           }
         }
@@ -214,38 +216,38 @@ const HealthRecord = () => {
     setSelectedStudent(student)
   }
 
-  const translateNutritionStatus = (status: string) => {
-    switch (status) {
-      case 'Underweight':
-        return 'Gầy (Thiếu cân)'
-      case 'Normal':
-        return 'Bình thường'
-      case 'Overweight':
-        return 'Thừa cân'
-      case 'Obese':
-        return 'Béo phì'
-      case 'ExtremlyObese':
-        return 'Béo phì nghiêm trọng'
-      default:
-        return 'Chưa xác định'
-    }
-  }
+  // const translateNutritionStatus = (status: string) => {
+  //   switch (status) {
+  //     case 'Underweight':
+  //       return 'Gầy (Thiếu cân)'
+  //     case 'Normal':
+  //       return 'Bình thường'
+  //     case 'Overweight':
+  //       return 'Thừa cân'
+  //     case 'Obese':
+  //       return 'Béo phì'
+  //     case 'ExtremlyObese':
+  //       return 'Béo phì nghiêm trọng'
+  //     default:
+  //       return 'Chưa xác định'
+  //   }
+  // }
 
-  const getNutritionStatusColor = (status: string) => {
-    switch (status) {
-      case 'Underweight':
-        return 'text-yellow-600 bg-yellow-50'
-      case 'Normal':
-        return 'text-green-600 bg-green-50'
-      case 'Overweight':
-        return 'text-orange-600 bg-orange-50'
-      case 'Obese':
-      case 'ExtremlyObese':
-        return 'text-red-600 bg-red-50'
-      default:
-        return 'text-gray-600 bg-gray-50'
-    }
-  }
+  // const getNutritionStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case 'Underweight':
+  //       return 'text-yellow-600 bg-yellow-50'
+  //     case 'Normal':
+  //       return 'text-green-600 bg-green-50'
+  //     case 'Overweight':
+  //       return 'text-orange-600 bg-orange-50'
+  //     case 'Obese':
+  //     case 'ExtremlyObese':
+  //       return 'text-red-600 bg-red-50'
+  //     default:
+  //       return 'text-gray-600 bg-gray-50'
+  //   }
+  // }
 
   if (loading) {
     return (
@@ -309,15 +311,15 @@ const HealthRecord = () => {
               key={student.studentId}
               onClick={() => handleStudentSelect(student)}
               className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap
-                      ${
-                        selectedStudent?.studentId === student.studentId
-                          ? 'bg-blue-500 text-white shadow-lg scale-105'
-                          : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
-                      }`}
+              ${
+                selectedStudent?.studentId === student.studentId
+                  ? 'bg-blue-500 text-white shadow-lg scale-105'
+                  : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
+              }`}
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                        ${selectedStudent?.studentId === student.studentId ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'}`}
+                ${selectedStudent?.studentId === student.studentId ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'}`}
               >
                 {student.fullname.charAt(0)}
               </div>
@@ -399,7 +401,7 @@ const HealthRecord = () => {
                       </p>
                     </div>
                   </div>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                  {/* <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
                     <div className='bg-white rounded-lg p-4 shadow-sm'>
                       <span className='text-gray-500 text-sm block mb-1'>Chỉ số BMI</span>
                       <p className='font-semibold text-gray-900 text-lg'>
@@ -412,9 +414,23 @@ const HealthRecord = () => {
                         {translateNutritionStatus(selectedStudent.healthRecord.nutritionStatus)}
                       </p>
                     </div>
+                  </div> */}
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                    <div className='bg-white rounded-lg p-4 shadow-sm'>
+                      <span className='text-gray-500 text-sm block mb-1'>Chỉ số mắt trái</span>
+                      <p className='font-semibold text-gray-900 text-lg'>
+                        {selectedStudent.healthRecord.leftEye}/10
+                      </p>
+                    </div>
+                    <div className='bg-white rounded-lg p-4 shadow-sm'>
+                      <span className='text-gray-500 text-sm block mb-1'>Chỉ số mắt phải</span>
+                      <p className='font-semibold text-lg px-3 py-1 rounded-full inline-block'>
+                        {selectedStudent.healthRecord.rightEye}/10
+                      </p>
+                    </div>
                   </div>
                   <div className='bg-white rounded-lg p-4 shadow-sm'>
-                    <span className='text-gray-500 text-sm block mb-1'>Ghi chú</span>
+                    <span className='text-gray-500 text-sm block mb-1'>Ghi chú từ phụ huynh</span>
                     <p className='font-medium text-gray-900 text-lg leading-relaxed'>
                       {selectedStudent.healthRecord.note || 'Chưa có ghi chú'}
                     </p>
@@ -461,6 +477,8 @@ const HealthRecord = () => {
           weight: selectedStudent.healthRecord.weight,
           height: selectedStudent.healthRecord.height,
           note: selectedStudent.healthRecord.note,
+          leftEye: selectedStudent.healthRecord.leftEye,
+          rightEye: selectedStudent.healthRecord.rightEye
         } : undefined}
       />
 
@@ -469,7 +487,6 @@ const HealthRecord = () => {
         onClose={() => setIsAddModalOpen(false)}
         onSave={(data) => {
           if (!selectedStudent || !account) return Promise.resolve()
-
           return handleAddHealthRecord({
             ...data,
             parentID: account.accountID,

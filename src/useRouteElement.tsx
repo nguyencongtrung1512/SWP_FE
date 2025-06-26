@@ -10,7 +10,6 @@ import ProfileParent from './pages/parent/profile/profileParent'
 import NurseLayout from './layouts/NurseLayout/NurseLayout'
 import HealthRecordCensorship from './pages/nurse/healthRecordCensorship/HealthRecordCensorship'
 import ScheduleVaccination from './pages/nurse/scheduleVaccination/ScheduleVaccination'
-import ResultsAfterVaccination from './pages/nurse/resultsAfterVaccination'
 import ReceiveMedicine from './pages/nurse/receiveMedicine/ReceiveMedicine'
 import MedicalReport from './pages/nurse/medicalReport/MedicalReport'
 import DashBoardNurse from './pages/nurse/dashboardNurse/DashBoardNurse'
@@ -35,6 +34,8 @@ import MedicationList from './pages/nurse/Medication/MedicationList'
 import MedicalSuppliesList from './pages/nurse/medicalSupplies/medicalSupliesList'
 import Vaccination from './pages/admin/vaccineManagement/createVaccine'
 import AppointmentPage from './pages/parent/privateConsultation/AppointmentPage'
+import HealthCheck from './pages/admin/healthCheckManagement/createHealthCheck'
+import MedicalResult from './pages/nurse/resultsAfterVaccination'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -132,8 +133,8 @@ export default function useRouteElements() {
               element: <ScheduleVaccination />
             },
             {
-              path: path.RESULTS_AFTER_VACCINATION,
-              element: <ResultsAfterVaccination />
+              path: path.MEDICAL_RESULT,
+              element: <MedicalResult />
             },
             {
               path: path.RECEIVE_MEDICINE,
@@ -219,6 +220,10 @@ export default function useRouteElements() {
             {
               path: path.VACCINE_MANAGEMENT,
               element: <Vaccination />
+            },
+            {
+              path: path.HEALTHCHECK_MANAGEMENT,
+              element: <HealthCheck />
             }
           ]
         }

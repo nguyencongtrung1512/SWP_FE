@@ -20,7 +20,7 @@ const AddNurse: React.FC<CreateNurseProps> = ({ visible, onClose, onSuccess }) =
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
-  const maxDate = dayjs().subtract(30, 'year')
+  const maxDate = dayjs().subtract(25, 'year')
   const minDate = dayjs().subtract(50, 'year')
 
   const handleSubmit = async (values: {

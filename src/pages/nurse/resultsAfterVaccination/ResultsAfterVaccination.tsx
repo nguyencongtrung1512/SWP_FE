@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Table, Button, Modal, Form, Input, Select, DatePicker, message, Card, Typography, Row, Col } from 'antd'
+import { Table, Button, Modal, Form, Input, Select, DatePicker, message, Card, Row, Col } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
@@ -14,7 +14,6 @@ import {
 
 dayjs.extend(utc)
 
-const { Title } = Typography
 const { Option } = Select
 
 interface HealthRecord {
@@ -180,12 +179,9 @@ function ResultsAfterVaccination() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div>
       <Card>
-        <Row justify='space-between' align='middle' style={{ marginBottom: 16 }}>
-          <Col>
-            <Title level={4}>Ghi nhận kết quả sau tiêm</Title>
-          </Col>
+        <Row justify='end' align='middle' style={{ marginBottom: 16 }}>
           <Col>
             <Select
               placeholder='Chọn chiến dịch tiêm'
@@ -204,7 +200,6 @@ function ResultsAfterVaccination() {
 
         <Table columns={columns} dataSource={records} pagination={false} />
 
-        {/* Modal thêm bản ghi */}
         <Modal
           title={`Thêm bản ghi cho ${selectedConsent?.studentName}`}
           open={isModalVisible}

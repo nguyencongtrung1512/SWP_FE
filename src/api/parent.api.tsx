@@ -196,39 +196,32 @@ export const getStudentInfo = async (studentCode: string) => {
   }
 }
 
+export interface HealthRecordData {
+  weight: number
+  height: number
+  note: string
+  leftEye: number
+  rightEye: number
+}
+
 interface HealthRecordParams {
   parentID: number
   studentCode: string
   weight: number
   height: number
+  leftEye: number
+  rightEye: number
   note: string
 }
 
-interface HealthRecordResponse {
+export interface ApiResponse<T> {
   $id: string
-  message: string
-  data: {
-    $id: string
-    healthRecordId: number
-    parentId: number
-    studentId: number
-    studentName: string
-    studentCode: string
-    gender: string
-    dateOfBirth: string
-    note: string
-    height: number
-    weight: number
-    bmi: number
-    nutritionStatus: string
-    student: null
-    parent: null
-  }
+  $values: T[]
 }
 
 export const addHealthRecord = async (params: HealthRecordParams) => {
   try {
-    const response = await http.post<HealthRecordResponse>(`${API_HEALTH_RECORD}/CreateHealthRecord`, params)
+    const response = await http.post(`${API_HEALTH_RECORD}/CreateHealthRecord`, params)
     return {
       success: true,
       message: response.data.message,
@@ -253,7 +246,7 @@ export const addHealthRecord = async (params: HealthRecordParams) => {
 
 export const editHealthRecord = async (id: number, params: HealthRecordParams) => {
   try {
-    const response = await http.put<HealthRecordResponse>(`${API_HEALTH_RECORD}/UpdateHealthRecord/${id}`, params)
+    const response = await http.put(`${API_HEALTH_RECORD}/UpdateHealthRecord/${id}`, params)
     return {
       success: true,
       message: response.data.message,
@@ -301,7 +294,6 @@ export const getHealthRecordsByStudentId = async (studentId: number) => {
   }
 }
 
-// Lấy tất cả sự kiện y tế của các con (dành cho parent)
 export const getAllMedicalEventsForParent = async () => {
   try {
     const response = await http.get('/MedicalEvent/Parent/MedicalEvents')

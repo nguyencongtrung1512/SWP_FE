@@ -26,7 +26,7 @@ const path = {
   NURSE_PROFILE: '/nurse/profile', //thông tin cá nhân
   HEALTH_RECORD_CENSORSHIP: '/nurse/health-record-censorship', //xác nhận khai báo của phụ huynh 
   SCHEDULE_VACCINATION: '/nurse/schedule-vaccination', //lịch tiêm chủng cho học sinh
-  RESULTS_AFTER_VACCINATION: '/nurse/results-after-vaccination', //khai báo kết quả tiêm chủng
+  MEDICAL_RESULT: '/nurse/medical-result', //kết quả y tế
   RECEIVE_MEDICINE: '/nurse/receive-medicine', //nhận thuốc
   MEDICAL_REPORT: '/nurse/medical-report', //báo cáo y tế
   MEDICATION: '/nurse/medication',
@@ -50,6 +50,7 @@ const path = {
   CATEGORY_MANAGEMENT: '/admin/category-management',
   BLOG_LIST_BY_CATEGORY: '/admin/category/:categoryId/blogs',
   BLOG_DETAIL: '/admin/blog-detail/:id',
-  VACCINE_MANAGEMENT: '/admin/vaccineManagement'
+  VACCINE_MANAGEMENT: '/admin/vaccineManagement',
+  HEALTHCHECK_MANAGEMENT: '/admin/healthCheckManagement'
 }
 export default path

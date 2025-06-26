@@ -1,3 +1,3 @@
-import ResultsAfterVaccination from './ResultsAfterVaccination'
+import MedicalResult from './medicalResult'
 
-export default ResultsAfterVaccination
+export default MedicalResult

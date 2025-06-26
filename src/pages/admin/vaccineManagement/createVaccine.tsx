@@ -163,9 +163,9 @@ const ScheduleVaccination: React.FC = () => {
               <Input placeholder='Nhập tên vaccine' />
             </Form.Item>
             <Form.Item name='description' label='Mô tả' rules={[{ required: true }]}>
-              <Input.TextArea rows={3} />
+              <Input.TextArea rows={3} placeholder='Nhập mô tả chi tiết về vaccine' />
             </Form.Item>
-            <Form.Item>
+            <Form.Item className='flex justify-end'>
               <Button type='primary' htmlType='submit'>
                 Tạo vaccine
               </Button>
@@ -197,8 +197,7 @@ const ScheduleVaccination: React.FC = () => {
                 showTime
                 style={{ width: '100%' }}
                 disabledDate={(current) => {
-                  // return current && current.isBefore(new Date(), 'day')
-                  return current && current < dayjs().add(2, 'day').startOf('day')
+                  return current && current < dayjs().add(3, 'day').startOf('day')
                 }}
                 disabledTime={() => ({
                   disabledHours: () =>
@@ -211,7 +210,7 @@ const ScheduleVaccination: React.FC = () => {
               />
             </Form.Item>
             <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
-              <Input.TextArea rows={3} />
+              <Input.TextArea rows={3} placeholder='Nhập mô tả chi tiết về buổi tiêm' />
             </Form.Item>
             <Form.Item name='classIds' label='Lớp áp dụng' rules={[{ required: true, message: 'Vui lòng chọn lớp' }]}>
               <Select mode='multiple' placeholder='Chọn lớp'>
@@ -222,7 +221,7 @@ const ScheduleVaccination: React.FC = () => {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item>
+            <Form.Item className='flex justify-end'>
               <Button type='primary' htmlType='submit'>
                 Tạo lịch tiêm
               </Button>
@@ -238,7 +237,7 @@ const ScheduleVaccination: React.FC = () => {
         <div>
           <Row gutter={[16, 16]} className='mb-4'>
             <Col span={8}>
-              <Search placeholder='Tìm kiếm' allowClear enterButton={<SearchOutlined />} onSearch={setSearchText} />
+              <Search placeholder='Tìm kiếm' allowClear enterButton={<SearchOutlined />} onSearch={setSearchText} onChange={(e) => setSearchText(e.target.value)} />
             </Col>
           </Row>
           <Table columns={columns} dataSource={filteredCampaigns} rowKey='campaignId' />

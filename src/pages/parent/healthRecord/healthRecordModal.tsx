@@ -1,12 +1,7 @@
 import React from 'react'
 import { Modal, Form, Input, InputNumber, Button } from 'antd'
 import { UserOutlined, HeartOutlined, SaveOutlined, FileTextOutlined } from '@ant-design/icons'
-
-interface HealthRecordData {
-  weight: number
-  height: number
-  note: string
-}
+import { HealthRecordData } from '../../../api/parent.api'
 
 interface Student {
   studentId: number
@@ -23,6 +18,8 @@ interface HealthRecordModalProps {
   initialData?: {
     weight?: number
     height?: number
+    leftEye?: number
+    rightEye?: number
     note?: string
   }
 }
@@ -43,6 +40,8 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
       form.setFieldsValue({
         weight: initialData.weight,
         height: initialData.height,
+        leftEye: initialData.leftEye,
+        rightEye: initialData.rightEye,
         note: initialData.note || ''
       })
     } else if (isOpen && mode === 'add') {
@@ -57,6 +56,8 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
       await onSave({
         weight: parseFloat(values.weight),
         height: parseFloat(values.height),
+        leftEye: parseFloat(values.leftEye),
+        rightEye: parseFloat(values.rightEye),
         note: values.note || ''
       })
       form.resetFields()
@@ -165,6 +166,50 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
             </Form.Item>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item
+              name='leftEye'
+              label={
+                <span className='flex items-center space-x-2'>
+                  Mắt trái (trên thang 10 - VD: 10/10)
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Vui lòng nhập thông tin cho mắt trái!' },
+                { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
+                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số!' }
+              ]}
+            >
+              <InputNumber
+                placeholder='Nhập mắt trái'
+                style={{ width: '100%' }}
+                step={1}
+                precision={1}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name='rightEye'
+              label={
+                <span className='flex items-center space-x-2'>
+                  Mắt phải (trên thang 10 - VD: 10/10)
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Vui lòng nhập thông tin cho mắt phải!' },
+                { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
+                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số!' }
+              ]}
+            >
+              <InputNumber
+                placeholder='Nhập mắt phải'
+                style={{ width: '100%' }}
+                step={1}
+                precision={1}
+              />
+            </Form.Item>
+          </div>
+
           <Form.Item
             name="note"
             label={
@@ -187,7 +232,7 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
         {mode === 'add' && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
             <p className="text-sm text-yellow-800">
-              <strong>Lưu ý:</strong> Thông tin sức khỏe sẽ được sử dụng để tính toán chỉ số BMI và đánh giá tình trạng dinh dưỡng của học sinh.
+              <strong>Lưu ý:</strong> Thông tin sức khỏe sẽ được sử dụng để các y tá theo dõi và đánh giá tình trạng của học sinh.
             </p>
           </div>
         )}

@@ -3,19 +3,21 @@ import { Table, Card, Spin } from 'antd'
 import { getRecordsByStudent, VaccinationRecord } from '../../../apis/vaccination'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { ColumnsType } from 'antd/es/table'
 dayjs.extend(utc)
 
 interface HistoryVaccinationProps {
   studentId: number
 }
 
-const columns = [
+const columns: ColumnsType<VaccinationRecord> = [
   { title: 'Chiến dịch', dataIndex: 'campaignName', key: 'campaignName' },
   {
     title: 'Ngày tiêm',
     dataIndex: 'dateInjected',
     key: 'dateInjected',
-    render: (date: string) => (date ? dayjs.utc(date).local().format('DD/MM/YYYY HH:mm') : '')
+    render: (date: string) => (date ? dayjs.utc(date).local().format('DD/MM/YYYY HH:mm') : ''),
+    sorter: (a, b) => dayjs(a.dateInjected).unix() - dayjs(b.dateInjected).unix(),
   },
   { title: 'Kết quả', dataIndex: 'result', key: 'result' },
   { title: 'Phản ứng ngay', dataIndex: 'immediateReaction', key: 'immediateReaction' },

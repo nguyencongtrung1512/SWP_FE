@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Card, Spin } from 'antd'
 import { getRecordsByStudent, HealthCheckRecord } from '../../../apis/healthCheck'
+import { getNurseListForHealthConsultation } from '../../../apis/healthConsultationBooking.api'
 import dayjs from 'dayjs'
 
 interface HistoryHealthCheckProps {
@@ -12,15 +13,16 @@ import type { ColumnsType } from 'antd/es/table';
 const columns: ColumnsType<HealthCheckRecord> = [
   {
     title: 'Y tá phụ trách',
-    dataIndex: 'nurseID',
-    key: 'nurseID'
+    dataIndex: 'nurseFullName',
+    key: 'nurseFullName'
   },
   {
     title: 'Ngày khám',
     dataIndex: 'date',
     key: 'date',
     render: (date: string) =>
-      date ? dayjs(date).format('DD/MM/YYYY HH:mm') : ''
+      date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '',
+    sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
   },
   {
     title: 'Kết quả',
@@ -65,33 +67,45 @@ const HistoryHealthCheck: React.FC<HistoryHealthCheckProps> = ({ studentId }) =>
 
   useEffect(() => {
     if (studentId) {
-      fetchRecords(studentId)
+      fetchData()
     }
   }, [studentId])
 
-  const fetchRecords = async (studentId: number) => {
+  const fetchData = async () => {
     try {
-      const response = await getRecordsByStudent(studentId)
-      if (response.data) {
-        const allRecords = response?.data?.$values || []
+      setLoading(true)
+      const [nurseRes, recordRes] = await Promise.all([
+        getNurseListForHealthConsultation(),
+        getRecordsByStudent(studentId)
+      ])
 
-        const filtered = allRecords.filter((record) =>
+      const nurseList = nurseRes.data?.$values || []
+      const allRecords = recordRes.data?.$values || []
+
+      const fullRecords = allRecords
+        .filter((record) =>
           record.result?.trim() ||
           record.height != null ||
           record.weight != null ||
           record.leftEye?.toString().trim() ||
           record.rightEye?.toString().trim()
         )
+        .map((record) => {
+          const nurse = nurseList.find((n: { accountID: number }) => n.accountID === record.nurseID)
+          return {
+            ...record,
+            nurseFullName: nurse ? nurse.fullname : ''
+          }
+        })
 
-        setRecords(filtered)
-      }
+      setRecords(fullRecords)
     } catch (error) {
-      console.error('Error fetching records:', error)
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
   }
-
+  
   return (
     <Card>
       <Spin spinning={loading}>

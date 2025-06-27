@@ -126,7 +126,8 @@ const ScheduleVaccination: React.FC = () => {
       title: 'Ngày dự kiến',
       dataIndex: 'date',
       key: 'date',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm')
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+      sorter: (a: VaccinationCampaign, b: VaccinationCampaign) => a.date.localeCompare(b.date)
     },
     {
       title: 'Hành động',

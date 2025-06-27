@@ -86,7 +86,6 @@ const VaccinationSchedule: React.FC = () => {
     const children: Child[] = []
     const seen = new Set()
     
-    // Fetch all students
     let allStudentsData: any[] = []
     try {
       const res = await getAllStudents()
@@ -100,7 +99,6 @@ const VaccinationSchedule: React.FC = () => {
       const studentName = type === 'vaccination' ? item.studentName : item.studentName
       
       if (!seen.has(studentId) && studentId && studentName) {
-        // Find matching student from fetched students
         const matchingStudent = allStudentsData.find(student => student.studentId === studentId)
         
         children.push({
@@ -211,17 +209,19 @@ const VaccinationSchedule: React.FC = () => {
       title: 'Mô tả',
       dataIndex: 'healthCheckDescription',
       key: 'healthCheckDescription',
+      align: 'center' as const,
     },
     {
       title: 'Ngày khám',
       dataIndex: 'date',
       render: (text: string) => dayjs(text).format('DD/MM/YYYY HH:mm'),
+      align: 'center' as const,
     },
-    {
-      title: 'Y tá phụ trách',
-      dataIndex: 'nurseID',
-      key: 'nurseID',
-    }
+    // {
+    //   title: 'Y tá phụ trách',
+    //   dataIndex: 'nurseID',
+    //   key: 'nurseID',
+    // }
   ]
 
   return (

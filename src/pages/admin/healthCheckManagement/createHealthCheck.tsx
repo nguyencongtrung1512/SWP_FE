@@ -3,7 +3,7 @@ import { Form, Input, Button, Table, Card, Typography, Tabs, Row, Col, Modal, De
 import { FileTextOutlined, SearchOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { TabsProps } from 'antd'
-import { createHealthCheckList, getAllHealthChecks, HealthCheckList } from '../../../apis/healthCheck'
+import { createHealthCheckList, getAllHealthChecks, HealthCheckList as OriginalHealthCheckList } from '../../../apis/healthCheck'
 import { getAllClasses, Class } from '../../../apis/class'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -20,6 +20,10 @@ interface Nurse {
   email: string
   phoneNumber: string
   image?: string | null
+}
+
+interface HealthCheckList extends OriginalHealthCheckList {
+  nurseFullName?: string
 }
 
 const ScheduleHealthCheck: React.FC = () => {
@@ -41,9 +45,8 @@ const ScheduleHealthCheck: React.FC = () => {
     try {
       const res = await getNurseListForHealthConsultation()
       setNurses(res.data?.$values || [])
-      console.log('API trả về:', res.data)
     } catch (err) {
-      message.error('Lấy danh sách y tá thất bại!')
+      console.log('Lấy danh sách y tá thất bại!')
     }
   }
 
@@ -60,11 +63,14 @@ const ScheduleHealthCheck: React.FC = () => {
     try {
       const res = await getAllHealthChecks()
       const examinationData = res.data?.$values || []
-      setExaminations(
-        examinationData.map((item : HealthCheckList) => ({
+      const fullData = examinationData.map((item: HealthCheckList) => {
+        const nurse = nurses.find(n => n.accountID === item.nurseID)
+        return {
           ...item,
-        }))
-      )
+          nurseFullName: nurse ? nurse.fullname : 'Không rõ'
+        }
+      })
+      setExaminations(fullData)
     } catch (err) {
       console.error('lỗi', err)
       message.error('Lấy danh sách buổi khám thất bại!')
@@ -110,34 +116,35 @@ const ScheduleHealthCheck: React.FC = () => {
   )
 
   const columns: ColumnsType<HealthCheckList> = [
-    { title: 'Y tá phụ trách', dataIndex: 'nurseID', key: 'nurseID' },
+    { title: 'Y tá phụ trách', dataIndex: 'nurseFullName', key: 'nurseFullName' },
     {
       title: 'Ngày dự kiến',
       dataIndex: 'date',
       key: 'date',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm')
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+      sorter: (a: HealthCheckList, b: HealthCheckList) => a.date.localeCompare(b.date)
     },
     {
-      title: 'Miêu tả',
+      title: 'Mô tả',
       dataIndex: 'healthCheckDescription',
       key: 'healthCheckDescription'
     },
-    {
-      title: 'Hành động',
-      key: 'action',
-      render: (_, record) => (
-        <Button
-          type='link'
-          icon={<FileTextOutlined />}
-          onClick={() => {
-            setSelectedExamination(record)
-            setIsModalOpen(true)
-          }}
-        >
-          Xem chi tiết
-        </Button>
-      )
-    }
+    // {
+    //   title: 'Hành động',
+    //   key: 'action',
+    //   render: (_, record) => (
+    //     <Button
+    //       type='link'
+    //       icon={<FileTextOutlined />}
+    //       onClick={() => {
+    //         setSelectedExamination(record)
+    //         setIsModalOpen(true)
+    //       }}
+    //     >
+    //       Xem chi tiết
+    //     </Button>
+    //   )
+    // }
   ]
 
   const filteredHealthChecks = uniqueHealthChecks.filter(
@@ -231,7 +238,7 @@ const ScheduleHealthCheck: React.FC = () => {
       >
         {selectedExamination && (
           <Descriptions bordered column={1}>
-            <Descriptions.Item label='Y tá phụ trách'>{selectedExamination.nurseID}</Descriptions.Item>
+            <Descriptions.Item label='Y tá phụ trách'>{selectedExamination.nurseFullName}</Descriptions.Item>
             <Descriptions.Item label='Ngày dự kiến'>{dayjs.utc(selectedExamination.date).local().format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedExamination.healthCheckDescription}</Descriptions.Item>
           </Descriptions>

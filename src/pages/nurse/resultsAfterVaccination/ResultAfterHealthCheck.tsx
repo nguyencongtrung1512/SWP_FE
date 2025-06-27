@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Table, Button, Modal, Form, Input, Select, message, Card, Row, Col, Space, InputNumber } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { getAllHealthChecks, HealthCheckRecord, updateHealthCheck } from '../../../apis/healthCheck'
+import { getRecordsByNurse, HealthCheckRecord, updateHealthCheck } from '../../../apis/healthCheck'
 import { getAllStudents } from '../../../apis/student'
 import { Class, getAllClasses } from '../../../apis/class'
 
@@ -57,6 +57,11 @@ function ResultsAfterHealthCheck() {
       }
     }
     init()
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      const user = JSON.parse(userData)
+      setNurseId(user.accountID)
+    }
   }, [])
   
   useEffect(() => {
@@ -113,7 +118,7 @@ function ResultsAfterHealthCheck() {
 
   const fetchAllRecords = async () => {
     try {
-      const res = await getAllHealthChecks()
+      const res = await getRecordsByNurse(nurseId || 0)
       if (res.data) {
         const healthCheckRecords = res.data.$values
         
@@ -179,34 +184,39 @@ function ResultsAfterHealthCheck() {
       title: 'Kết quả',
       dataIndex: 'result',
       key: 'result',
+      render: (value: string) => value ?? 'Chưa cập nhật',
       align: 'center' as const
     },
     {
       title: 'Chiều cao',
       dataIndex: 'height',
       key: 'height',
-      render: (height: number) => (height != null ? `${height} cm` : ''),
+      render: (height: number) =>
+        height != null ? `${height} cm` : 'Chưa cập nhật',
       align: 'center' as const
     },
     {
       title: 'Cân nặng',
       dataIndex: 'weight',
       key: 'weight',
-      render: (weight: number) => (weight != null ? `${weight} kg` : ''),
+      render: (weight: number) =>
+        weight != null ? `${weight} kg` : 'Chưa cập nhật',
       align: 'center' as const
     },
     {
       title: 'Mắt trái',
       dataIndex: 'leftEye',
       key: 'leftEye',
-      render: (value: number | string) => (value != null ? `${value}/10` : ''),
+      render: (value: number | string) =>
+        value != null && value !== '' ? `${value}/10` : 'Chưa cập nhật',
       align: 'center' as const
     },
     {
       title: 'Mắt phải',
       dataIndex: 'rightEye',
       key: 'rightEye',
-      render: (value: number | string) => (value != null ? `${value}/10` : ''),
+      render: (value: number | string) =>
+        value != null && value !== '' ? `${value}/10` : 'Chưa cập nhật',
       align: 'center' as const
     },
     {

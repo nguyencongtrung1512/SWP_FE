@@ -48,6 +48,14 @@ export const getAllHealthChecks = () => {
   return http.get('/HealthCheck')
 }
 
+export const getRecordsByNurse= (nurseID: number) => {
+  return http.get<ApiResponse<HealthCheckRecord>>(`/HealthCheck/nurse/${nurseID}`)
+}
+
 export const updateHealthCheck = (params: {}, healthCheckID : number) => {
   return http.put(`/HealthCheck/${healthCheckID}`, params)
+}
+
+export const deleteHealthCheck = (healthCheckID : number) => {
+  return http.delete(`/HealthCheck/${healthCheckID}`)
 }

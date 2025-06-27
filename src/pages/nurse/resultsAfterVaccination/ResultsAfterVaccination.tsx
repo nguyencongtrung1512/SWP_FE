@@ -121,7 +121,12 @@ function ResultsAfterVaccination() {
       key: 'time',
       render: (time) => time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : ''
     },
-    { title: 'Ghi chú', dataIndex: 'note', key: 'note' },
+    { 
+      title: 'Ghi chú', 
+      dataIndex: 'note', 
+      key: 'note',
+      render: (value: string) => value?.trim() ? value : 'Không có',
+    },
     {
       title: 'Hành động',
       key: 'action',

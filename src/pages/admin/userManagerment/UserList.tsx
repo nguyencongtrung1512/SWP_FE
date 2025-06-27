@@ -13,12 +13,12 @@ import {
   Modal,
   Descriptions,
   Spin,
-  Select
+  Select,
+  message
 } from 'antd'
 import { CiLock, CiUnlock } from 'react-icons/ci'
 import { EyeOutlined } from '@ant-design/icons'
-import { toast } from 'react-toastify'
-import { getAllUser, deleteUser, User, updateUserStatus } from '../../../apis/adminManageAccount'
+import { getAllUser, User, updateUserStatus } from '../../../apis/adminManageAccount'
 import { createNurse } from '../../../api/auth.api'
 import { FaPlus } from 'react-icons/fa6'
 import AddNurse from './AddNurse'
@@ -67,11 +67,11 @@ const UserList: React.FC = () => {
         setFilteredUsers(transformedData)
       } else {
         setError('Không tìm thấy token xác thực.')
-        toast.error('Không tìm thấy token xác thực.')
+        message.error('Không tìm thấy token xác thực.')
       }
     } catch (err) {
       setError('Không thể tải dữ liệu người dùng.')
-      toast.error('Không thể tải dữ liệu người dùng.')
+      message.error('Không thể tải dữ liệu người dùng.')
       console.error(err)
     } finally {
       setLoading(false)
@@ -81,31 +81,36 @@ const UserList: React.FC = () => {
   const handleDeleteUser = async (user: User) => {
     const token = localStorage.getItem('token')
     if (!token) {
-      toast.error('Không tìm thấy token xác thực.')
+      message.error('Không tìm thấy token xác thực.')
       return
     }
-    await deleteUser.deleteUser(user.accountID)
-    setUsers(users.filter((u) => u.accountID !== user.accountID))
-    fetchUsers()
-    toast.success('Đã vô hiệu hóa người dùng thành công!')
+    try {
+      const response = await updateUserStatus.updateStatus(user.accountID, 'InActive')
+      if (response.data && response.data.message) {
+        console.log('Response:', response.data)
+        message.success('Đã vô hiệu hóa người dùng thành công!')
+        fetchUsers()
+      }
+    } catch (err) {
+      console.log('Error activating user:', err)
+    }
   }
 
   const handleActivateUser = async (user: User) => {
     const token = localStorage.getItem('token')
     if (!token) {
-      toast.error('Không tìm thấy token xác thực.')
+      message.error('Không tìm thấy token xác thực.')
       return
     }
     try {
       const response = await updateUserStatus.updateStatus(user.accountID, 'Active')
       if (response.data && response.data.message) {
-        // setUsers(users.filter((u) => u.accountID !== user.accountID))
         console.log('Response:', response.data)
-        toast.success('Đã kích hoạt người dùng thành công!')
+        message.success('Đã kích hoạt người dùng thành công!')
         fetchUsers()
       }
     } catch (err) {
-
+      console.log('Error activating user:', err)
     }
   }
 
@@ -139,7 +144,7 @@ const UserList: React.FC = () => {
     try {
       setLoading(true)
       if (!values.dateOfBirth) {
-        toast.error('Vui lòng chọn ngày sinh!')
+        message.error('Vui lòng chọn ngày sinh!')
         setLoading(false)
         return
       }
@@ -156,7 +161,7 @@ const UserList: React.FC = () => {
           formattedDate = dayjs(values.dateOfBirth).format('YYYY-MM-DD') + 'T00:00:00Z'
         }
       } catch (e) {
-        toast.error('Định dạng ngày sinh không hợp lệ!')
+        message.error('Định dạng ngày sinh không hợp lệ!')
         setLoading(false)
         return
       }
@@ -170,15 +175,15 @@ const UserList: React.FC = () => {
       const result: any = await createNurse(formattedValues)
 
       if (result && result.success) {
-        toast.success('Đăng ký tài khoản y tá thành công!')
+        message.success('Đăng ký tài khoản y tá thành công!')
         setNurseModalVisible(false)
         fetchUsers()
       } else if (result) {
-        toast.error(translateMessage(result.message, 'register'))
+        message.error(translateMessage(result.message, 'register'))
       }
     } catch (error: any) {
       console.error('Registration error:', error)
-      toast.error(error?.message || 'Đăng ký thất bại! Vui lòng thử lại.')
+      message.error(error?.message || 'Đăng ký thất bại! Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }

@@ -114,8 +114,8 @@ const ScheduleVaccination: React.FC = () => {
       campaignForm.resetFields()
       fetchCampaigns()
       setActiveTab('3')
-    } catch {
-      message.error('Tạo lịch tiêm thất bại!')
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Tạo lịch tiêm thất bại!')
     }
   }
 

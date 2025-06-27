@@ -15,9 +15,20 @@ export const login = async (params: { email: string; password: string }) => {
       data: response.data
     }
   } catch (error: any) {
+    console.error('Login error:', error)
+    const errorData = error?.response?.data
+    let message = 'Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.'
+
+    if (typeof errorData === 'string') {
+      message = errorData
+    } else if (typeof errorData === 'object' && errorData?.message) {
+      message = errorData.message
+    }
+
     return {
       success: false,
-      message: error?.response?.data || 'Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.'
+      message,
+      url: errorData?.url
     }
   }
 }

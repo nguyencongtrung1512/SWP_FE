@@ -3,21 +3,19 @@ import { Table, Button, Space, Modal, Tabs, Typography, Select, Row, Col, Card }
 import type { TabsProps } from 'antd'
 import { getAllClasses } from '../../../apis/class'
 import { getAllHealthRecords } from '../../../apis/healthRecord'
-import { getStudentById } from '../../../apis/student'
+import { getAllStudents, Student } from '../../../apis/student'
 import { Class } from '../../../apis/class'
 
 const { Title, Text } = Typography
 const { Option } = Select
 
 interface HealthRecord {
-  key: string
-  name: string
-  class: string
+  studentName: string
+  className: string
   dob: string
   gender: string
   studentId: string
   studentCode: string
-  status: string
   height?: number
   weight?: number
   // bmi?: number
@@ -26,13 +24,6 @@ interface HealthRecord {
   rightEye?: number
   note?: string
   classId: number
-  allergies?: string[]
-  medicalHistory?: string[]
-  vaccinationHistory?: {
-    date: string
-    vaccine: string
-    notes: string
-  }[]
   parentNotes?: string
 }
 
@@ -50,15 +41,49 @@ const HealthRecordCensorship: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null)
   const [selectedGrade, setSelectedGrade] = useState<string>('1')
   const [selectedClass, setSelectedClass] = useState<Class | null>(null)
+  const [students, setStudents] = useState<Student[]>([])
   const [classes, setClasses] = useState<Class[]>([])
   const [filteredData, setFilteredData] = useState<HealthRecord[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const init = async () => {
-      await fetchClasses()
-      await fetchAllHealthRecords()
+      try {
+        setLoading(true)
+        const [studentsRes, classesRes, recordsRes] = await Promise.all([
+          getAllStudents(),
+          getAllClasses(),
+          getAllHealthRecords()
+        ])
+
+        console.log(recordsRes)
+        const students = studentsRes.data?.$values || []
+        const classes = classesRes.data?.$values || []
+        const healthRecordsData = recordsRes.data?.$values || []
+
+        setStudents(students)
+        setClasses(classes)
+
+        const transformedRecords = healthRecordsData.map((record: any) => {
+          const student = students.find(s => s.studentId === record.studentId)
+          const studentClass = classes.find(c => c.classId === student?.classId)
+
+          return {
+            ...record,
+            classId: student?.classId || 0,
+            className: studentClass?.className || 'Unknown'
+          }
+        })
+
+        setRecords(transformedRecords)
+        setFilteredData(transformedRecords)
+      } catch (err) {
+        console.error('Error fetching data:', err)
+      } finally {
+        setLoading(false)
+      }
     }
+
     init()
   }, [])
 
@@ -78,73 +103,12 @@ const HealthRecordCensorship: React.FC = () => {
       const filtered = records.filter(record => record.classId === selectedClass.classId)
       setFilteredData(filtered)
     } else if (selectedGrade) {
-      const filtered = records.filter(record => record.class.startsWith(selectedGrade))
+      const filtered = records.filter(record => record.className.startsWith(selectedGrade))
       setFilteredData(filtered)
     } else {
       setFilteredData(records)
     }
   }, [selectedGrade, selectedClass, records])
-
-  const fetchClasses = async () => {
-    try {
-      const response = await getAllClasses()
-      setClasses(response.data.$values)
-    } catch (error) {
-      console.error('Error fetching classes:', error)
-    }
-  }
-
-  const fetchAllHealthRecords = async () => {
-    try {
-      setLoading(true)
-      const response = await getAllHealthRecords()
-      const healthRecordsData = response.data.$values
-
-      const transformedRecords: HealthRecord[] = []
-
-      for (let i = 0; i < healthRecordsData.length; i++) {
-        const record = healthRecordsData[i]
-        try {
-          const studentResponse = await getStudentById(record.studentId)
-          const student = studentResponse.data
-          const studentClass = classes.find(cls => cls.classId === student.classId)
-
-          transformedRecords.push({
-            key: record.healthRecordId?.toString() || i.toString(),
-            name: record.studentName || student.fullname,
-            class: studentClass?.className || 'Unknown',
-            dob: new Date(record.dateOfBirth || student.dateOfBirth).toLocaleDateString('vi-VN'),
-            gender: record.gender === 'Male' ? 'Nam' : 'Nữ',
-            studentId: record.studentId.toString(),
-            studentCode: record.studentCode || student.studentCode,
-            height: record.height,
-            weight: record.weight,
-            // bmi: record.bmi,
-            // nutritionStatus: record.nutritionStatus,
-            leftEye: record.leftEye,
-            rightEye: record.rightEye,
-            note: record.note,
-            classId: student.classId || 0,
-            status: 'Active',
-            allergies: [],
-            medicalHistory: [],
-            vaccinationHistory: [],
-            parentNotes: record.note
-          })
-        } catch (error) {
-          console.error(`Failed to fetch student ${record.studentId}`, error)
-        }
-      }
-      
-      transformedRecords.sort((a, b) => a.classId - b.classId)
-      setRecords(transformedRecords)
-      setFilteredData(transformedRecords)
-    } catch (error) {
-      console.error('Error fetching health records:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const showModal = (record: HealthRecord) => {
     setSelectedRecord(record)
@@ -169,7 +133,7 @@ const HealthRecordCensorship: React.FC = () => {
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: 'Thông tin sức khỏe',
+      label: 'Chi tiết hồ sơ sức khỏe',
       children: (
         <div className='space-y-4'>
           <div className='grid grid-cols-2 gap-4'>
@@ -182,11 +146,11 @@ const HealthRecordCensorship: React.FC = () => {
               <Text className='ml-2'>{selectedRecord?.weight ? `${selectedRecord.weight} kg` : 'Chưa có thông tin'}</Text>
             </div>
             <div>
-              <Text strong>Chỉ số do mắt trái:</Text>
+              <Text strong>Chỉ số đo mắt trái:</Text>
               <Text className='ml-2'>{selectedRecord?.leftEye ? `${selectedRecord.leftEye}/10` : 'Chưa có thông tin'}</Text>
             </div>
             <div>
-              <Text strong>Chỉ số do mắt phải:</Text>
+              <Text strong>Chỉ số đo mắt phải:</Text>
               <Text className='ml-2'>{selectedRecord?.rightEye ? `${selectedRecord.rightEye}/10` : 'Chưa có thông tin'}</Text>
             </div>
             {/* <div>
@@ -255,19 +219,25 @@ const HealthRecordCensorship: React.FC = () => {
   const columns = [
     {
       title: 'Họ tên học sinh',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a: HealthRecord, b: HealthRecord) => a.name.localeCompare(b.name)
+      dataIndex: 'studentName',
+      key: 'studentName',
+      sorter: (a: HealthRecord, b: HealthRecord) => a.studentName.localeCompare(b.studentName)
     },
     {
       title: 'Ngày sinh',
-      dataIndex: 'dob',
-      key: 'dob'
+      dataIndex: 'dateOfBirth',
+      key: 'dateOfBirth',
+      render: (date: string) => new Date(date).toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
     },
     {
       title: 'Giới tính',
       dataIndex: 'gender',
-      key: 'gender'
+      key: 'gender',
+      render: (gender: string) => gender === 'Male' ? 'Nam' : 'Nữ'
     },
     {
       title: 'Mã số học sinh',
@@ -341,7 +311,6 @@ const HealthRecordCensorship: React.FC = () => {
       </Card>
 
       <Modal
-        title='Chi tiết hồ sơ sức khỏe'
         open={isModalOpen}
         onCancel={handleCancel}
         closable={false}

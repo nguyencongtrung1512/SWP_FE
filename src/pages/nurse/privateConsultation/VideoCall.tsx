@@ -27,9 +27,9 @@ const VideoCall: React.FC = () => {
   const remoteVideoRef = useRef<HTMLDivElement>(null)
   
   const agoraConfig = {
-    appId: 'YOUR_AGORA_APP_ID',
+    appId: 'aab8b8f5a8cd4469a63042fcfafe7063', // Alternative test App ID
     channel: `consultation-${appointmentId}`,
-    token: null,
+    token: null, // Test App ID doesn't require tokens
     uid: Math.floor(Math.random() * 100000)
   }
 
@@ -64,26 +64,88 @@ const VideoCall: React.FC = () => {
     
     try {
       setIsLoading(true)
-      await client.join(agoraConfig.appId, agoraConfig.channel, agoraConfig.token, agoraConfig.uid)
       
-      const [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks()
+      console.log('Attempting to join channel:', agoraConfig.channel)
+      console.log('App ID:', agoraConfig.appId)
+      console.log('Token:', agoraConfig.token)
+      console.log('UID:', agoraConfig.uid)
+      
+      // Join the channel first
+      await client.join(agoraConfig.appId, agoraConfig.channel, agoraConfig.token, agoraConfig.uid)
+      console.log('Successfully joined channel')
+      
+      // Create and publish local tracks (this will request permissions)
+      console.log('Creating local tracks...')
+      let audioTrack, videoTrack
+      
+      try {
+        [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks()
+      } catch (trackError) {
+        console.error('Failed to create tracks:', trackError)
+        
+        // Try to create audio-only if video fails
+        try {
+          audioTrack = await AgoraRTC.createMicrophoneAudioTrack()
+          videoTrack = null
+          toast.warning('Không thể truy cập camera, chỉ sử dụng âm thanh')
+        } catch (audioError) {
+          console.error('Failed to create audio track:', audioError)
+          toast.error('Không thể truy cập camera và microphone!')
+          setIsLoading(false)
+          return
+        }
+      }
+      
       setLocalAudioTrack(audioTrack)
       setLocalVideoTrack(videoTrack)
       
-      await client.publish([audioTrack, videoTrack])
+      console.log('Publishing tracks...')
+      const tracksToPublish: (IMicrophoneAudioTrack | ICameraVideoTrack)[] = []
+      if (audioTrack) tracksToPublish.push(audioTrack)
+      if (videoTrack) tracksToPublish.push(videoTrack)
       
-      if (localVideoRef.current) {
-        audioTrack.play()
+      await client.publish(tracksToPublish)
+      
+      console.log('Tracks published successfully')
+      
+      if (localVideoRef.current && videoTrack) {
+        audioTrack?.play()
         videoTrack.play(localVideoRef.current)
+      } else if (localVideoRef.current && !videoTrack) {
+        // Show placeholder for audio-only
+        localVideoRef.current.innerHTML = `
+          <div class="w-full h-full flex items-center justify-center bg-gray-700">
+            <div class="text-center">
+              <Mic className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+              <p class="text-sm text-gray-400">Chỉ âm thanh</p>
+            </div>
+          </div>
+        `
       }
       
       setIsJoined(true)
       setIsLoading(false)
       toast.success('Đã tham gia cuộc gọi!')
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to join channel:', error)
-      toast.error('Không thể tham gia cuộc gọi!')
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      })
+      
+      // Check if it's a permission error
+      if (error.message && error.message.includes('permission')) {
+        toast.error('Cần cấp quyền camera và microphone để tham gia cuộc gọi!')
+      } else if (error.message && error.message.includes('NOT_READABLE')) {
+        toast.error('Không thể truy cập camera/microphone. Vui lòng kiểm tra quyền truy cập!')
+      } else if (error.message && error.message.includes('CAN_NOT_GET_GATEWAY_SERVER')) {
+        toast.error('Không thể kết nối đến máy chủ Agora. Vui lòng kiểm tra kết nối internet!')
+      } else {
+        toast.error(`Không thể tham gia cuộc gọi! Lỗi: ${error.message}`)
+      }
       setIsLoading(false)
     }
   }

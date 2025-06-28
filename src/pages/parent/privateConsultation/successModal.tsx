@@ -78,18 +78,16 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose, appointmen
           {/* Actions */}
           <div className='space-y-3'>
             <Button
-              onClick={onClose}
+              onClick={() => {
+              onClose();
+              window.location.reload();
+            }}
+
               className='w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-medium transition-colors'
             >
               Hoàn tất
             </Button>
 
-            <button
-              onClick={onClose}
-              className='w-full text-gray-500 hover:text-gray-700 font-medium transition-colors'
-            >
-              Đóng
-            </button>
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, MessageSquare, Users } f
 import { toast } from 'react-toastify'
 import Loading from '../../../components/Loading/Loading'
 import AgoraRTC, { IAgoraRTCClient, IAgoraRTCRemoteUser, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng'
+import { chatService, ChatMessage } from '../../../services/chatService'
 
 const VideoCall: React.FC = () => {
   const { appointmentId } = useParams<{ appointmentId: string }>()
@@ -20,8 +21,9 @@ const VideoCall: React.FC = () => {
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [showChat, setShowChat] = useState(false)
-  const [messages, setMessages] = useState<Array<{id: string, sender: string, text: string, timestamp: Date}>>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
+  const [isChatConnected, setIsChatConnected] = useState(false)
   
   const localVideoRef = useRef<HTMLDivElement>(null)
   const remoteVideoRef = useRef<HTMLDivElement>(null)
@@ -33,12 +35,49 @@ const VideoCall: React.FC = () => {
     uid: Math.floor(Math.random() * 100000)
   }
 
+  const messageCallbackRef = useRef<((message: ChatMessage) => void) | null>(null);
+
   useEffect(() => {
+    let isMounted = true;
+
     initializeAgora()
-    return () => {
-      leaveChannel()
+    
+    // Connect to chat service
+    const connectChat = async () => {
+      if (appointmentId) {
+        const connected = await chatService.connect(appointmentId)
+        setIsChatConnected(connected)
+        
+        if (connected) {
+          // Load existing messages for this appointment
+          const existingMessages = chatService.getMessages(appointmentId)
+          setMessages(existingMessages)
+          
+          // Only register the callback ONCE
+          if (!messageCallbackRef.current) {
+            messageCallbackRef.current = (message: ChatMessage) => {
+              if (isMounted && message.appointmentId === appointmentId) {
+                setMessages(prev => [...prev, message])
+              }
+            }
+            chatService.onMessage(messageCallbackRef.current)
+          }
+        }
+      }
     }
-  }, [])
+    
+    connectChat()
+    
+    return () => {
+      isMounted = false;
+      leaveChannel()
+      chatService.disconnect(appointmentId || '')
+      if (messageCallbackRef.current) {
+        chatService.offMessage(messageCallbackRef.current)
+        messageCallbackRef.current = null;
+      }
+    }
+  }, [appointmentId])
 
   const initializeAgora = async () => {
     try {
@@ -109,10 +148,12 @@ const VideoCall: React.FC = () => {
       console.log('Tracks published successfully')
       
       if (localVideoRef.current && videoTrack) {
+        console.log('Playing video track in local video ref')
         audioTrack?.play()
         videoTrack.play(localVideoRef.current)
       } else if (localVideoRef.current && !videoTrack) {
         // Show placeholder for audio-only
+        console.log('Showing audio-only placeholder')
         localVideoRef.current.innerHTML = `
           <div class="w-full h-full flex items-center justify-center bg-gray-700">
             <div class="text-center">
@@ -121,6 +162,8 @@ const VideoCall: React.FC = () => {
             </div>
           </div>
         `
+      } else {
+        console.log('Local video ref not available or no video track')
       }
       
       setIsJoined(true)
@@ -223,16 +266,19 @@ const VideoCall: React.FC = () => {
     }
   }
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (newMessage.trim()) {
-      const message = {
-        id: Date.now().toString(),
+      const message: Omit<ChatMessage, 'id' | 'timestamp'> = {
         sender: 'Y tá',
         text: newMessage,
-        timestamp: new Date()
+        appointmentId: appointmentId || ''
       }
-      setMessages(prev => [...prev, message])
-      setNewMessage('')
+      const success = await chatService.sendMessage(message)
+      if (success) {
+        setNewMessage('')
+      } else {
+        toast.error('Không thể gửi tin nhắn!')
+      }
     }
   }
 
@@ -251,6 +297,12 @@ const VideoCall: React.FC = () => {
           <span className="text-sm text-gray-300">
             {remoteUsers.length > 0 ? `${remoteUsers.length} người tham gia` : 'Chờ kết nối...'}
           </span>
+          <div className="flex items-center space-x-1">
+            <div className={`w-2 h-2 rounded-full ${isChatConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-xs text-gray-400">
+              {isChatConnected ? 'Chat đã kết nối' : 'Chat đang kết nối...'}
+            </span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -341,19 +393,26 @@ const VideoCall: React.FC = () => {
             </div>
             
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {messages.map((message) => (
-                <div key={message.id} className="flex flex-col">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-green-400">{message.sender}</span>
-                    <span className="text-xs text-gray-400">
-                      {message.timestamp.toLocaleTimeString()}
-                    </span>
-                  </div>
-                  <div className="bg-gray-700 rounded-lg p-3">
-                    <p className="text-sm">{message.text}</p>
-                  </div>
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-400 py-8">
+                  <MessageSquare className="w-8 h-8 mx-auto mb-2" />
+                  <p className="text-sm">Chưa có tin nhắn nào</p>
                 </div>
-              ))}
+              ) : (
+                messages.map((message) => (
+                  <div key={message.id} className="flex flex-col">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-green-400">{message.sender}</span>
+                      <span className="text-xs text-gray-400">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="bg-gray-700 rounded-lg p-3">
+                      <p className="text-sm">{message.text}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
             
             <div className="p-4 border-t border-gray-700">

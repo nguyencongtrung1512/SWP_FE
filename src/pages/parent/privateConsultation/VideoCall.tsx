@@ -23,6 +23,8 @@ import AgoraRTC, {
   ICameraVideoTrack, 
   IMicrophoneAudioTrack 
 } from 'agora-rtc-sdk-ng'
+import { ChatMessage } from '../../../types/ChatMessage'
+import { chatService } from '../../../services/chatService'
 
 interface VideoCallProps {
   appointmentId: string
@@ -50,7 +52,8 @@ const VideoCall: React.FC = () => {
   // Refs
   const localVideoRef = useRef<HTMLDivElement>(null)
   const remoteVideoRef = useRef<HTMLDivElement>(null)
-  
+  const messageCallbackRef = useRef<((message: ChatMessage) => void) | null>(null);
+
   // Agora configuration (you'll need to replace these with your actual Agora credentials)
   const agoraConfig = {
     appId: 'aab8b8f5a8cd4469a63042fcfafe7063', // Alternative test App ID
@@ -66,6 +69,37 @@ const VideoCall: React.FC = () => {
     token: null,
     uid: Math.floor(Math.random() * 100000)
   }
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const connectChat = async () => {
+      if (appointmentId) {
+        await chatService.connect(appointmentId);
+
+        // Only register the callback ONCE
+        if (!messageCallbackRef.current) {
+          messageCallbackRef.current = (message: ChatMessage) => {
+            if (isMounted && message.appointmentId === appointmentId) {
+              setMessages(prev => [...prev, message]);
+            }
+          };
+          chatService.onMessage(messageCallbackRef.current);
+        }
+      }
+    };
+
+    connectChat();
+
+    return () => {
+      isMounted = false;
+      chatService.disconnect(appointmentId || '');
+      if (messageCallbackRef.current) {
+        chatService.offMessage(messageCallbackRef.current);
+        messageCallbackRef.current = null;
+      }
+    };
+  }, [appointmentId]);
 
   useEffect(() => {
     initializeAgora()
@@ -426,7 +460,7 @@ const VideoCall: React.FC = () => {
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-blue-400">{message.sender}</span>
                     <span className="text-xs text-gray-400">
-                      {message.timestamp.toLocaleTimeString()}
+                      {new Date(message.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
                   <div className="bg-gray-700 rounded-lg p-3">

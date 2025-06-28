@@ -174,6 +174,15 @@ const PrivateConsultation: React.FC = () => {
                 Hoàn thành
               </Button>
             )}
+            {!isDoneOrCancelled && record.status === 'Confirmed' && (
+              <Button 
+                type='primary' 
+                size='small' 
+                onClick={() => window.location.href = `/nurse/private-consultation/video-call/${record.bookingId}`}
+              >
+                Tham gia cuộc gọi
+              </Button>
+            )}
             {!isDoneOrCancelled && (
               <Popconfirm
                 title='Bạn có chắc chắn muốn hủy lịch tư vấn này?'

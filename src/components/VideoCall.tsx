@@ -1,48 +1,80 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Button } from '../../../components/ui/button'
-import { Badge } from '../../../components/ui/badge'
-import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, MessageSquare, Users } from 'lucide-react'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
+import { 
+  Phone, 
+  PhoneOff, 
+  Mic, 
+  MicOff, 
+  Video, 
+  VideoOff, 
+  MessageSquare, 
+  X,
+  Users,
+  Settings
+} from 'lucide-react'
 import { toast } from 'react-toastify'
-import Loading from '../../../components/Loading/Loading'
-import AgoraRTC, { IAgoraRTCClient, IAgoraRTCRemoteUser, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng'
-import { chatService, ChatMessage } from '../../../services/chatService'
+import Loading from './Loading/Loading'
+import AgoraRTC, { 
+  IAgoraRTCClient, 
+  IAgoraRTCRemoteUser, 
+  ICameraVideoTrack, 
+  IMicrophoneAudioTrack 
+} from 'agora-rtc-sdk-ng'
+import { ChatMessage } from '../services/chatService'
+import { chatService } from '../services/chatService'
 
-const VideoCall: React.FC = () => {
+interface VideoCallProps {
+  appointmentId?: string
+  userRole?: 'parent' | 'nurse' // Add user role prop
+}
+
+const VideoCall: React.FC<VideoCallProps> = ({ userRole = 'parent' }) => {
   const { appointmentId } = useParams<{ appointmentId: string }>()
   const navigate = useNavigate()
   
+  // Agora states
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [remoteUsers, setRemoteUsers] = useState<IAgoraRTCRemoteUser[]>([])
+  
+  // UI states
   const [isJoined, setIsJoined] = useState(false)
   const [isAudioEnabled, setIsAudioEnabled] = useState(true)
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [showChat, setShowChat] = useState(false)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<Array<{id: string, sender: string, text: string, timestamp: Date}>>([])
   const [newMessage, setNewMessage] = useState('')
   const [isChatConnected, setIsChatConnected] = useState(false)
   
+  // Refs
   const localVideoRef = useRef<HTMLDivElement>(null)
   const remoteVideoRef = useRef<HTMLDivElement>(null)
-  
+  const messageCallbackRef = useRef<((message: ChatMessage) => void) | null>(null);
+
+  // Agora configuration - shared between parent and nurse
   const agoraConfig = {
-    appId: '3e9d60aafb8645a69fbb30b9a42045bc', // Alternative test App ID
+    appId: '3e9d60aafb8645a69fbb30b9a42045bc',
     channel: `new  token`,
-    token: '007eJxTYLinudPvrY/MK7XPJWU87wQ+vCiUvrHelLs4oHp2gpDBvjsKDMaplilmBomJaUkWZiamiWaWaUlJxgZJlokmRgYmpknJYucTMhoCGRlMjP6xMDJAIIjPxZCXWq6gUJKfnZrHwAAAIc8hZg==', // Test App ID doesn't require tokens
+    token: '007eJxTYLinudPvrY/MK7XPJWU87wQ+vCiUvrHelLs4oHp2gpDBvjsKDMaplilmBomJaUkWZiamiWaWaUlJxgZJlokmRgYmpknJYucTMhoCGRlMjP6xMDJAIIjPxZCXWq6gUJKfnZrHwAAAIc8hZg==',
     uid: Math.floor(Math.random() * 100000)
   }
 
-  const messageCallbackRef = useRef<((message: ChatMessage) => void) | null>(null);
+  // Test configuration for debugging
+  const testConfig = {
+    appId: '3e9d60aafb8645a69fbb30b9a42045bc',
+    channel: 'test-channel',
+    token: null,
+    uid: Math.floor(Math.random() * 100000)
+  }
 
   useEffect(() => {
     let isMounted = true;
 
-    initializeAgora()
-    
-    // Connect to chat service
     const connectChat = async () => {
       if (appointmentId) {
         const connected = await chatService.connect(appointmentId)
@@ -57,27 +89,33 @@ const VideoCall: React.FC = () => {
           if (!messageCallbackRef.current) {
             messageCallbackRef.current = (message: ChatMessage) => {
               if (isMounted && message.appointmentId === appointmentId) {
-                setMessages(prev => [...prev, message])
+                setMessages(prev => [...prev, message]);
               }
-            }
-            chatService.onMessage(messageCallbackRef.current)
+            };
+            chatService.onMessage(messageCallbackRef.current);
           }
         }
       }
-    }
-    
-    connectChat()
-    
+    };
+
+    connectChat();
+
     return () => {
       isMounted = false;
-      leaveChannel()
-      chatService.disconnect(appointmentId || '')
+      chatService.disconnect(appointmentId || '');
       if (messageCallbackRef.current) {
-        chatService.offMessage(messageCallbackRef.current)
+        chatService.offMessage(messageCallbackRef.current);
         messageCallbackRef.current = null;
       }
+    };
+  }, [appointmentId]);
+
+  useEffect(() => {
+    initializeAgora()
+    return () => {
+      leaveChannel()
     }
-  }, [appointmentId])
+  }, [])
 
   // Monitor local video track and display it when available
   useEffect(() => {
@@ -96,9 +134,12 @@ const VideoCall: React.FC = () => {
   const initializeAgora = async () => {
     try {
       setIsLoading(true)
+      
+      // Create Agora client
       const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
       setClient(agoraClient)
       
+      // Set up event handlers
       agoraClient.on('user-published', handleUserPublished)
       agoraClient.on('user-unpublished', handleUserUnpublished)
       agoraClient.on('user-joined', handleUserJoined)
@@ -109,6 +150,31 @@ const VideoCall: React.FC = () => {
       console.error('Failed to initialize Agora:', error)
       toast.error('Không thể khởi tạo cuộc gọi video!')
       setIsLoading(false)
+    }
+  }
+
+  const checkPermissions = async () => {
+    try {
+      // Check camera permission
+      const videoStream = await navigator.mediaDevices.getUserMedia({ video: true })
+      videoStream.getTracks().forEach(track => track.stop())
+      
+      // Check microphone permission
+      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      audioStream.getTracks().forEach(track => track.stop())
+      
+      console.log('Camera and microphone permissions granted')
+      return true
+    } catch (error: any) {
+      console.error('Permission denied:', error)
+      if (error.name === 'NotAllowedError') {
+        toast.error('Cần cấp quyền camera và microphone để tham gia cuộc gọi!')
+      } else if (error.name === 'NotFoundError') {
+        toast.error('Không tìm thấy camera hoặc microphone!')
+      } else {
+        toast.error(`Lỗi quyền truy cập: ${error.message}`)
+      }
+      return false
     }
   }
 
@@ -201,21 +267,22 @@ const VideoCall: React.FC = () => {
         }
       }
       
-      setLocalAudioTrack(audioTrack)
-      setLocalVideoTrack(videoTrack)
+      setLocalAudioTrack(audioTrack || null)
+      setLocalVideoTrack(videoTrack || null)
       
+      // Publish tracks
       console.log('Publishing tracks...')
       const tracksToPublish: (IMicrophoneAudioTrack | ICameraVideoTrack)[] = []
       if (audioTrack) tracksToPublish.push(audioTrack)
       if (videoTrack) tracksToPublish.push(videoTrack)
       
       await client.publish(tracksToPublish)
-      
       console.log('Tracks published successfully')
       
       // Add delay before playing video to ensure everything is ready
       await new Promise(resolve => setTimeout(resolve, 1000))
       
+      // Display local video
       if (localVideoRef.current && videoTrack) {
         console.log('Playing video track in local video ref')
         console.log('Local video ref:', localVideoRef.current)
@@ -287,6 +354,7 @@ const VideoCall: React.FC = () => {
     if (!client) return
     
     try {
+      // Unpublish local tracks
       if (localAudioTrack) {
         localAudioTrack.close()
         setLocalAudioTrack(null)
@@ -296,12 +364,19 @@ const VideoCall: React.FC = () => {
         setLocalVideoTrack(null)
       }
       
+      // Leave channel
       await client.leave()
       setIsJoined(false)
       setRemoteUsers([])
       
       toast.info('Đã rời khỏi cuộc gọi!')
-      navigate('/nurse/private-consultation')
+      
+      // Navigate based on user role
+      if (userRole === 'nurse') {
+        navigate('/nurse/privateConsultation')
+      } else {
+        navigate('/Appointment')
+      }
       
     } catch (error) {
       console.error('Failed to leave channel:', error)
@@ -358,11 +433,13 @@ const VideoCall: React.FC = () => {
 
   const sendMessage = async () => {
     if (newMessage.trim()) {
+      const senderName = userRole === 'nurse' ? 'Y tá' : 'Bạn'
       const message: Omit<ChatMessage, 'id' | 'timestamp'> = {
-        sender: 'Y tá',
+        sender: senderName,
         text: newMessage,
         appointmentId: appointmentId || ''
       }
+      
       const success = await chatService.sendMessage(message)
       if (success) {
         setNewMessage('')
@@ -378,10 +455,12 @@ const VideoCall: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
       <div className="bg-gray-800 p-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <h1 className="text-xl font-semibold">Cuộc gọi tư vấn</h1>
           <Badge variant="secondary">ID: {appointmentId}</Badge>
+          <Badge variant="outline">{userRole === 'nurse' ? 'Y tá' : 'Phụ huynh'}</Badge>
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-300">
@@ -405,8 +484,11 @@ const VideoCall: React.FC = () => {
       </div>
 
       <div className="flex h-[calc(100vh-80px)]">
+        {/* Main Video Area */}
         <div className={`flex-1 flex flex-col ${showChat ? 'mr-80' : ''}`}>
+          {/* Video Container */}
           <div className="flex-1 relative bg-black">
+            {/* Remote Video */}
             <div 
               ref={remoteVideoRef}
               className="w-full h-full bg-gray-800 flex items-center justify-center"
@@ -414,11 +496,14 @@ const VideoCall: React.FC = () => {
               {remoteUsers.length === 0 && (
                 <div className="text-center">
                   <Users className="w-16 h-16 mx-auto text-gray-600 mb-4" />
-                  <p className="text-gray-400">Chờ phụ huynh tham gia cuộc gọi...</p>
+                  <p className="text-gray-400">
+                    {userRole === 'nurse' ? 'Chờ phụ huynh tham gia cuộc gọi...' : 'Chờ y tá tham gia cuộc gọi...'}
+                  </p>
                 </div>
               )}
             </div>
 
+            {/* Local Video */}
             <div className="absolute bottom-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-2 border-white">
               <div 
                 ref={localVideoRef}
@@ -432,6 +517,7 @@ const VideoCall: React.FC = () => {
             </div>
           </div>
 
+          {/* Control Bar */}
           <div className="bg-gray-800 p-4">
             <div className="flex justify-center items-center space-x-4">
               {!isJoined ? (
@@ -486,6 +572,7 @@ const VideoCall: React.FC = () => {
           </div>
         </div>
 
+        {/* Chat Sidebar */}
         {showChat && (
           <div className="w-80 bg-gray-800 border-l border-gray-700 flex flex-col">
             <div className="p-4 border-b border-gray-700">
@@ -502,7 +589,13 @@ const VideoCall: React.FC = () => {
                 messages.map((message) => (
                   <div key={message.id} className="flex flex-col">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-green-400">{message.sender}</span>
+                      <span className={`text-sm font-medium ${
+                        message.sender === (userRole === 'nurse' ? 'Y tá' : 'Bạn') 
+                          ? 'text-blue-400' 
+                          : 'text-green-400'
+                      }`}>
+                        {message.sender}
+                      </span>
                       <span className="text-xs text-gray-400">
                         {new Date(message.timestamp).toLocaleTimeString()}
                       </span>

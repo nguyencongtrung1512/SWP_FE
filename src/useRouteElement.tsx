@@ -36,8 +36,7 @@ import Vaccination from './pages/admin/vaccineManagement/createVaccine'
 import AppointmentPage from './pages/parent/privateConsultation/AppointmentPage'
 import HealthCheck from './pages/admin/healthCheckManagement/createHealthCheck'
 import MedicalResult from './pages/nurse/resultsAfterVaccination'
-import VideoCall from './pages/parent/privateConsultation/VideoCall'
-import NurseVideoCall from './pages/nurse/privateConsultation/VideoCall'
+import VideoCall from './components/VideoCall'
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -103,7 +102,7 @@ export default function useRouteElements() {
             },
             {
               path: 'parent/private-consultation/video-call/:appointmentId',
-              element: <VideoCall />
+              element: <VideoCall userRole="parent" />
             }
           ]
         }
@@ -164,7 +163,7 @@ export default function useRouteElements() {
             },
             {
               path: 'private-consultation/video-call/:appointmentId',
-              element: <NurseVideoCall />
+              element: <VideoCall userRole="nurse" />
             },
             {
               path: path.NURSE_CATEGORY_MANAGEMENT,

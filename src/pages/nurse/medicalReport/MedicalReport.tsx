@@ -17,6 +17,7 @@ const MedicalReport: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [detailEvent, setDetailEvent] = useState<MedicalEvent | null>(null)
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
+  const [eventTypeFilter, setEventTypeFilter] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     fetchMedicalEvents()
@@ -144,17 +145,37 @@ const MedicalReport: React.FC = () => {
         <Card>
           <Title level={5}>Danh sách báo cáo</Title>
           <div style={{ marginBottom: 16 }}>
-            <Select
-              value={sortOrder}
-              style={{ width: 200 }}
-              onChange={(val) => setSortOrder(val)}
-              options={[
-                { value: 'desc', label: 'Thời gian: Gần nhất' },
-                { value: 'asc', label: 'Thời gian: Xa nhất' }
-              ]}
-            />
+            <Space>
+              <Select
+                value={sortOrder}
+                style={{ width: 200 }}
+                onChange={(val) => setSortOrder(val)}
+                options={[
+                  { value: 'desc', label: 'Thời gian: Gần nhất' },
+                  { value: 'asc', label: 'Thời gian: Xa nhất' }
+                ]}
+              />
+              <Select
+                allowClear
+                placeholder='Lọc theo loại sự kiện'
+                style={{ width: 200 }}
+                value={eventTypeFilter}
+                onChange={val => setEventTypeFilter(val)}
+                options={[
+                  { value: 'Sốt', label: 'Sốt' },
+                  { value: 'Tai nạn', label: 'Tai nạn' },
+                  { value: 'Dịch bệnh', label: 'Dịch bệnh' },
+                  { value: 'Khác', label: 'Khác' }
+                ]}
+              />
+            </Space>
           </div>
-          <Table columns={columns} dataSource={medicalEvents} rowKey='medicalEventId' loading={loading} />
+          <Table
+            columns={columns}
+            dataSource={eventTypeFilter ? medicalEvents.filter(ev => ev.type === eventTypeFilter) : medicalEvents}
+            rowKey='medicalEventId'
+            loading={loading}
+          />
         </Card>
 
         <Modal

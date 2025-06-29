@@ -29,9 +29,9 @@ const VideoCall: React.FC = () => {
   const remoteVideoRef = useRef<HTMLDivElement>(null)
   
   const agoraConfig = {
-    appId: 'aab8b8f5a8cd4469a63042fcfafe7063', // Alternative test App ID
-    channel: `consultation-${appointmentId}`,
-    token: null, // Test App ID doesn't require tokens
+    appId: '3e9d60aafb8645a69fbb30b9a42045bc', // Alternative test App ID
+    channel: `new  token`,
+    token: '007eJxTYLinudPvrY/MK7XPJWU87wQ+vCiUvrHelLs4oHp2gpDBvjsKDMaplilmBomJaUkWZiamiWaWaUlJxgZJlokmRgYmpknJYucTMhoCGRlMjP6xMDJAIIjPxZCXWq6gUJKfnZrHwAAAIc8hZg==', // Test App ID doesn't require tokens
     uid: Math.floor(Math.random() * 100000)
   }
 
@@ -79,6 +79,20 @@ const VideoCall: React.FC = () => {
     }
   }, [appointmentId])
 
+  // Monitor local video track and display it when available
+  useEffect(() => {
+    if (localVideoTrack && localVideoRef.current && isJoined) {
+      console.log('Local video track changed, updating display')
+      console.log('Video track enabled:', localVideoTrack.enabled)
+      
+      // Clear the container
+      localVideoRef.current.innerHTML = ''
+      
+      // Play the video track
+      localVideoTrack.play(localVideoRef.current)
+    }
+  }, [localVideoTrack, isJoined])
+
   const initializeAgora = async () => {
     try {
       setIsLoading(true)
@@ -98,6 +112,36 @@ const VideoCall: React.FC = () => {
     }
   }
 
+  const testCamera = async () => {
+    try {
+      console.log('Testing camera access...')
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      
+      if (localVideoRef.current) {
+        const video = document.createElement('video')
+        video.srcObject = stream
+        video.autoplay = true
+        video.muted = true
+        video.style.width = '100%'
+        video.style.height = '100%'
+        video.style.objectFit = 'cover'
+        
+        localVideoRef.current.innerHTML = ''
+        localVideoRef.current.appendChild(video)
+        
+        console.log('Camera test successful - video element created')
+        
+        // Stop the test stream after 3 seconds
+        setTimeout(() => {
+          stream.getTracks().forEach(track => track.stop())
+          console.log('Camera test stream stopped')
+        }, 3000)
+      }
+    } catch (error) {
+      console.error('Camera test failed:', error)
+    }
+  }
+
   const joinChannel = async () => {
     if (!client) return
     
@@ -113,23 +157,45 @@ const VideoCall: React.FC = () => {
       await client.join(agoraConfig.appId, agoraConfig.channel, agoraConfig.token, agoraConfig.uid)
       console.log('Successfully joined channel')
       
+      // Add delay before creating tracks to ensure camera is ready
+      console.log('Waiting for camera to initialize...')
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
       // Create and publish local tracks (this will request permissions)
       console.log('Creating local tracks...')
-      let audioTrack, videoTrack
+      let audioTrack: IMicrophoneAudioTrack | null = null
+      let videoTrack: ICameraVideoTrack | null = null
       
       try {
-        [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks()
-      } catch (trackError) {
+        // First try to get user media to ensure permissions
+        await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        console.log('Media permissions granted, creating tracks...')
+        
+        // Add another small delay after permissions
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        const tracks = await AgoraRTC.createMicrophoneAndCameraTracks()
+        audioTrack = tracks[0]
+        videoTrack = tracks[1]
+        console.log('Successfully created audio and video tracks')
+      } catch (trackError: any) {
         console.error('Failed to create tracks:', trackError)
         
         // Try to create audio-only if video fails
         try {
           audioTrack = await AgoraRTC.createMicrophoneAudioTrack()
           videoTrack = null
+          console.log('Successfully created audio-only track')
           toast.warning('Không thể truy cập camera, chỉ sử dụng âm thanh')
-        } catch (audioError) {
+        } catch (audioError: any) {
           console.error('Failed to create audio track:', audioError)
-          toast.error('Không thể truy cập camera và microphone!')
+          if (audioError.name === 'NotAllowedError') {
+            toast.error('Cần cấp quyền microphone để tham gia cuộc gọi!')
+          } else if (audioError.name === 'NotFoundError') {
+            toast.error('Không tìm thấy microphone!')
+          } else {
+            toast.error('Không thể truy cập camera và microphone!')
+          }
           setIsLoading(false)
           return
         }
@@ -147,10 +213,31 @@ const VideoCall: React.FC = () => {
       
       console.log('Tracks published successfully')
       
+      // Add delay before playing video to ensure everything is ready
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       if (localVideoRef.current && videoTrack) {
         console.log('Playing video track in local video ref')
-        audioTrack?.play()
-        videoTrack.play(localVideoRef.current)
+        console.log('Local video ref:', localVideoRef.current)
+        console.log('Video track:', videoTrack)
+        
+        // Clear any existing content
+        localVideoRef.current.innerHTML = ''
+        
+        // Play audio first
+        if (audioTrack) {
+          console.log('Playing audio track')
+          audioTrack.play()
+        }
+        
+        // Play video with a small delay to ensure DOM is ready
+        setTimeout(() => {
+          if (localVideoRef.current && videoTrack) {
+            console.log('Playing video track now')
+            videoTrack.play(localVideoRef.current)
+          }
+        }, 500)
+        
       } else if (localVideoRef.current && !videoTrack) {
         // Show placeholder for audio-only
         console.log('Showing audio-only placeholder')
@@ -163,7 +250,10 @@ const VideoCall: React.FC = () => {
           </div>
         `
       } else {
-        console.log('Local video ref not available or no video track')
+        console.log('Cannot display video:', {
+          hasLocalVideoRef: !!localVideoRef.current,
+          hasVideoTrack: !!videoTrack
+        })
       }
       
       setIsJoined(true)
@@ -345,13 +435,23 @@ const VideoCall: React.FC = () => {
           <div className="bg-gray-800 p-4">
             <div className="flex justify-center items-center space-x-4">
               {!isJoined ? (
-                <Button
-                  onClick={joinChannel}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full"
-                >
-                  <Phone className="w-5 h-5 mr-2" />
-                  Tham gia cuộc gọi
-                </Button>
+                <>
+                  <Button
+                    onClick={joinChannel}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full"
+                  >
+                    <Phone className="w-5 h-5 mr-2" />
+                    Tham gia cuộc gọi
+                  </Button>
+                  <Button
+                    onClick={testCamera}
+                    variant="outline"
+                    className="text-white border-white hover:bg-white hover:text-gray-800"
+                  >
+                    <Video className="w-5 h-5 mr-2" />
+                    Test Camera
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button

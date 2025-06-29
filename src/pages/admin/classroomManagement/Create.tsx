@@ -1,6 +1,7 @@
 import React from 'react'
 import { Modal, Form, Input, message } from 'antd'
 import { createClass } from '../../../apis/class'
+import { toast } from 'react-toastify'
 
 interface CreateClassProps {
   isModalVisible: boolean
@@ -21,12 +22,12 @@ const CreateClass: React.FC<CreateClassProps> = ({ isModalVisible, onCancel, onS
       const values = await form.validateFields()
       setLoading(true)
       await createClass(values)
-      message.success('Thêm lớp thành công!')
+      toast.success('Thêm lớp thành công!')
       form.resetFields()
       onSuccess()
     } catch (error) {
       console.error('Error creating class:', error)
-      message.error('Có lỗi xảy ra khi thêm lớp!')
+      toast.error('Có lỗi xảy ra khi thêm lớp! lớp này có thể đã có ')
     } finally {
       setLoading(false)
     }

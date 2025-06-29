@@ -63,7 +63,6 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
     const fetchNurses = async () => {
       try {
         const res = await getNurseListForHealthConsultation()
-        console.log('Kết quả API:', res.data)
         const nursesData = Array.isArray(res.data) ? res.data : res.data?.$values || []
         setNurses(nursesData)
         if (!nursesData.length) {
@@ -113,6 +112,7 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
       return
     }
     const scheduledDateTime = new Date(selectedDate)
+    // disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
     const [hours, minutes] = selectedTime.split(':')
     scheduledDateTime.setHours(parseInt(hours), parseInt(minutes))
     const scheduledTime = dayjs(scheduledDateTime).format('YYYY-MM-DDTHH:mm:ss')
@@ -237,7 +237,8 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
                       mode='single'
                       selected={selectedDate}
                       onSelect={setSelectedDate}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
+                      // disabled={(date) => date < new Date()}
                       initialFocus
                       className='p-3 pointer-events-auto'
                     />

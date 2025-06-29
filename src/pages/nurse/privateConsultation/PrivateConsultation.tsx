@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Button, Table, Typography, Space, Tag, Row, Col, Spin, Popconfirm, message, Modal } from 'antd'
+import { Card, Button, Table, Typography, Space, Tag, Row, Col, Spin, Popconfirm, message, Modal, DatePicker } from 'antd'
 import {
   cancelHealthConsultationBooking,
   confirmHealthConsultationBooking,
@@ -7,7 +7,7 @@ import {
   getHealthConsultationBookingById,
   getHealthConsultationBookingByNurse
 } from '../../../apis/healthConsultationBooking.api'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { toast } from 'react-toastify'
 
 const { Title } = Typography
@@ -18,7 +18,7 @@ interface ConsultationRequest {
   studentName: string
   studentClass: string
   reason: string
-  suggestedTime: string
+  scheduledTime: string
   status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Done'
   notes?: string
   createdBy: string
@@ -45,10 +45,22 @@ const PrivateConsultation: React.FC = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false)
   const [detailData, setDetailData] = useState<HealthConsultationBookingDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [filterDate, setFilterDate] = useState<Dayjs | null>(null)
 
   useEffect(() => {
     fetchParentRequests()
   }, [])
+
+  // Kiểm tra và tự động hủy các yêu cầu quá hạn
+  useEffect(() => {
+    const now = dayjs()
+    parentRequests.forEach((r) => {
+      if (r.status === 'Pending' && r.scheduledTime && dayjs(r.scheduledTime).isBefore(now)) {
+        // Nếu đã quá hạn và chưa bị hủy, gọi API hủy
+        cancelHealthConsultationBooking(Number(r.bookingId))
+      }
+    })
+  }, [parentRequests])
 
   const fetchParentRequests = async () => {
     setLoading(true)
@@ -63,8 +75,14 @@ const PrivateConsultation: React.FC = () => {
   }
 
   // Phân loại danh sách: đang xử lý và lịch sử
-  const activeRequests = parentRequests.filter((r) => r.status !== 'Done' && r.status !== 'Cancelled')
-  const historyRequests = parentRequests.filter((r) => r.status === 'Done' || r.status === 'Cancelled')
+  const activeRequests = parentRequests.filter((r) => r.status !== 'Done')
+  let historyRequests = parentRequests.filter((r) => r.status === 'Done')
+  // Lọc theo ngày nếu có chọn
+  if (filterDate) {
+    historyRequests = historyRequests.filter((r) => dayjs(r.scheduledTime).isSame(filterDate, 'day'))
+  }
+  // Sắp xếp giảm dần theo ngày đề xuất
+  historyRequests = historyRequests.sort((a, b) => dayjs(b.scheduledTime).valueOf() - dayjs(a.scheduledTime).valueOf())
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
@@ -110,6 +128,21 @@ const PrivateConsultation: React.FC = () => {
     }
   }
 
+  // Thêm hàm chuyển trạng thái sang tiếng Việt
+  const getStatusText = (status: string, scheduledTime?: string) => {
+    const now = dayjs()
+    if (status === 'Pending' && scheduledTime && dayjs(scheduledTime).isBefore(now)) {
+      return 'Quá hạn'
+    }
+    const map: Record<string, string> = {
+      Pending: 'Chờ phản hồi',
+      Confirmed: 'Đã xác nhận',
+      Done: 'Đã hoàn thành',
+      Cancelled: 'Bị hủy bỏ'
+    }
+    return map[status] || status
+  }
+
   const columns = [
     {
       title: 'Học sinh',
@@ -137,7 +170,11 @@ const PrivateConsultation: React.FC = () => {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => {
+      render: (status: string, record: ConsultationRequest) => {
+        const now = dayjs()
+        if (record.status === 'Pending' && record.scheduledTime && dayjs(record.scheduledTime).isBefore(now)) {
+          return <Tag color='red'>Quá hạn</Tag>
+        }
         const statuses = {
           Pending: { color: 'blue', text: 'Chờ phản hồi' },
           Confirmed: { color: 'green', text: 'Đã xác nhận' },
@@ -152,14 +189,36 @@ const PrivateConsultation: React.FC = () => {
       title: 'Thao tác',
       key: 'action',
       render: (_: unknown, record: ConsultationRequest) => {
-        // Nếu đã hoàn thành hoặc đã hủy thì không hiển thị nút Hủy và Hoàn thành
-        const isDoneOrCancelled = record.status === 'Done' || record.status === 'Cancelled'
+        const now = dayjs()
+        const isOverdue =
+          record.status === 'Pending' && record.scheduledTime && dayjs(record.scheduledTime).isBefore(now)
+        const isDone = record.status === 'Done'
         return (
           <Space>
             <Button size='small' onClick={() => handleViewDetail(record.bookingId)}>
               Xem chi tiết
             </Button>
-            {!isDoneOrCancelled && record.status === 'Pending' && (
+            {isOverdue && (
+              <Button
+                color='default'
+                variant='outlined'
+                size='small'
+                onClick={() => handleDoneBooking(record.bookingId)}
+              >
+                Đã xử lí
+              </Button>
+            )}
+            {record.status === 'Cancelled' && (
+              <Button
+                color='default'
+                variant='outlined'
+                size='small'
+                onClick={() => handleDoneBooking(record.bookingId)}
+              >
+                Đã xử lí
+              </Button>
+            )}
+            {!isDone && !isOverdue && record.status === 'Pending' && (
               <Button
                 color='primary'
                 variant='outlined'
@@ -169,12 +228,12 @@ const PrivateConsultation: React.FC = () => {
                 Xác nhận
               </Button>
             )}
-            {!isDoneOrCancelled && record.status === 'Confirmed' && (
+            {!isDone && !isOverdue && record.status === 'Confirmed' && (
               <Button color='cyan' variant='outlined' size='small' onClick={() => handleDoneBooking(record.bookingId)}>
                 Hoàn thành
               </Button>
             )}
-            {!isDoneOrCancelled && (
+            {!isDone && !isOverdue && record.status !== 'Cancelled' && (
               <Popconfirm
                 title='Bạn có chắc chắn muốn hủy lịch tư vấn này?'
                 onConfirm={() => handleCancelBooking(record.bookingId)}
@@ -214,6 +273,15 @@ const PrivateConsultation: React.FC = () => {
           <Title level={5} style={{ marginBottom: 16 }}>
             Lịch sử tư vấn
           </Title>
+          <Space style={{ marginBottom: 16 }}>
+            <DatePicker
+              allowClear
+              placeholder='Chọn ngày đề xuất'
+              value={filterDate}
+              onChange={(date) => setFilterDate(date)}
+              format='DD/MM/YYYY'
+            />
+          </Space>
           <Table columns={columns} dataSource={historyRequests} rowKey='bookingId' pagination={{ pageSize: 10 }} />
         </Card>
 
@@ -243,9 +311,8 @@ const PrivateConsultation: React.FC = () => {
               <br />
               <b>Lý do:</b> {detailData.reason}
               <br />
-              <b>Trạng thái:</b> {detailData.status}
+              <b>Trạng thái:</b> {getStatusText(detailData.status, detailData.scheduledTime)}
               <br />
-              <b>Ghi chú:</b> {detailData.notes || 'Không có'}
               <br />
             </div>
           ) : (

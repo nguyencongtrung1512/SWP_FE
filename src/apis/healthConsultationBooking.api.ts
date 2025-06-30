@@ -9,6 +9,12 @@ export interface HealthConsultationBookingPayload {
   studentCode: string
 }
 
+export interface AgoraTokenResponse {
+  token: string
+  channelName: string
+  uid: number
+}
+
 export const createHealthConsultationBookingByNurse = (data: HealthConsultationBookingPayload) => {
   return http.post('/HealthConsultationBooking/NurseBook', data)
 }
@@ -43,4 +49,9 @@ export const doneHealthConsultationBooking = (id: number) => {
 
 export const getNurseListForHealthConsultation = () => {
   return http.get('/HealthConsultationBooking/Nurses')
+}
+
+// New endpoint for getting Agora token
+export const getAgoraToken = (bookingId: number) => {
+  return http.get<AgoraTokenResponse>(`/HealthConsultationBooking/${bookingId}/agora-token`)
 }

@@ -56,7 +56,7 @@ const VideoCall: React.FC = () => {
       } catch {
         setToken(null)
       } finally {
-        setIsLoading(false)
+      setIsLoading(false)
       }
     }
     fetchToken()
@@ -74,10 +74,16 @@ const VideoCall: React.FC = () => {
         })
       }
     }
+    const handleUserUnpublished = (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
+      if (mediaType === 'video') {
+        setUsers(prev => prev.filter(u => u.uid !== user.uid))
+      }
+    }
     const handleUserLeft = (user: IAgoraRTCRemoteUser) => {
       setUsers(prev => prev.filter(u => u.uid !== user.uid))
     }
     client.on('user-published', handleUserPublished)
+    client.on('user-unpublished', handleUserUnpublished)
     client.on('user-left', handleUserLeft)
     client
       .join(APP_ID, channel, token, uid || null)
@@ -102,14 +108,33 @@ const VideoCall: React.FC = () => {
         localTrack.close()
       }
       client.removeAllListeners()
+      // Remove specific event listeners for safety
+      client.off('user-published', handleUserPublished)
+      client.off('user-unpublished', handleUserUnpublished)
+      client.off('user-left', handleUserLeft)
       client.unpublish(localTracks).then(() => client.leave())
     }
     // eslint-disable-next-line
   }, [token, channel, joined])
 
   // Hide/show local preview handler
-  const handleToggleCamPreview = () => {
-    setCamPreview((prev) => !prev)
+  const handleToggleCamPreview = async () => {
+    const videoTrack = localTracks.find(track => track && 'setEnabled' in track && track.getTrackLabel && track.getTrackLabel().toLowerCase().includes('camera')) as ICameraVideoTrack | undefined
+    if (!videoTrack) {
+      setCamPreview((prev) => !prev)
+      return
+    }
+    if (camPreview) {
+      // Hide: unpublish and disable
+      await client.unpublish([videoTrack])
+      videoTrack.setEnabled(false)
+      setCamPreview(false)
+    } else {
+      // Show: enable and publish
+      videoTrack.setEnabled(true)
+      await client.publish([videoTrack])
+      setCamPreview(true)
+    }
   }
 
   // End call handler
@@ -159,9 +184,9 @@ const VideoCall: React.FC = () => {
             ) : (
               <div style={{ color: '#aaa', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                 Đang chờ người tham gia khác...
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
           {/* Local user small cam */}
           {localUser && camPreview && (
             <div style={{ position: 'absolute', left: 36, bottom: 36, width: 300, height: 220, boxShadow: '0 2px 8px rgba(0,0,0,0.25)', borderRadius: 12, border: '2px solid #fff' }}>
@@ -213,9 +238,9 @@ const VideoCall: React.FC = () => {
               {/* Simple phone SVG icon */}
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.72 19.72 0 0 1 3 5.18 2 2 0 0 1 5 3h4.09a2 2 0 0 1 2 1.72c.13 1.13.37 2.23.72 3.28a2 2 0 0 1-.45 2.11l-1.27 1.27a16 16 0 0 0 6.29 6.29l1.27-1.27a2 2 0 0 1 2.11-.45c1.05.35 2.15.59 3.28.72A2 2 0 0 1 22 16.92z"></path></svg>
             </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   )
 }

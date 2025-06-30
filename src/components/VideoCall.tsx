@@ -69,14 +69,18 @@ const VideoCall: React.FC = () => {
       await client.subscribe(user, mediaType)
       if (mediaType === 'video') {
         setUsers(prev => {
-          if (prev.find(u => u.uid === user.uid)) return prev
+          const existing = prev.find(u => u.uid === user.uid)
+          if (existing) {
+            // Update videoTrack/audioTrack if user already exists
+            return prev.map(u => u.uid === user.uid ? { ...u, videoTrack: user.videoTrack, audioTrack: user.audioTrack } : u)
+          }
           return [...prev, { uid: user.uid, videoTrack: user.videoTrack, audioTrack: user.audioTrack }]
         })
       }
     }
     const handleUserUnpublished = (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
       if (mediaType === 'video') {
-        setUsers(prev => prev.filter(u => u.uid !== user.uid))
+        setUsers(prev => prev.map(u => u.uid === user.uid ? { ...u, videoTrack: undefined } : u))
       }
     }
     const handleUserLeft = (user: IAgoraRTCRemoteUser) => {
@@ -180,13 +184,25 @@ const VideoCall: React.FC = () => {
           {/* Remote user big cam */}
           <div style={{ width: '100%', height: '100%', borderRadius: 20, overflow: 'hidden', background: '#222' }}>
             {remoteUser ? (
-              <VideoPlayer user={remoteUser} style={{ width: '100%', height: '100%' }} />
+              remoteUser.videoTrack ? (
+                <VideoPlayer user={remoteUser} style={{ width: '100%', height: '100%' }} />
+              ) : (
+                <div style={{ color: '#aaa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                  {/* Camera-off SVG icon */}
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 1l22 22" />
+                    <path d="M17 17H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z" />
+                    <path d="M23 7l-5 5" />
+                  </svg>
+                  <span style={{ marginTop: 16 }}>Người dùng đã tắt camera</span>
+                </div>
+              )
             ) : (
               <div style={{ color: '#aaa', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                 Đang chờ người tham gia khác...
-                </div>
-              )}
-            </div>
+              </div>
+            )}
+          </div>
           {/* Local user small cam */}
           {localUser && camPreview && (
             <div style={{ position: 'absolute', left: 36, bottom: 36, width: 300, height: 220, boxShadow: '0 2px 8px rgba(0,0,0,0.25)', borderRadius: 12, border: '2px solid #fff' }}>

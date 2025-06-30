@@ -40,7 +40,7 @@ const VideoCall: React.FC = () => {
   const [uid, setUid] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [joined, setJoined] = useState(false)
-  const [camEnabled, setCamEnabled] = useState(true)
+  const [camPreview, setCamPreview] = useState(true)
 
   // Fetch token from backend
   useEffect(() => {
@@ -107,14 +107,9 @@ const VideoCall: React.FC = () => {
     // eslint-disable-next-line
   }, [token, channel, joined])
 
-  // Hide/show cam handler
-  const handleToggleCam = async () => {
-    const localUser = users.find(u => u.uid === uid)
-    if (localUser && localUser.videoTrack && 'setEnabled' in localUser.videoTrack) {
-      const enabled = !camEnabled
-      await localUser.videoTrack.setEnabled(enabled)
-      setCamEnabled(enabled)
-    }
+  // Hide/show local preview handler
+  const handleToggleCamPreview = () => {
+    setCamPreview((prev) => !prev)
   }
 
   // End call handler
@@ -127,7 +122,7 @@ const VideoCall: React.FC = () => {
     client.unpublish(localTracks).then(() => client.leave())
     setUsers([])
     setJoined(false)
-    setCamEnabled(true)
+    setCamPreview(true)
   }
 
   if (isLoading) return <Loading />
@@ -168,7 +163,7 @@ const VideoCall: React.FC = () => {
             )}
           </div>
           {/* Local user small cam */}
-          {localUser && camEnabled && (
+          {localUser && camPreview && (
             <div style={{ position: 'absolute', left: 36, bottom: 36, width: 300, height: 220, boxShadow: '0 2px 8px rgba(0,0,0,0.25)', borderRadius: 12, border: '2px solid #fff' }}>
               <VideoPlayer user={localUser} style={{ width: '100%', height: '100%' }} />
             </div>
@@ -176,7 +171,7 @@ const VideoCall: React.FC = () => {
           {/* End Call & Hide Cam Buttons */}
           <div style={{ position: 'absolute', left: '50%', bottom: 36, transform: 'translateX(-50%)', display: 'flex', gap: 24, zIndex: 10 }}>
             <button
-              onClick={handleToggleCam}
+              onClick={handleToggleCamPreview}
               style={{
                 width: 64,
                 height: 64,
@@ -189,9 +184,9 @@ const VideoCall: React.FC = () => {
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                 cursor: 'pointer',
               }}
-              title={camEnabled ? 'Tắt camera' : 'Bật camera'}
+              title={camPreview ? 'Ẩn xem trước camera của bạn' : 'Hiện xem trước camera của bạn'}
             >
-              {camEnabled ? (
+              {camPreview ? (
                 // Eye-off SVG
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-5 0-9.27-3.11-11-7 1.21-2.61 3.16-4.77 5.66-6.11M1 1l22 22" /><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.38 0 2.63-.83 3.16-2.03" /><path d="M14.47 14.47A3.5 3.5 0 0 1 12 8.5c-.62 0-1.2.18-1.69.49" /></svg>
               ) : (

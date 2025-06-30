@@ -37,7 +37,6 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        // Fetch medications
         const medResponse = await getAllMedications()
         if (medResponse.data && medResponse.data.$values) {
           const options = medResponse.data.$values.map((med: Medication) => ({
@@ -47,7 +46,6 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
           setMedicationOptions(options)
         }
 
-        // Fetch medical supplies
         const supplyResponse = await medicalSupplyApi.getAll()
         if (supplyResponse.data && supplyResponse.data.$values) {
           const options = supplyResponse.data.$values.map((supply: MedicalSupply) => ({
@@ -73,7 +71,6 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
           const response = await getMedicalEventById(eventId)
           const eventData: MedicalEvent = response.data
 
-          // Fetch student details by studentId from the medical event
           if (eventData.studentId) {
             const studentResponse = await getStudentById(eventData.studentId)
             setFoundStudent(studentResponse.data)
@@ -90,7 +87,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
             note: eventData.note,
             date: dayjs(eventData.date)
           })
-          // Set selected medications and supplies with quantity
+
           if (eventData.medications && eventData.medications.$values) {
             setSelectedMedications(
               eventData.medications.$values.map((med: { medicationId: number; quantityUsed?: number }) => ({
@@ -134,11 +131,9 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
     fetchEventDetails()
   }, [visible, eventId, form, onCancel])
 
-  // Debounce student code search
   useEffect(() => {
     const fetchStudentByCode = async () => {
       if (studentCode && foundStudent?.studentCode !== studentCode) {
-        // Only search if code changed or no student found
         try {
           const response = await getStudentByCode(studentCode)
           const studentArr = response.data.$values
@@ -161,7 +156,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
     }
     const handler = setTimeout(() => {
       fetchStudentByCode()
-    }, 500) // Debounce search
+    }, 500)
     return () => clearTimeout(handler)
   }, [studentCode, form, foundStudent])
 
@@ -211,7 +206,27 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
               label='Thời gian sự kiện'
               rules={[{ required: true, message: 'Vui lòng chọn thời gian!' }]}
             >
-              <DatePicker showTime format='DD/MM/YYYY HH:mm' style={{ width: '100%' }} />
+              <DatePicker
+                placeholder='Chọn thời gian xảy ra sự kiện'
+                showTime
+                format='DD/MM/YYYY HH:mm'
+                style={{ width: '100%' }}
+                disabledDate={(current) => {
+                  const today = dayjs().startOf('day')
+                  const twoWeeksAgo = today.subtract(7, 'day')
+                  return (
+                    current && (current < twoWeeksAgo || current > today)
+                  )
+                }}
+                disabledTime={() => ({
+                  disabledHours: () =>
+                    Array.from({ length: 24 }, (_, i) => i).filter(
+                      (hour) => hour < 7 || hour > 17
+                    ),
+                  disabledMinutes: () => [],
+                  disabledSeconds: () => [],
+                })}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>

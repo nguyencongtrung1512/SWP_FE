@@ -2,6 +2,7 @@ import http from '../utils/http'
 
 export interface MedicalSupply {
   $id?: number
+  medicalSupplyId: number
   name: string
   type: string
   description: string

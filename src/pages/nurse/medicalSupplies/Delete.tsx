@@ -20,7 +20,7 @@ const DeleteMedicalSupply: React.FC<DeleteMedicalSupplyProps> = ({
   const handleDelete = async () => {
     try {
       if (selectedMedicalSupply) {
-        await medicalSupplyApi.delete(selectedMedicalSupply.$id!)
+        await medicalSupplyApi.delete(selectedMedicalSupply.medicalSupplyId)
         toast.success('Xóa vật tư y tế thành công!')
         onSuccess()
       }

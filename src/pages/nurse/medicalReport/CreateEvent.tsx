@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Form, Input, Select, DatePicker, Button, Card, Typography, Space, Row, Col } from 'antd'
+import { Form, Input, Select, DatePicker, Button, Card, Typography, Space, Row, Col, InputNumber } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { createMedicalEvent } from '../../../apis/medicalEvent'
@@ -21,12 +21,61 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [studentOptions, setStudentOptions] = useState<{ value: number; label: string }[]>([])
   const [allStudents, setAllStudents] = useState<Student[]>([])
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
-  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
-  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string }[]>([])
+  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string; type: string }[]>([])
+  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string; type: string }[]>([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
-  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
-    { medicalSupplyId: number; quantityUsed: number }[]
-  >([])
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
+  
+  const getMedicationUnit = (type: string): string => {
+    const typeUpper = type.toUpperCase()
+    switch (typeUpper) {
+      case 'TABLET':
+        return 'viên'
+      case 'CAPSULE':
+        return 'viên'
+      case 'SYRUP':
+        return 'lọ'
+      case 'CREAM':
+        return 'tuýp'
+      case 'OINTMENT':
+        return 'tuýp'
+      case 'SOLUTION':
+        return 'lọ'
+      case 'INJECTION':
+        return 'ống'
+      case 'EYE DROPS':
+        return 'lọ'
+      case 'POWDER':
+        return 'gói'
+      default:
+        return 'đơn vị'
+    }
+  }
+
+  const getMedicalSupplyUnit = (type: string, name: string): string => {
+    const typeUpper = type.toUpperCase()
+    const nameUpper = name.toUpperCase()
+    
+    if (typeUpper === 'VẬT TƯ TIÊU HAO') {
+      if (nameUpper.includes('BÔNG Y TẾ')) {
+        return 'gói'
+      }
+      return 'chiếc'
+    }
+    
+    switch (typeUpper) {
+      case 'THIẾT BỊ ĐO':
+        return 'thiết bị'
+      case 'THIẾT BỊ HỖ TRỢ':
+        return 'thiết bị'
+      case 'BỘ DỤNG CỤ':
+        return 'bộ'
+      case 'DỤNG CỤ':
+        return 'chiếc'
+      default:
+        return 'đơn vị'
+    }
+  }
 
   useEffect(() => {
     const fetchMedications = async () => {
@@ -35,7 +84,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         if (response.data && response.data.$values) {
           const options = response.data.$values.map((med: Medication) => ({
             value: med.medicationId,
-            label: med.name
+            label: med.name,
+            type: med.type
           }))
           setMedicationOptions(options)
         }
@@ -57,7 +107,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         if (response.data && response.data.$values) {
           const options = response.data.$values.map((supply: MedicalSupply) => ({
             value: supply.$id!,
-            label: supply.name
+            label: supply.name,
+            type: supply.type
           }))
           setMedicalSupplyOptions(options)
         }
@@ -95,7 +146,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         studentId: Number(values.studentId),
         type: String(values.type),
         description: String(values.description),
-        note: String(values.note),
+        note: values.note ? String(values.note) : 'Không có ghi chú',
         date: dayjs(values.date as unknown as string | number | Date | dayjs.Dayjs | null | undefined).toISOString(),
         medications: selectedMedications,
         medicalSupplies: selectedMedicalSupplies
@@ -153,7 +204,27 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                 label='Thời gian sự kiện'
                 rules={[{ required: true, message: 'Vui lòng chọn thời gian!' }]}
               >
-                <DatePicker showTime format='DD/MM/YYYY HH:mm' style={{ width: '100%' }} />
+                <DatePicker
+                  placeholder='Chọn thời gian xảy ra sự kiện'
+                  showTime
+                  format='DD/MM/YYYY HH:mm'
+                  style={{ width: '100%' }}
+                  disabledDate={(current) => {
+                    const today = dayjs().startOf('day')
+                    const twoWeeksAgo = today.subtract(7, 'day')
+                    return (
+                      current && (current < twoWeeksAgo || current > today)
+                    )
+                  }}
+                  disabledTime={() => ({
+                    disabledHours: () =>
+                      Array.from({ length: 24 }, (_, i) => i).filter(
+                        (hour) => hour < 7 || hour > 17
+                      ),
+                    disabledMinutes: () => [],
+                    disabledSeconds: () => [],
+                  })}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -169,6 +240,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                     { value: 'Dịch bệnh', label: 'Dịch bệnh' },
                     { value: 'Khác', label: 'Khác' }
                   ]}
+                  placeholder='Chọn loại sự kiện'
                 />
               </Form.Item>
             </Col>
@@ -251,29 +323,38 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                 )
               }}
             />
-            {selectedMedications.map((item) => (
-              <div key={item.medicationId} style={{ margin: '8px 0 0 0' }}>
-                <span>{medicationOptions.find((opt) => opt.value === item.medicationId)?.label}:</span>
-                <span style={{ marginLeft: 8 }}>Số lượng:</span>
-                <Input
-                  type='number'
-                  min={1}
-                  style={{ width: 100, marginLeft: 8 }}
-                  value={item.quantityUsed}
-                  onChange={(e) => {
-                    const val = Number(e.target.value)
-                    setSelectedMedications(
-                      selectedMedications.map((m) =>
-                        m.medicationId === item.medicationId ? { ...m, quantityUsed: val } : m
+            {selectedMedications.map((item) => {
+              const medication = medicationOptions.find((opt) => opt.value === item.medicationId)
+              const unitName = medication ? getMedicationUnit(medication.type) : 'đơn vị'
+              
+              return (
+                <div key={item.medicationId} style={{ margin: '8px 0 0 0' }}>
+                  <span>{medication?.label}:</span>
+                  <span style={{ marginLeft: 8 }}>Số lượng ({unitName}):</span>
+                  <InputNumber
+                    placeholder='Nhập số lượng'
+                    min={1}
+                    max={10}
+                    style={{ width: 100, marginLeft: 8 }}
+                    value={item.quantityUsed}
+                    onChange={(val) => {
+                      setSelectedMedications(
+                        selectedMedications.map((m) =>
+                          m.medicationId === item.medicationId ? { ...m, quantityUsed: typeof val === 'number' && !isNaN(val) ? val : 1 } : m
+                        )
                       )
-                    )
-                  }}
-                />
-              </div>
-            ))}
+                    }}
+                  />
+                </div>
+              )
+            })}
           </Form.Item>
 
-          <Form.Item label='Vật tư y tế sử dụng' required>
+          <Form.Item 
+            required
+            label='Vật tư y tế sử dụng'
+            rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế đã sử dụng!' }]}
+          >
             <Select
               mode='multiple'
               placeholder='Chọn vật tư y tế'
@@ -288,26 +369,33 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                 )
               }}
             />
-            {selectedMedicalSupplies.map((item) => (
-              <div key={item.medicalSupplyId} style={{ margin: '8px 0 0 0' }}>
-                <span>{medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)?.label}:</span>
-                <span style={{ marginLeft: 8 }}>Số lượng:</span>
-                <Input
-                  type='number'
-                  min={1}
-                  style={{ width: 100, marginLeft: 8 }}
-                  value={item.quantityUsed}
-                  onChange={(e) => {
-                    const val = Number(e.target.value)
-                    setSelectedMedicalSupplies(
-                      selectedMedicalSupplies.map((m) =>
-                        m.medicalSupplyId === item.medicalSupplyId ? { ...m, quantityUsed: val } : m
+            {selectedMedicalSupplies.map((item) => {
+              const supply = medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)
+              const unitName = supply ? getMedicalSupplyUnit(supply.type, supply.label) : 'đơn vị'
+              
+              return (
+                <div key={item.medicalSupplyId} style={{ margin: '8px 0 0 0' }}>
+                  <span>{supply?.label}:</span>
+                  <span style={{ marginLeft: 8 }}>Số lượng ({unitName}):</span>
+                  <InputNumber
+                    placeholder='Nhập số lượng'
+                    min={1}
+                    max={50}
+                    style={{ width: 100, marginLeft: 8 }}
+                    value={item.quantityUsed}
+                    onChange={(val) => {
+                      setSelectedMedicalSupplies(
+                        selectedMedicalSupplies.map((m) =>
+                          m.medicalSupplyId === item.medicalSupplyId
+                            ? { ...m, quantityUsed: typeof val === 'number' && !isNaN(val) ? val : 1 }
+                            : m
+                        )
                       )
-                    )
-                  }}
-                />
-              </div>
-            ))}
+                    }}
+                  />
+                </div>
+              )
+            })}
           </Form.Item>
         </Form>
       </Space>

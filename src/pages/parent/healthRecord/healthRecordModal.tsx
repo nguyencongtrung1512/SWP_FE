@@ -132,7 +132,8 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
               }
               rules={[
                 { required: true, message: 'Vui lòng nhập cân nặng!' },
-                { type: 'number', min: 20, max: 70, message: 'Cân nặng phải từ 20-70kg!' }
+                { type: 'number', min: 20, max: 70, message: 'Cân nặng phải từ 20-70kg!' },
+                { pattern: /^\d+(\.\d+)?$/, message: 'Cân nặng phải là số dương!' }
               ]}
             >
               <InputNumber
@@ -154,7 +155,7 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
               rules={[
                 { required: true, message: 'Vui lòng nhập chiều cao!' },
                 { type: 'number', min: 110, max: 160, message: 'Chiều cao phải từ 110-160cm!' },
-                { pattern: /^\d+(\.\d+)?$/, message: 'Chiều cao phải là số!' }
+                { pattern: /^\d+(\.\d+)?$/, message: 'Chiều cao phải là số dương!' }
               ]}
             >
               <InputNumber
@@ -177,7 +178,7 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
               rules={[
                 { required: true, message: 'Vui lòng nhập thông tin cho mắt trái!' },
                 { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
-                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số!' }
+                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số dương!' }
               ]}
             >
               <InputNumber
@@ -198,7 +199,7 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
               rules={[
                 { required: true, message: 'Vui lòng nhập thông tin cho mắt phải!' },
                 { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
-                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số!' }
+                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số dương!' }
               ]}
             >
               <InputNumber

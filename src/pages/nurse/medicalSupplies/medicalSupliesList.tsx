@@ -159,7 +159,7 @@ const MedicalSuppliesList: React.FC = () => {
           </Button>
           <Popconfirm
             title='Bạn có chắc chắn muốn xóa vật tư này?'
-            onConfirm={() => handleDelete(record.$id!)}
+            onConfirm={() => handleDelete(record.medicalSupplyId)}
             okText='Có'
             cancelText='Không'
           >

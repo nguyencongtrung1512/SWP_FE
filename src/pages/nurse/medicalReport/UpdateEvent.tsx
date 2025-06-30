@@ -30,9 +30,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
   const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string }[]>([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
-  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
-    { medicalSupplyId: number; quantityUsed: number }[]
-  >([])
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -49,7 +47,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
         const supplyResponse = await medicalSupplyApi.getAll()
         if (supplyResponse.data && supplyResponse.data.$values) {
           const options = supplyResponse.data.$values.map((supply: MedicalSupply) => ({
-            value: supply.$id!,
+            value: supply.medicalSupplyId,
             label: supply.name
           }))
           setMedicalSupplyOptions(options)

@@ -140,7 +140,7 @@ const AppointmentList = ({
                       Hủy
                     </button>
                   )}
-                  {(appointment.status === 'Pending' || appointment.status === 'Confirmed') && (
+                  {(appointment.status === 'Confirmed') && (
                     <button
                       type='button'
                       className='block mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs font-semibold shadow'

@@ -245,10 +245,10 @@ const VideoCall: React.FC = () => {
               title={camPreview ? 'Ẩn xem trước camera của bạn' : 'Hiện xem trước camera của bạn'}
             >
               {camPreview ? (
-                // Eye SVG (camera is visible, show eye icon)
+                // Eye SVG (when camera is visible, show eye to indicate you can hide it)
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="10" ry="7" /><circle cx="12" cy="12" r="3" /></svg>
               ) : (
-                // Eye-off SVG (camera is hidden, show eye-off icon)
+                // Eye-off SVG (when camera is hidden, show eye-off to indicate you can show it)
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-5 0-9.27-3.11-11-7 1.21-2.61 3.16-4.77 5.66-6.11M1 1l22 22" /><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.38 0 2.63-.83 3.16-2.03" /><path d="M14.47 14.47A3.5 3.5 0 0 1 12 8.5c-.62 0-1.2.18-1.69.49" /></svg>
               )}
             </button>

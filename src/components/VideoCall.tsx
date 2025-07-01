@@ -77,6 +77,11 @@ const VideoCall: React.FC = () => {
           return [...prev, { uid: user.uid, videoTrack: user.videoTrack, audioTrack: user.audioTrack }]
         })
       }
+      if (mediaType === 'audio') {
+        if (user.audioTrack) {
+          user.audioTrack.play()
+        }
+      }
     }
     const handleUserUnpublished = (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
       if (mediaType === 'video') {

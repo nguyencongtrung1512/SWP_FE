@@ -49,7 +49,7 @@ interface ConsultationRequest {
   bookingId: string
   studentId: string
   studentName: string
-  studentClass: string
+  className: string
   reason: string
   scheduledTime: string
   status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Done'
@@ -205,7 +205,7 @@ const PrivateConsultation: React.FC = () => {
       render: (record: ConsultationRequest) => (
         <Space direction='vertical' size='small'>
           <Text strong>{record.studentName}</Text>
-          <Tag color='blue'>Lớp {record.studentClass}</Tag>
+          <Tag color='blue'>Lớp {record.className}</Tag>
         </Space>
       )
     },

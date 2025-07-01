@@ -41,6 +41,7 @@ const VideoCall: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [joined, setJoined] = useState(false)
   const [camPreview, setCamPreview] = useState(true)
+  const [isMuted, setIsMuted] = useState(false)
 
   // Fetch token from backend
   useEffect(() => {
@@ -146,6 +147,15 @@ const VideoCall: React.FC = () => {
     }
   }
 
+  // Mute/unmute handler
+  const handleToggleMute = () => {
+    const audioTrack = localTracks.find(track => track && 'setEnabled' in track && track.getTrackLabel && track.getTrackLabel().toLowerCase().includes('microphone')) as IMicrophoneAudioTrack | undefined
+    if (audioTrack) {
+      audioTrack.setEnabled(!isMuted)
+      setIsMuted(!isMuted)
+    }
+  }
+
   // End call handler
   const handleEndCall = () => {
     for (const localTrack of localTracks) {
@@ -238,6 +248,41 @@ const VideoCall: React.FC = () => {
               ) : (
                 // Eye SVG
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="10" ry="7" /><circle cx="12" cy="12" r="3" /></svg>
+              )}
+            </button>
+            <button
+              onClick={handleToggleMute}
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: '#374151',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                cursor: 'pointer',
+              }}
+              title={isMuted ? 'Bật microphone' : 'Tắt microphone'}
+            >
+              {isMuted ? (
+                // Muted microphone SVG
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 1l22 22"/>
+                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/>
+                  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+              ) : (
+                // Unmuted microphone SVG
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
               )}
             </button>
             <button

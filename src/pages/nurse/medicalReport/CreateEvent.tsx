@@ -1,14 +1,39 @@
-import React, { useState, useEffect } from 'react'
-import { Form, Input, Select, DatePicker, Button, Card, Typography, Space, Row, Col, InputNumber } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import type React from 'react'
+import { useState, useEffect } from 'react'
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Button,
+  Card,
+  Typography,
+  Space,
+  Row,
+  Col,
+  InputNumber,
+  Divider,
+  Tag,
+  Alert,
+  Descriptions
+} from 'antd'
+import {
+  PlusOutlined,
+  UserOutlined,
+  CalendarOutlined,
+  MedicineBoxOutlined,
+  FileTextOutlined,
+  HeartOutlined,
+  InfoCircleOutlined
+} from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { createMedicalEvent } from '../../../apis/medicalEvent'
-import { getAllStudents, Student } from '../../../apis/student'
-import { getAllMedications, Medication } from '../../../apis/medication'
-import medicalSupplyApi, { MedicalSupply } from '../../../apis/medicalSupply'
+import { getAllStudents, type Student } from '../../../apis/student'
+import { getAllMedications, type Medication } from '../../../apis/medication'
+import medicalSupplyApi, { type MedicalSupply } from '../../../apis/medicalSupply'
 import { toast } from 'react-toastify'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 const { TextArea } = Input
 
 interface CreateEventProps {
@@ -18,14 +43,15 @@ interface CreateEventProps {
 const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [form] = Form.useForm()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [studentOptions, setStudentOptions] = useState<{ value: number; label: string }[]>([])
   const [allStudents, setAllStudents] = useState<Student[]>([])
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string; type: string }[]>([])
   const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string; type: string }[]>([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
-  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
-  
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
+    { medicalSupplyId: number; quantityUsed: number }[]
+  >([])
+
   const getMedicationUnit = (type: string): string => {
     const typeUpper = type.toUpperCase()
     switch (typeUpper) {
@@ -55,14 +81,14 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const getMedicalSupplyUnit = (type: string, name: string): string => {
     const typeUpper = type.toUpperCase()
     const nameUpper = name.toUpperCase()
-    
+
     if (typeUpper === 'VẬT TƯ TIÊU HAO') {
       if (nameUpper.includes('BÔNG Y TẾ')) {
         return 'gói'
       }
       return 'chiếc'
     }
-    
+
     switch (typeUpper) {
       case 'THIẾT BỊ ĐO':
         return 'thiết bị'
@@ -99,6 +125,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         }
       }
     }
+
     fetchMedications()
 
     const fetchMedicalSupplies = async () => {
@@ -122,6 +149,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         }
       }
     }
+
     fetchMedicalSupplies()
 
     const fetchStudents = async () => {
@@ -129,29 +157,35 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         const response = await getAllStudents()
         if (response.data && response.data.$values) {
           setAllStudents(response.data.$values)
-          setStudentOptions(response.data.$values.map((stu: Student) => ({ value: stu.studentId, label: stu.fullname })))
         }
       } catch {
         toast.error('Lỗi khi tải danh sách học sinh!')
       }
     }
+
     fetchStudents()
   }, [])
 
   const onFinish = async (values: Record<string, unknown>) => {
     if (!foundStudent) return
+
     try {
       setIsSubmitting(true)
+
       const data = {
-        studentId: Number(values.studentId),
+        studentCode: String(values.studentCode),
         type: String(values.type),
         description: String(values.description),
         note: values.note ? String(values.note) : 'Không có ghi chú',
-        date: dayjs(values.date as unknown as string | number | Date | dayjs.Dayjs | null | undefined).toISOString(),
+        date: dayjs(values.date as unknown as string | number | Date | dayjs.Dayjs | null | undefined).format(
+          'YYYY-MM-DDTHH:mm:ss'
+        ),
         medications: selectedMedications,
         medicalSupplies: selectedMedicalSupplies
       }
+
       console.log('Data gửi lên:', data)
+
       await createMedicalEvent(data)
       toast.success('Tạo báo cáo sự kiện y tế thành công!')
       form.resetFields()
@@ -181,232 +215,351 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   }
 
   return (
-    <Card>
-      <Space direction='vertical' style={{ width: '100%' }}>
-        <Row justify='space-between' align='middle'>
-          <Col>
-            <Title level={4}>Tạo báo cáo sự kiện y tế</Title>
-          </Col>
-        </Row>
-
-        <Form
-          form={form}
-          layout='vertical'
-          onFinish={onFinish}
-          initialValues={{
-            date: dayjs()
+    <div style={{ maxWidth: 1400, margin: '0 auto', }}>
+      <Space direction='vertical' size='large' style={{ width: '100%' }}>
+        {/* Header */}
+        {/* <Card style={{ background: 'linear-gradient(135deg, #7c91ef 0%, #2171cc 100%)' }}>
+          <Row justify='space-between' align='middle'>
+            <Col>
+              <Title level={3} style={{ color: 'white', margin: 0 }}>
+                <MedicineBoxOutlined style={{ marginRight: 12 }} />
+                báo cáo sự kiện y tế
+              </Title>
+              <Text style={{ color: 'rgba(255,255,255,0.8)' }}>Ghi nhận và theo dõi các sự kiện y tế của học sinh</Text>
+            </Col>
+          </Row>
+        </Card> */}
+        <Card
+          style={{
+            borderRadius: 12,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}
         >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name='date'
-                label='Thời gian sự kiện'
-                rules={[{ required: true, message: 'Vui lòng chọn thời gian!' }]}
-              >
-                <DatePicker
-                  placeholder='Chọn thời gian xảy ra sự kiện'
-                  showTime
-                  format='DD/MM/YYYY HH:mm'
-                  style={{ width: '100%' }}
-                  disabledDate={(current) => {
-                    const today = dayjs().startOf('day')
-                    const twoWeeksAgo = today.subtract(7, 'day')
-                    return (
-                      current && (current < twoWeeksAgo || current > today)
-                    )
-                  }}
-                  disabledTime={() => ({
-                    disabledHours: () =>
-                      Array.from({ length: 24 }, (_, i) => i).filter(
-                        (hour) => hour < 7 || hour > 17
-                      ),
-                    disabledMinutes: () => [],
-                    disabledSeconds: () => [],
-                  })}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name='type'
-                label='Loại sự kiện'
-                rules={[{ required: true, message: 'Vui lòng chọn loại sự kiện!' }]}
-              >
-                <Select
-                  options={[
-                    { value: 'Sốt', label: 'Sốt' },
-                    { value: 'Tai nạn', label: 'Tai nạn' },
-                    { value: 'Dịch bệnh', label: 'Dịch bệnh' },
-                    { value: 'Khác', label: 'Khác' }
-                  ]}
-                  placeholder='Chọn loại sự kiện'
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item label='Tên học sinh' rules={[{ required: true, message: 'Vui lòng chọn học sinh!' }]}>
-                <Select
-                  showSearch
-                  placeholder='Tìm kiếm tên học sinh'
-                  options={studentOptions}
-                  filterOption={(input, option) => option?.label?.toLowerCase().includes(input.toLowerCase()) ?? false}
-                  onChange={(studentId) => {
-                    const stu = allStudents.find(s => s.studentId === studentId)
-                    setFoundStudent(stu || null)
-                    form.setFieldsValue({ studentId })
-                  }}
-                  value={foundStudent?.studentId}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {foundStudent && (
-                <div style={{ marginTop: 8 }}>
-                  <div>
-                    <b>Lớp:</b> {foundStudent.className}
-                  </div>
-                  <div>
-                    <b>Mã học sinh:</b>{' '} {foundStudent.studentCode}
-                  </div>
-                  <div>
-                    <b>Giới tính:</b>{' '}
-                    {foundStudent.gender === 'Male'
-                      ? 'Nam'
-                      : foundStudent.gender === 'Female'
-                        ? 'Nữ'
-                        : foundStudent.gender}
-                  </div>
-                  <div>
-                    <b>Ngày sinh:</b>{' '}
-                    {foundStudent.dateOfBirth ? dayjs(foundStudent.dateOfBirth).format('DD/MM/YYYY') : ''}
-                  </div>
-                  <div>
-                    <b>Phụ Huynh:</b> {foundStudent.parentName}
-                  </div>
-                </div>
-              )}
-            </Col>
-          </Row>
-
-          <Form.Item name='studentId' noStyle>
-            <Input type='hidden' />
-          </Form.Item>
-
-          <Form.Item
-            name='description'
-            label='Mô tả chi tiết'
-            rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+          <Form
+            form={form}
+            layout='vertical'
+            onFinish={onFinish}
+            initialValues={{
+              date: dayjs()
+            }}
           >
-            <TextArea rows={4} placeholder='Nhập mô tả chi tiết về sự kiện...' />
-          </Form.Item>
+            {/* Thông tin cơ bản */}
+            <Card
+              title={
+                <Space>
+                  <InfoCircleOutlined />
+                  <span>Thông tin cơ bản</span>
+                </Space>
+              }
+              style={{ marginBottom: 24 }}
+              size='small'
+            >
+              <Row gutter={[24, 16]}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='date'
+                    label={
+                      <Space>
+                        <CalendarOutlined />
+                        <span>Thời gian sự kiện</span>
+                      </Space>
+                    }
+                    rules={[{ required: true, message: 'Vui lòng chọn thời gian!' }]}
+                  >
+                    <DatePicker
+                      placeholder='Chọn thời gian xảy ra sự kiện'
+                      showTime
+                      format='DD/MM/YYYY HH:mm'
+                      style={{ width: '100%' }}
+                      size='large'
+                      disabledDate={(current) => {
+                        const today = dayjs().startOf('day')
+                        const twoWeeksAgo = today.subtract(7, 'day')
+                        return current && (current < twoWeeksAgo || current > today)
+                      }}
+                      disabledTime={() => ({
+                        disabledHours: () =>
+                          Array.from({ length: 24 }, (_, i) => i).filter((hour) => hour < 7 || hour > 17),
+                        disabledMinutes: () => [],
+                        disabledSeconds: () => []
+                      })}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='type'
+                    label='Loại sự kiện'
+                    rules={[{ required: true, message: 'Vui lòng chọn loại sự kiện!' }]}
+                  >
+                    <Select
+                      options={[
+                        { value: 'Sốt', label: '🌡️ Sốt' },
+                        { value: 'Tai nạn', label: '⚠️ Tai nạn' },
+                        { value: 'Dịch bệnh', label: '🦠 Dịch bệnh' },
+                        { value: 'Khác', label: '📋 Khác' }
+                      ]}
+                      placeholder='Chọn loại sự kiện'
+                      size='large'
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
 
-          <Form.Item name='note' label='Ghi chú thêm'>
-            <TextArea rows={3} placeholder='Nhập ghi chú thêm nếu cần...' />
-          </Form.Item>
+            {/* Thông tin học sinh */}
+            <Card
+              title={
+                <Space>
+                  <UserOutlined />
+                  <span>Thông tin học sinh</span>
+                </Space>
+              }
+              style={{ marginBottom: 24 }}
+              size='small'
+            >
+              <Row gutter={[24, 16]}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='studentCode'
+                    label='Mã học sinh'
+                    rules={[{ required: true, message: 'Vui lòng nhập mã học sinh!' }]}
+                  >
+                    <Input
+                      placeholder='Nhập mã học sinh'
+                      size='large'
+                      prefix={<UserOutlined />}
+                      onChange={(e) => {
+                        const code = e.target.value.trim().toLowerCase()
+                        const stu = allStudents.find((s) => s.studentCode.toLowerCase() === code)
+                        setFoundStudent(stu || null)
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  {foundStudent ? (
+                    <Alert
+                      message='Thông tin học sinh'
+                      description={
+                        <Descriptions size='small' column={1}>
+                          <Descriptions.Item label='Tên'>{foundStudent.fullname}</Descriptions.Item>
+                          <Descriptions.Item label='Lớp'>
+                            <Tag color='blue'>{foundStudent.className}</Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label='Giới tính'>
+                            <Tag color={foundStudent.gender === 'Male' ? 'cyan' : 'pink'}>
+                              {foundStudent.gender === 'Male'
+                                ? 'Nam'
+                                : foundStudent.gender === 'Female'
+                                  ? 'Nữ'
+                                  : foundStudent.gender}
+                            </Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label='Ngày sinh'>
+                            {foundStudent.dateOfBirth ? dayjs(foundStudent.dateOfBirth).format('DD/MM/YYYY') : ''}
+                          </Descriptions.Item>
+                          <Descriptions.Item label='Phụ huynh'>{foundStudent.parentName}</Descriptions.Item>
+                        </Descriptions>
+                      }
+                      type='success'
+                      showIcon
+                    />
+                  ) : (
+                    <Alert
+                      message='Chưa tìm thấy học sinh'
+                      description='Vui lòng nhập mã học sinh để hiển thị thông tin'
+                      type='info'
+                      showIcon
+                    />
+                  )}
+                </Col>
+              </Row>
+            </Card>
 
-          <Form.Item label='Thuốc sử dụng' required>
-            <Select
-              mode='multiple'
-              placeholder='Chọn thuốc'
-              options={medicationOptions}
-              value={selectedMedications.map((m) => m.medicationId)}
-              onChange={(ids: number[]) => {
-                setSelectedMedications(
-                  ids.map((id) => {
-                    const exist = selectedMedications.find((m) => m.medicationId === id)
-                    return exist || { medicationId: id, quantityUsed: 1 }
-                  })
-                )
-              }}
-            />
-            {selectedMedications.map((item) => {
-              const medication = medicationOptions.find((opt) => opt.value === item.medicationId)
-              const unitName = medication ? getMedicationUnit(medication.type) : 'đơn vị'
-              
-              return (
-                <div key={item.medicationId} style={{ margin: '8px 0 0 0' }}>
-                  <span>{medication?.label}:</span>
-                  <span style={{ marginLeft: 8 }}>Số lượng ({unitName}):</span>
-                  <InputNumber
-                    placeholder='Nhập số lượng'
-                    min={1}
-                    max={10}
-                    style={{ width: 100, marginLeft: 8 }}
-                    value={item.quantityUsed}
-                    onChange={(val) => {
-                      setSelectedMedications(
-                        selectedMedications.map((m) =>
-                          m.medicationId === item.medicationId ? { ...m, quantityUsed: typeof val === 'number' && !isNaN(val) ? val : 1 } : m
+            {/* Mô tả sự kiện */}
+            <Card
+              title={
+                <Space>
+                  <FileTextOutlined />
+                  <span>Mô tả sự kiện</span>
+                </Space>
+              }
+              style={{ marginBottom: 24 }}
+              size='small'
+            >
+              <Row gutter={[24, 16]}>
+                <Col span={24}>
+                  <Form.Item
+                    name='description'
+                    label='Mô tả chi tiết'
+                    rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
+                  >
+                    <TextArea rows={4} placeholder='Nhập mô tả chi tiết về sự kiện...' showCount maxLength={500} />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name='note' label='Ghi chú thêm'>
+                    <TextArea rows={3} placeholder='Nhập ghi chú thêm nếu cần...' showCount maxLength={300} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            {/* Thuốc và vật tư y tế */}
+            <Card
+              title={
+                <Space>
+                  <MedicineBoxOutlined />
+                  <span>Thuốc và vật tư y tế sử dụng</span>
+                </Space>
+              }
+              style={{ marginBottom: 24 }}
+              size='small'
+            >
+              <Row gutter={[24, 24]}>
+                <Col xs={24} lg={12}>
+                  <Form.Item label='Thuốc sử dụng'>
+                    <Select
+                      mode='multiple'
+                      placeholder='Chọn thuốc đã sử dụng'
+                      options={medicationOptions}
+                      value={selectedMedications.map((m) => m.medicationId)}
+                      size='large'
+                      onChange={(ids: number[]) => {
+                        setSelectedMedications(
+                          ids.map((id) => {
+                            const exist = selectedMedications.find((m) => m.medicationId === id)
+                            return exist || { medicationId: id, quantityUsed: 1 }
+                          })
                         )
-                      )
-                    }}
-                  />
-                </div>
-              )
-            })}
-          </Form.Item>
-
-          <Form.Item 
-            required
-            label='Vật tư y tế sử dụng'
-            rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế đã sử dụng!' }]}
-          >
-            <Select
-              mode='multiple'
-              placeholder='Chọn vật tư y tế'
-              options={medicalSupplyOptions}
-              value={selectedMedicalSupplies.map((m) => m.medicalSupplyId)}
-              onChange={(ids: number[]) => {
-                setSelectedMedicalSupplies(
-                  ids.map((id) => {
-                    const exist = selectedMedicalSupplies.find((m) => m.medicalSupplyId === id)
-                    return exist || { medicalSupplyId: id, quantityUsed: 1 }
-                  })
-                )
-              }}
-            />
-            {selectedMedicalSupplies.map((item) => {
-              const supply = medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)
-              const unitName = supply ? getMedicalSupplyUnit(supply.type, supply.label) : 'đơn vị'
-              
-              return (
-                <div key={item.medicalSupplyId} style={{ margin: '8px 0 0 0' }}>
-                  <span>{supply?.label}:</span>
-                  <span style={{ marginLeft: 8 }}>Số lượng ({unitName}):</span>
-                  <InputNumber
-                    placeholder='Nhập số lượng'
-                    min={1}
-                    max={50}
-                    style={{ width: 100, marginLeft: 8 }}
-                    value={item.quantityUsed}
-                    onChange={(val) => {
-                      setSelectedMedicalSupplies(
-                        selectedMedicalSupplies.map((m) =>
-                          m.medicalSupplyId === item.medicalSupplyId
-                            ? { ...m, quantityUsed: typeof val === 'number' && !isNaN(val) ? val : 1 }
-                            : m
+                      }}
+                    />
+                    <div style={{ marginTop: 16 }}>
+                      {selectedMedications.map((item) => {
+                        const medication = medicationOptions.find((opt) => opt.value === item.medicationId)
+                        const unitName = medication ? getMedicationUnit(medication.type) : 'đơn vị'
+                        return (
+                          <Card key={item.medicationId} size='small' style={{ marginBottom: 8 }}>
+                            <Row align='middle' justify='space-between'>
+                              <Col>
+                                <Text strong>{medication?.label}</Text>
+                              </Col>
+                              <Col>
+                                <Space>
+                                  <Text>Số lượng ({unitName}):</Text>
+                                  <InputNumber
+                                    min={1}
+                                    max={10}
+                                    value={item.quantityUsed}
+                                    onChange={(val) => {
+                                      setSelectedMedications(
+                                        selectedMedications.map((m) =>
+                                          m.medicationId === item.medicationId
+                                            ? { ...m, quantityUsed: typeof val === 'number' && !isNaN(val) ? val : 1 }
+                                            : m
+                                        )
+                                      )
+                                    }}
+                                  />
+                                </Space>
+                              </Col>
+                            </Row>
+                          </Card>
                         )
-                      )
-                    }}
-                  />
-                </div>
-              )
-            })}
-          </Form.Item>
-        </Form>
+                      })}
+                    </div>
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} lg={12}>
+                  <Form.Item
+                    label='Vật tư y tế sử dụng'
+                    rules={[{ required: true, message: 'Vui lòng chọn vật tư y tế đã sử dụng!' }]}
+                  >
+                    <Select
+                      mode='multiple'
+                      placeholder='Chọn vật tư y tế đã sử dụng'
+                      options={medicalSupplyOptions}
+                      value={selectedMedicalSupplies.map((m) => m.medicalSupplyId)}
+                      size='large'
+                      onChange={(ids: number[]) => {
+                        setSelectedMedicalSupplies(
+                          ids.map((id) => {
+                            const exist = selectedMedicalSupplies.find((m) => m.medicalSupplyId === id)
+                            return exist || { medicalSupplyId: id, quantityUsed: 1 }
+                          })
+                        )
+                      }}
+                    />
+                    <div style={{ marginTop: 16 }}>
+                      {selectedMedicalSupplies.map((item) => {
+                        const supply = medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)
+                        const unitName = supply ? getMedicalSupplyUnit(supply.type, supply.label) : 'đơn vị'
+                        return (
+                          <Card key={item.medicalSupplyId} size='small' style={{ marginBottom: 8 }}>
+                            <Row align='middle' justify='space-between'>
+                              <Col>
+                                <Text strong>{supply?.label}</Text>
+                              </Col>
+                              <Col>
+                                <Space>
+                                  <Text>Số lượng ({unitName}):</Text>
+                                  <InputNumber
+                                    min={1}
+                                    max={50}
+                                    value={item.quantityUsed}
+                                    onChange={(val) => {
+                                      setSelectedMedicalSupplies(
+                                        selectedMedicalSupplies.map((m) =>
+                                          m.medicalSupplyId === item.medicalSupplyId
+                                            ? { ...m, quantityUsed: typeof val === 'number' && !isNaN(val) ? val : 1 }
+                                            : m
+                                        )
+                                      )
+                                    }}
+                                  />
+                                </Space>
+                              </Col>
+                            </Row>
+                          </Card>
+                        )
+                      })}
+                    </div>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <Divider />
+
+            <Row justify='center'>
+              <Col>
+                <Button
+                  type='primary'
+                  icon={<PlusOutlined />}
+                  onClick={() => form.submit()}
+                  loading={isSubmitting}
+                  size='large'
+                  style={{
+                    height: 48,
+                    paddingLeft: 32,
+                    paddingRight: 32,
+                    borderRadius: 8,
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                >
+                  {isSubmitting ? 'Đang tạo báo cáo...' : 'Tạo báo cáo sự kiện y tế'}
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
       </Space>
-      <Row justify='space-between' align='middle'>
-        <Col>
-          <Button type='primary' icon={<PlusOutlined />} onClick={() => form.submit()} loading={isSubmitting}>
-            Tạo báo cáo
-          </Button>
-        </Col>
-      </Row>
-    </Card>
+    </div>
   )
 }
 

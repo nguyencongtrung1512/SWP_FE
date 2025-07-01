@@ -262,7 +262,7 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
                       </div>
 
                       <div className='space-y-2'>
-                        <Label>Hạn sử dụng thuốc</Label>
+                        <Label>Ngày sử dụng thuốc</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -277,7 +277,7 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
                               {medication.expiredDate ? (
                                 format(medication.expiredDate, 'dd/MM/yyyy', { locale: vi })
                               ) : (
-                                <span>Chọn ngày hết hạn</span>
+                                <span>Ngày sử dụng thuốc</span>
                               )}
                             </Button>
                           </PopoverTrigger>

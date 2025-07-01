@@ -237,8 +237,8 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
                       mode='single'
                       selected={selectedDate}
                       onSelect={setSelectedDate}
-                      disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
-                      // disabled={(date) => date < new Date()}
+                      // disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
+                      disabled={(date) => date < new Date()}
                       initialFocus
                       className='p-3 pointer-events-auto'
                     />

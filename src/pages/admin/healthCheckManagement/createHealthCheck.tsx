@@ -26,11 +26,6 @@ interface HealthCheckList extends OriginalHealthCheckList {
   nurseFullName?: string
 }
 
-interface DisabledTimes {
-  disabledHours: number[]
-  disabledMinutes: number[]
-}
-
 const ScheduleHealthCheck: React.FC = () => {
   const [examinationForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<'1' | '2' | '3'>('1')
@@ -39,6 +34,7 @@ const ScheduleHealthCheck: React.FC = () => {
   const [classes, setClasses] = useState<Class[]>([])
   const [searchText, setSearchText] = useState('')
   const [selectedExamination, setSelectedExamination] = useState<HealthCheckList | null>(null)
+  const [selectedNurseID, setSelectedNurseID] = useState<number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
@@ -82,30 +78,28 @@ const ScheduleHealthCheck: React.FC = () => {
     }
   }
 
-  const getDisabledTimes = (selectedDate: dayjs.Dayjs | null, examinations: HealthCheckList[]): DisabledTimes => {
-    if (!selectedDate) return { disabledHours: [], disabledMinutes: [] }
-
-    const selectedDateStr = selectedDate.format('YYYY-MM-DD')
-    const examinationsOnDate = examinations.filter(examination =>
-      dayjs(examination.date).format('YYYY-MM-DD') === selectedDateStr
+  const isTimeConflict = (selectedTime: dayjs.Dayjs, nurseID: number): boolean => {
+    const selectedDateStr = selectedTime.format('YYYY-MM-DD')
+    const nurseExaminations = uniqueHealthChecks.filter(
+      exam => 
+        exam.nurseID === nurseID &&
+        dayjs(exam.date).format('YYYY-MM-DD') === selectedDateStr
     )
 
-    const disabledHours: number[] = []
+    for (const exam of nurseExaminations) {
+      const examStart = dayjs.utc(exam.date).local()
+      const examEnd = examStart.add(30, 'minute')
+      const selectedStart = selectedTime
+      const selectedEnd = selectedTime.add(30, 'minute')
 
-    examinationsOnDate.forEach(examination => {
-      const examinationTime = dayjs.utc(examination.date).local()
-
-      const startTime = examinationTime.subtract(30, 'minute')
-      const endTime = examinationTime.add(30, 'minute')
-
-      for (let h = startTime.hour(); h <= endTime.hour(); h++) {
-        if (h >= 8 && h <= 16) {
-          disabledHours.push(h)
-        }
+      if (
+        (selectedStart.isBefore(examEnd) && selectedEnd.isAfter(examStart)) ||
+        selectedStart.isSame(examStart)
+      ) {
+        return true
       }
-    })
-
-    return { disabledHours: [], disabledMinutes: [] }
+    }
+    return false
   }
 
   const handleCreateExamination = async (values: any) => {
@@ -146,6 +140,8 @@ const ScheduleHealthCheck: React.FC = () => {
         v.healthCheckDescription === value.healthCheckDescription
     )
   )
+
+  console.log('Examinations:', uniqueHealthChecks)
 
   const columns: ColumnsType<HealthCheckList> = [
     { title: 'Y tá phụ trách', dataIndex: 'nurseFullName', key: 'nurseFullName' },
@@ -192,7 +188,7 @@ const ScheduleHealthCheck: React.FC = () => {
         <Card className='max-w-3xl'>
           <Form form={examinationForm} layout='vertical' onFinish={handleCreateExamination}>
             <Form.Item name='nurseID' label='Y tá phụ trách' rules={[{ required: true, message: 'Vui lòng chọn y tá phụ trách' }]}>
-              <Select placeholder='Chọn y tá'>
+              <Select placeholder='Chọn y tá' onChange={(value) => setSelectedNurseID(value)}>
                 {nurses.map((n) => (
                   <Option key={n.accountID} value={n.accountID}>
                     {n.fullname}
@@ -203,52 +199,34 @@ const ScheduleHealthCheck: React.FC = () => {
             <Form.Item name='date' label='Ngày khám' rules={[{ required: true, message: 'Vui lòng chọn ngày khám sức khỏe' }]}>
               <DatePicker
                 placeholder='Chọn ngày khám'
-                showTime={{ format: 'HH:mm', defaultValue: dayjs('08:00', 'HH:mm') }}
+                showTime={{ 
+                  format: 'HH:mm', 
+                  defaultValue: dayjs('08:00', 'HH:mm')
+                }}
                 style={{ width: '100%' }}
                 disabledDate={(current) => {
                   return current && current < dayjs().add(3, 'day').startOf('day')
                 }}
                 disabledTime={(selectedDate) => {
-                  const { disabledHours } = getDisabledTimes(selectedDate, examinations)
-                  
+                  if (!selectedDate || selectedNurseID == null) {
+                    return {
+                      disabledHours: () => Array.from({ length: 24 }, (_, i) => i).filter(h => h < 8 || h > 16),
+                      disabledMinutes: () => []
+                    }
+                  }
+
                   return {
-                    disabledHours: () => {
-                      const businessHoursDisabled = Array.from({ length: 24 }, (_, i) => i).filter(
-                        (hour) => hour < 8 || hour > 16
-                      )
-                      return [...businessHoursDisabled, ...disabledHours]
-                    },
+                    disabledHours: () => Array.from({ length: 24 }, (_, i) => i).filter(h => h < 8 || h > 16),
                     disabledMinutes: (selectedHour) => {
-                      if (!selectedDate) return []
-                      const selectedDateStr = selectedDate.format('YYYY-MM-DD')
-                      
-                      const examinationsAtHour = examinations.filter(examination => {
-                        const examinationDate = dayjs(examination.date)
-                        return examinationDate.format('YYYY-MM-DD') === selectedDateStr && examinationDate.hour() === selectedHour
-                      })
-                      
-                      const examinationsAtNextHour = examinations.filter(examination => {
-                        const examinationDate = dayjs(examination.date)
-                        return examinationDate.format('YYYY-MM-DD') === selectedDateStr && examinationDate.hour() === selectedHour + 1
-                      })
-                      
                       const disabledMinutes: number[] = []
-                      
-                      examinationsAtHour.forEach(examination => {
-                        const examinationMinute = dayjs(examination.date).minute()
-                        for (let m = Math.max(0, examinationMinute - 30); m <= Math.min(59, examinationMinute + 30); m++) {
-                          disabledMinutes.push(m)
+                      for (let minute = 0; minute < 60; minute++) {
+                        const testTime = selectedDate.hour(selectedHour).minute(minute).second(0)
+                        if (isTimeConflict(testTime, selectedNurseID)) {
+                          disabledMinutes.push(minute)
                         }
-                      })
+                      }
                       
-                      examinationsAtNextHour.forEach(examination => {
-                        const examinationMinute = dayjs(examination.date).minute()
-                        for (let m = Math.max(0, examinationMinute + 30); m <= 59; m++) {
-                          disabledMinutes.push(m)
-                        }
-                      })
-                      
-                      return [...new Set(disabledMinutes)]
+                      return disabledMinutes
                     }
                   }
                 }}

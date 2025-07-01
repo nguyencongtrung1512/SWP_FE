@@ -280,6 +280,7 @@ const PrivateConsultation: React.FC = () => {
         const isOverdue =
           record.status === 'Pending' && record.scheduledTime && dayjs(record.scheduledTime).isBefore(now)
         const isDone = record.status === 'Done'
+        const isDoneOrCancelled = record.status === 'Done' || record.status === 'Cancelled'
 
         return (
           <Space wrap>

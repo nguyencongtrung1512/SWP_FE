@@ -151,8 +151,9 @@ const VideoCall: React.FC = () => {
   const handleToggleMute = () => {
     const audioTrack = localTracks.find(track => track && 'setEnabled' in track && track.getTrackLabel && track.getTrackLabel().toLowerCase().includes('microphone')) as IMicrophoneAudioTrack | undefined
     if (audioTrack) {
-      audioTrack.setEnabled(!isMuted)
-      setIsMuted(!isMuted)
+      const newMutedState = !isMuted
+      audioTrack.setEnabled(!newMutedState)
+      setIsMuted(newMutedState)
     }
   }
 

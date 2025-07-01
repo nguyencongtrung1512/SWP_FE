@@ -18,6 +18,8 @@ export interface CreateMedicationRequest {
 }
 
 export interface MedicationRequestHistory {
+  className: string;
+  studentCode: string;
   requestId: number;
   studentId: number;
   studentName: string;

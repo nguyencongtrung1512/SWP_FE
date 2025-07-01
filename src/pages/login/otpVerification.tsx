@@ -21,7 +21,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
     useRef<InputRef>(null),
     useRef<InputRef>(null),
   ]
-  const [countdown, setCountdown] = useState(60)
+  const [countdown, setCountdown] = useState(180)
   const [canResend, setCanResend] = useState(false)
 
   useEffect(() => {
@@ -35,15 +35,15 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
 
   const handleResendOtp = async () => {
     await onResendOtp()
-    setCountdown(60)
+    setCountdown(180)
     setCanResend(false)
-  };
+  }
 
   const formVariants = {
     hidden: { opacity: 0, x: 50 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
     exit: { opacity: 0, x: -50, transition: { duration: 0.3 } }
-  };
+  }
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length > 1) {
@@ -143,7 +143,12 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
               Gửi lại mã
             </Button>
           ) : (
-            <span>Gửi lại mã sau {countdown}s</span>
+            <span>
+              Gửi lại mã sau{" "}
+              {countdown < 60
+                ? `${countdown}s`
+                : `${Math.floor(countdown / 60)}m${String(countdown % 60).padStart(2, '0')}s`}
+            </span>
           )}
         </p>
       </div>

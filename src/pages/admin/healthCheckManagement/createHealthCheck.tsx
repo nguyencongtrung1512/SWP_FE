@@ -26,6 +26,11 @@ interface HealthCheckList extends OriginalHealthCheckList {
   nurseFullName?: string
 }
 
+interface DisabledTimes {
+  disabledHours: number[]
+  disabledMinutes: number[]
+}
+
 const ScheduleHealthCheck: React.FC = () => {
   const [examinationForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<'1' | '2' | '3'>('1')
@@ -77,6 +82,32 @@ const ScheduleHealthCheck: React.FC = () => {
     }
   }
 
+  const getDisabledTimes = (selectedDate: dayjs.Dayjs | null, examinations: HealthCheckList[]): DisabledTimes => {
+    if (!selectedDate) return { disabledHours: [], disabledMinutes: [] }
+
+    const selectedDateStr = selectedDate.format('YYYY-MM-DD')
+    const examinationsOnDate = examinations.filter(examination =>
+      dayjs(examination.date).format('YYYY-MM-DD') === selectedDateStr
+    )
+
+    const disabledHours: number[] = []
+
+    examinationsOnDate.forEach(examination => {
+      const examinationTime = dayjs.utc(examination.date).local()
+
+      const startTime = examinationTime.subtract(30, 'minute')
+      const endTime = examinationTime.add(30, 'minute')
+
+      for (let h = startTime.hour(); h <= endTime.hour(); h++) {
+        if (h >= 8 && h <= 16) {
+          disabledHours.push(h)
+        }
+      }
+    })
+
+    return { disabledHours: [], disabledMinutes: [] }
+  }
+
   const handleCreateExamination = async (values: any) => {
     try {
       const payload = {
@@ -91,6 +122,7 @@ const ScheduleHealthCheck: React.FC = () => {
       if (res.data) {
         message.success('Tạo lịch khám sức khỏe thành công!')
         examinationForm.resetFields()
+        setActiveTab('2')
         fetchExaminations()
       }
     } catch {
@@ -129,27 +161,27 @@ const ScheduleHealthCheck: React.FC = () => {
       dataIndex: 'healthCheckDescription',
       key: 'healthCheckDescription'
     },
-    // {
-    //   title: 'Hành động',
-    //   key: 'action',
-    //   render: (_, record) => (
-    //     <Button
-    //       type='link'
-    //       icon={<FileTextOutlined />}
-    //       onClick={() => {
-    //         setSelectedExamination(record)
-    //         setIsModalOpen(true)
-    //       }}
-    //     >
-    //       Xem chi tiết
-    //     </Button>
-    //   )
-    // }
+    {
+      title: 'Hành động',
+      key: 'action',
+      render: (_, record) => (
+        <Button
+          type='link'
+          icon={<FileTextOutlined />}
+          onClick={() => {
+            setSelectedExamination(record)
+            setIsModalOpen(true)
+          }}
+        >
+          Xem chi tiết
+        </Button>
+      )
+    }
   ]
 
   const filteredHealthChecks = uniqueHealthChecks.filter(
     (d) =>
-      d.nurseID.toString().toLowerCase().includes(searchText.toLowerCase())
+      (d.nurseFullName ?? '').toString().toLowerCase().includes(searchText.toLowerCase())
   )
 
   const items: TabsProps['items'] = [
@@ -170,19 +202,56 @@ const ScheduleHealthCheck: React.FC = () => {
             </Form.Item>
             <Form.Item name='date' label='Ngày khám' rules={[{ required: true, message: 'Vui lòng chọn ngày khám sức khỏe' }]}>
               <DatePicker
-                showTime
+                placeholder='Chọn ngày khám'
+                showTime={{ format: 'HH:mm', defaultValue: dayjs('08:00', 'HH:mm') }}
                 style={{ width: '100%' }}
                 disabledDate={(current) => {
                   return current && current < dayjs().add(3, 'day').startOf('day')
                 }}
-                disabledTime={() => ({
-                  disabledHours: () =>
-                    Array.from({ length: 24 }, (_, i) => i).filter(
-                      (hour) => hour < 8 || hour > 16
-                    ),
-                  disabledMinutes: () => [],
-                  disabledSeconds: () => [],
-                })}
+                disabledTime={(selectedDate) => {
+                  const { disabledHours } = getDisabledTimes(selectedDate, examinations)
+                  
+                  return {
+                    disabledHours: () => {
+                      const businessHoursDisabled = Array.from({ length: 24 }, (_, i) => i).filter(
+                        (hour) => hour < 8 || hour > 16
+                      )
+                      return [...businessHoursDisabled, ...disabledHours]
+                    },
+                    disabledMinutes: (selectedHour) => {
+                      if (!selectedDate) return []
+                      const selectedDateStr = selectedDate.format('YYYY-MM-DD')
+                      
+                      const examinationsAtHour = examinations.filter(examination => {
+                        const examinationDate = dayjs(examination.date)
+                        return examinationDate.format('YYYY-MM-DD') === selectedDateStr && examinationDate.hour() === selectedHour
+                      })
+                      
+                      const examinationsAtNextHour = examinations.filter(examination => {
+                        const examinationDate = dayjs(examination.date)
+                        return examinationDate.format('YYYY-MM-DD') === selectedDateStr && examinationDate.hour() === selectedHour + 1
+                      })
+                      
+                      const disabledMinutes: number[] = []
+                      
+                      examinationsAtHour.forEach(examination => {
+                        const examinationMinute = dayjs(examination.date).minute()
+                        for (let m = Math.max(0, examinationMinute - 30); m <= Math.min(59, examinationMinute + 30); m++) {
+                          disabledMinutes.push(m)
+                        }
+                      })
+                      
+                      examinationsAtNextHour.forEach(examination => {
+                        const examinationMinute = dayjs(examination.date).minute()
+                        for (let m = Math.max(0, examinationMinute + 30); m <= 59; m++) {
+                          disabledMinutes.push(m)
+                        }
+                      })
+                      
+                      return [...new Set(disabledMinutes)]
+                    }
+                  }
+                }}
               />
             </Form.Item>
             <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả buổi khám sức khỏe' }]}>

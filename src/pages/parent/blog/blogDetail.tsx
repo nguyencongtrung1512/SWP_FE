@@ -91,7 +91,7 @@ const BlogDetail: React.FC = () => {
           </div>
         </div>
 
-        <div className='mb-8 text-center text-gray-600 text-lg'>
+        <div className='max-w-4xl mb-8 text-left text-gray-600 text-lg ml-10 break-words overflow-hidden mr-10'>
           {blog.description}
         </div>
 

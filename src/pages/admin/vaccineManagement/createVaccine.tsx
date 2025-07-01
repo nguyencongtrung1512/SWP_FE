@@ -35,11 +35,15 @@ const { Title } = Typography
 const { Option } = Select
 const { Search } = Input
 
+interface DisabledTimes {
+  disabledHours: number[]
+  disabledMinutes: number[]
+}
+
 const ScheduleVaccination: React.FC = () => {
   const [vaccineForm] = Form.useForm()
   const [campaignForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<'1' | '2' | '3'>('1')
-
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [classes, setClasses] = useState<Class[]>([])
   const [campaigns, setCampaigns] = useState<VaccinationCampaign[]>([])
@@ -76,7 +80,7 @@ const ScheduleVaccination: React.FC = () => {
     try {
       const res = await getAllVaccinationCampaigns()
       const campaignsData = res.data?.$values || []
-
+      console.log('API trả về:', campaignsData)
       setCampaigns(
         campaignsData.map((item) => ({
           ...item,
@@ -118,6 +122,37 @@ const ScheduleVaccination: React.FC = () => {
       message.error(error?.response?.data?.message || 'Tạo lịch tiêm thất bại!')
     }
   }
+
+  const getDisabledTimes = (selectedDate: dayjs.Dayjs | null, campaigns: VaccinationCampaign[]): DisabledTimes => {
+    if (!selectedDate) return { disabledHours: [], disabledMinutes: [] }
+
+    const selectedDateStr = selectedDate.format('YYYY-MM-DD')
+    const campaignsOnDate = campaigns.filter(campaign =>
+      dayjs(campaign.date).format('YYYY-MM-DD') === selectedDateStr
+    )
+
+    const disabledHours: number[] = []
+    const disabledMinutes: number[] = []
+
+    campaignsOnDate.forEach(campaign => {
+      const campaignTime = dayjs.utc(campaign.date).local()
+
+      const startTime = campaignTime.subtract(30, 'minute')
+      const endTime = campaignTime.add(30, 'minute')
+
+      for (let h = startTime.hour(); h <= endTime.hour(); h++) {
+        if (h >= 8 && h <= 16) {
+          disabledHours.push(h)
+        }
+      }
+    })
+
+    return {
+      disabledHours: [...new Set(disabledHours)],
+      disabledMinutes
+    }
+  }
+
 
   const columns: ColumnsType<VaccinationCampaign> = [
     { title: 'Tên chiến dịch', dataIndex: 'name', key: 'name' },
@@ -195,19 +230,55 @@ const ScheduleVaccination: React.FC = () => {
             </Form.Item>
             <Form.Item name='date' label='Ngày tiêm' rules={[{ required: true, message: 'Vui lòng chọn ngày tiêm' }]}>
               <DatePicker
-                showTime
+                placeholder='Chọn ngày tiêm'
+                showTime={{ format: 'HH:mm', defaultValue: dayjs('08:00', 'HH:mm') }}
                 style={{ width: '100%' }}
-                disabledDate={(current) => {
-                  return current && current < dayjs().add(3, 'day').startOf('day')
+                disabledDate={(current) => { 
+                  return current && current < dayjs().add(3, 'day').startOf('day') 
                 }}
-                disabledTime={() => ({
-                  disabledHours: () =>
-                    Array.from({ length: 24 }, (_, i) => i).filter(
-                      (hour) => hour < 8 || hour > 16
-                    ),
-                  disabledMinutes: () => [],
-                  disabledSeconds: () => [],
-                })}
+                disabledTime={(selectedDate) => {
+                  const { disabledHours } = getDisabledTimes(selectedDate, campaigns)
+                  
+                  return {
+                    disabledHours: () => {
+                      const businessHoursDisabled = Array.from({ length: 24 }, (_, i) => i).filter(
+                        (hour) => hour < 8 || hour > 16
+                      )
+                      return [...businessHoursDisabled, ...disabledHours]
+                    },
+                    disabledMinutes: (selectedHour) => {
+                      if (!selectedDate) return []
+                      const selectedDateStr = selectedDate.format('YYYY-MM-DD')
+                      
+                      const campaignsAtHour = campaigns.filter(campaign => {
+                        const campaignDate = dayjs(campaign.date)
+                        return campaignDate.format('YYYY-MM-DD') === selectedDateStr && campaignDate.hour() === selectedHour
+                      })
+                      
+                      const campaignsAtNextHour = campaigns.filter(campaign => {
+                        const campaignDate = dayjs(campaign.date)
+                        return campaignDate.format('YYYY-MM-DD') === selectedDateStr && campaignDate.hour() === selectedHour + 1
+                      })
+                      
+                      const disabledMinutes: number[] = []
+                      campaignsAtHour.forEach(campaign => {
+                        const campaignMinute = dayjs(campaign.date).minute()
+                        for (let m = Math.max(0, campaignMinute - 30); m <= Math.min(59, campaignMinute + 30); m++) {
+                          disabledMinutes.push(m)
+                        }
+                      })
+                      
+                      campaignsAtNextHour.forEach(campaign => {
+                        const campaignMinute = dayjs(campaign.date).minute()
+                        for (let m = Math.max(0, campaignMinute + 30); m <= 59; m++) {
+                          disabledMinutes.push(m)
+                        }
+                      })
+                      
+                      return [...new Set(disabledMinutes)]
+                    }
+                  }
+                }}
               />
             </Form.Item>
             <Form.Item name='description' label='Mô tả' rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>

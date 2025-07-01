@@ -112,7 +112,7 @@ function Header() {
               alt='avatar'
               className='w-10 h-10 rounded-full border-2 border-blue-400 object-cover'
             />
-            <span className='font-semibold text-gray-800 mr-1'>{user.name}</span>
+            <span className='font-semibold text-gray-800 mr-1'>{user.fullname}</span>
           </button>
           {open && (
             <div className='absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200'>

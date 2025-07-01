@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Button, Space, Popconfirm, message, Input, Select, DatePicker, Card, Row, Col } from 'antd'
+import { Table, Button, Space, Popconfirm, Input, Select, DatePicker, Card, Row, Col } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons'
 import { getAllMedications, deleteMedication } from '../../../apis/medication'
 import type { Medication } from '../../../apis/medication'
@@ -7,8 +7,22 @@ import CreateMedication from './Create'
 import UpdateMedication from './Update'
 import MedicationDetail from './Detail'
 import dayjs from 'dayjs'
+import { toast } from 'react-toastify'
 
 const { Search } = Input
+
+const medicationTypes = [
+  { label: 'Viên nén', value: 'Tablet' },
+  { label: 'Viên nang', value: 'Capsule' },
+  { label: 'Dung dịch', value: 'Solution' },
+  { label: 'Bột', value: 'Powder' },
+  { label: 'Siro', value: 'Syrup' },
+  { label: 'Kem', value: 'Cream' },
+  { label: 'Thuốc mỡ', value: 'Ointment' },
+  { label: 'Thuốc tiêm', value: 'Injection' },
+  { label: 'Nhỏ mắt', value: 'Eye drops' },
+  { label: 'Khác', value: 'Other' }
+]
 
 const MedicationList: React.FC = () => {
   const [medications, setMedications] = useState<Medication[]>([])
@@ -31,7 +45,7 @@ const MedicationList: React.FC = () => {
       setFilteredMedications(response.data.$values)
     } catch (error) {
       console.error('Error fetching medications:', error)
-      message.error('Có lỗi xảy ra khi tải danh sách thuốc!')
+      toast.error('Có lỗi xảy ra khi tải danh sách thuốc!')
     } finally {
       setLoading(false)
     }
@@ -60,7 +74,6 @@ const MedicationList: React.FC = () => {
       result = result.filter((medication) => dayjs(medication.expiredDate).isSame(selectedDate, 'day'))
     }
 
-    // Sắp xếp theo ngày hết hạn
     result = result.sort((a, b) => {
       const dateA = new Date(a.expiredDate).getTime()
       const dateB = new Date(b.expiredDate).getTime()
@@ -73,11 +86,11 @@ const MedicationList: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await deleteMedication(id)
-      message.success('Xóa thuốc thành công!')
+      toast.success('Xóa thuốc thành công!')
       fetchMedications()
     } catch (error) {
       console.error('Error deleting medication:', error)
-      message.error('Có lỗi xảy ra khi xóa thuốc!')
+      toast.error('Có lỗi xảy ra khi xóa thuốc!')
     }
   }
 
@@ -99,6 +112,11 @@ const MedicationList: React.FC = () => {
     setSelectedDate(null)
   }
 
+  const medicationTypeMap = medicationTypes.reduce((acc, curr) => {
+    acc[curr.value] = curr.label
+    return acc
+  }, {} as Record<string, string>)
+
   const columns = [
     {
       title: 'Tên thuốc',
@@ -108,7 +126,8 @@ const MedicationList: React.FC = () => {
     {
       title: 'Loại thuốc',
       dataIndex: 'type',
-      key: 'type'
+      key: 'type',
+      render: (type: string) => medicationTypeMap[type] || type
     },
     {
       title: 'Số lượng',
@@ -162,8 +181,6 @@ const MedicationList: React.FC = () => {
     }
   ]
 
-  const uniqueTypes = Array.from(new Set(medications.map((med) => med.type)))
-
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
@@ -185,7 +202,7 @@ const MedicationList: React.FC = () => {
               allowClear
               onChange={handleTypeChange}
               value={selectedType || undefined}
-              options={uniqueTypes.map((type) => ({ label: type, value: type }))}
+              options={medicationTypes}
             />
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>

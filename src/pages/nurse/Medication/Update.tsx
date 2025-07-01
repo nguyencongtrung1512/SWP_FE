@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
-import { Modal, Form, Input, DatePicker, message, Select } from 'antd'
+import { Modal, Form, Input, DatePicker, Select, Tooltip, InputNumber } from 'antd'
 import { updateMedication } from '../../../apis/medication'
 import type { Medication } from '../../../apis/medication'
 import dayjs from 'dayjs'
+import { InfoCircleOutlined } from '@ant-design/icons'
+import { toast } from 'react-toastify'
 
 interface UpdateMedicationProps {
   isModalVisible: boolean
@@ -26,6 +28,7 @@ const medicationTypes = [
 const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onCancel, onSuccess, selectedMedication }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
+  const selectedType = Form.useWatch('type', form)
 
   useEffect(() => {
     if (selectedMedication) {
@@ -46,16 +49,65 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
         ...values,
         expiredDate: values.expiredDate.toISOString()
       })
-      message.success('Cập nhật thuốc thành công!')
+      toast.success('Cập nhật thuốc thành công!')
       form.resetFields()
       onSuccess()
     } catch (error) {
       console.error('Error updating medication:', error)
-      message.error('Có lỗi xảy ra khi cập nhật thuốc!')
+      toast.error('Có lỗi xảy ra khi cập nhật thuốc!')
     } finally {
       setLoading(false)
     }
   }
+
+  const getMedicationUnit = (type: string): string => {
+    const typeUpper = type.toUpperCase()
+    switch (typeUpper) {
+      case 'TABLET':
+        return 'viên'
+      case 'CAPSULE':
+        return 'viên'
+      case 'SYRUP':
+        return 'lọ'
+      case 'CREAM':
+        return 'tuýp'
+      case 'OINTMENT':
+        return 'tuýp'
+      case 'SOLUTION':
+        return 'lọ'
+      case 'INJECTION':
+        return 'ống'
+      case 'EYE DROPS':
+        return 'lọ'
+      case 'POWDER':
+        return 'gói'
+      default:
+        return 'đơn vị'
+    }
+  }
+
+  const getMinMaxByType = (type: string): { min: number; max: number } => {
+    switch (type?.toUpperCase()) {
+      case 'TABLET':
+      case 'CAPSULE':
+        return { min: 1, max: 500 }
+      case 'POWDER':
+        return { min: 1, max: 100 }
+      case 'SOLUTION':
+      case 'SYRUP':
+        return { min: 1, max: 100 }
+      case 'CREAM':
+      case 'OINTMENT':
+        return { min: 1, max: 200 }
+      case 'INJECTION':
+        return { min: 1, max: 50 }
+      default:
+        return { min: 1, max: 999 }
+    }
+  }
+
+  const { min, max } = getMinMaxByType(selectedType)
+  const unitName = getMedicationUnit(selectedType || '')
 
   return (
     <Modal
@@ -104,13 +156,20 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
 
         <Form.Item
           name='expiredDate'
-          label='Ngày hết hạn'
+          label={
+            <span>
+              Ngày hết hạn&nbsp;
+              <Tooltip title='Ngày hết hạn phải cách hiện tại ít nhất 5 tháng và trong vòng 5 năm' className='ml-1'>
+                <InfoCircleOutlined style={{ color: '#999' }} />
+              </Tooltip>
+            </span>
+          }
           rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}
         >
           <DatePicker
             style={{ width: '100%' }}
             format='DD/MM/YYYY'
-            placeholder='Chọn ngày hết hạn cách hiện tại ít nhất 5 tháng và không quá 5 năm'
+            placeholder='Chọn ngày hết hạn'
             disabledDate={(current) => {
               const now = dayjs()
               const minDate = now.add(5, 'months')
@@ -120,8 +179,25 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
           />
         </Form.Item>
 
-        <Form.Item name='quantity' label='Số lượng' rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
-          <Input type='number' min={1} placeholder='Nhập số lượng' />
+        <Form.Item 
+          name='quantity' 
+          label={`Số lượng ${unitName ? `(${unitName})` : ''}`}
+          rules={[
+            {
+              validator: (_, value) => {
+                if (value === undefined || value === null) return Promise.reject('Vui lòng nhập số lượng!')
+                if (value < min || value > max) {
+                  return Promise.reject(`Số lượng phải từ ${min} đến ${max} (${unitName})`)
+                }
+                return Promise.resolve()
+              }
+            }
+          ]}
+        >
+          <InputNumber
+            style={{ width: '100%' }}
+            placeholder={`Nhập số lượng (${min}-${max})`}
+          />
         </Form.Item>
       </Form>
     </Modal>

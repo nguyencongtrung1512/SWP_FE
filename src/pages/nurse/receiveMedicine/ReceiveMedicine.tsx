@@ -320,7 +320,7 @@ const ReceiveMedicine: React.FC = () => {
                   </Descriptions.Item>
                 </Descriptions>
 
-                <Form form={form} layout='vertical' onFinish={handleAddNote} style={{ marginTop: 16 }}>
+                {/* <Form form={form} layout='vertical' onFinish={handleAddNote} style={{ marginTop: 16 }}>
                   <Form.Item name='nurseNotes' label='Ghi chú của y tá'>
                     <TextArea rows={4} placeholder='Nhập ghi chú của y tá...' />
                   </Form.Item>
@@ -329,7 +329,7 @@ const ReceiveMedicine: React.FC = () => {
                       Lưu ghi chú
                     </Button>
                   </Form.Item>
-                </Form>
+                </Form> */}
               </div>
             )}
           </Modal>

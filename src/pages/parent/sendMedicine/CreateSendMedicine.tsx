@@ -52,10 +52,12 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
       try {
         const res = await getMyChildren()
         if (res.data) {
-          setStudents(res.data.map((s) => ({
-            id: s.studentId,
-            fullname: s.fullname
-          })))
+          setStudents(
+            res.data.map((s) => ({
+              id: s.studentId,
+              fullname: s.fullname
+            }))
+          )
         }
       } catch (error) {
         console.error('Failed to fetch students:', error)
@@ -69,6 +71,10 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
 
     if (!formData.studentId) {
       newErrors.studentId = 'Vui lòng chọn học sinh!'
+    }
+
+    if (!formData.reason) {
+      newErrors.reason = 'Vui lòng nhập lý do gửi thuốc!'
     }
 
     formData.medications.forEach((med, index) => {
@@ -286,7 +292,7 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
                               mode='single'
                               selected={medication.expiredDate}
                               onSelect={(date) => date && updateMedication(index, 'expiredDate', date)}
-                              disabled={(date) => date < new Date()}
+                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                               initialFocus
                             />
                           </PopoverContent>
@@ -330,11 +336,30 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
                 </Button>
               </CardContent>
             </Card>
+            {/*3. lý do gửi thuốc */}
+            <Card className='border-l-4 border-l-purple-500'>
+              <CardHeader>
+                <CardTitle className='text-lg text-gray-800'>3. Lý do gửi thuốc</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='space-y-2'>
+                  <Label htmlFor='reason'>Lý do gửi thuốc *</Label>
+                  <textarea
+                    id='reason'
+                    className={`w-full min-h-[80px] border rounded p-2 ${errors.reason ? 'border-red-500' : ''}`}
+                    placeholder='Nhập lý do gửi thuốc cho học sinh...'
+                    value={formData.reason}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, reason: e.target.value }))}
+                  />
+                  {errors.reason && <p className='text-sm text-red-500'>{errors.reason}</p>}
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* 3. Xác nhận và cam kết */}
+            {/* 4. Xác nhận và cam kết */}
             <Card className='border-l-4 border-l-orange-500'>
               <CardHeader>
-                <CardTitle className='text-lg text-gray-800'>3. Xác nhận và cam kết</CardTitle>
+                <CardTitle className='text-lg text-gray-800'>4. Xác nhận và cam kết</CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div className='flex items-start space-x-3'>

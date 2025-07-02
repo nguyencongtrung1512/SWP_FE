@@ -130,7 +130,7 @@ const MedicalSuppliesList: React.FC = () => {
         }
         return parsedDate.format('DD/MM/YYYY')
       },
-      sorter: (a: MedicalSupply, b: MedicalSupply) => a.expiredDate.localeCompare(b.expiredDate)
+      // sorter: (a: MedicalSupply, b: MedicalSupply) => a.expiredDate.localeCompare(b.expiredDate)
     },
     {
       title: 'Thao tác',

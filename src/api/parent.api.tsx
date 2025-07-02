@@ -16,6 +16,7 @@ export interface Student {
   parentID: number
   parent: null
   classID: number
+  className: string
   _class: null
   healthRecords: any[]
   medicalEvents: any[]

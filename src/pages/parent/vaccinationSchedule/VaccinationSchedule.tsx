@@ -7,15 +7,15 @@ import HistoryVaccination from './HistoryVaccination'
 import HistoryHealthCheck from './HistoryHealthCheck'
 import { getParentNotifications, VaccinationConsent, sendConsent } from '../../../apis/vaccination'
 import { getHealthCheckNotifications, HealthCheckNotification } from '../../../apis/healthCheck'
-import { getAllStudents } from '../../../apis/student'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { getAccountInfo } from '../../../api/parent.api'
 
 dayjs.extend(utc)
 
 interface Child {
   studentId: number
-  studentName: string
+  fullname: string
   studentCode: string
   className: string
 }
@@ -26,18 +26,44 @@ const VaccinationSchedule: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [selectedSchedule, setSelectedSchedule] = useState<VaccinationConsent | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
   const [childrenList, setChildrenList] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [isHealthCheck, setIsHealthCheck] = useState(false)
   
   useEffect(() => {
     const fetchData = async () => {
-      await fetchVaccinationData()
-      await fetchHealthCheckData()
+      await fetchChildrenList()
     }
     fetchData()
-  }, [refreshKey])
+  }, [])
+
+  useEffect(() => {
+    if (childrenList.length > 0) {
+      fetchVaccinationData()
+      fetchHealthCheckData()
+    }
+  }, [childrenList])
+
+  const fetchChildrenList = async () => {
+    try {
+      setLoading(true)
+      const res = await getAccountInfo()
+      const students = res.data.students.$values || []
+      const children: Child[] = students.map((student: any) => ({
+        studentId: student.studentId,
+        fullname: student.fullname || 'N/A',
+        studentCode: student.studentCode || 'N/A',
+        className: student.className || 'N/A'
+      }))
+      console.log('Fetched children list:', children)
+      setChildrenList(children)
+    } catch (err) {
+      console.error(err)
+      message.error('Lấy danh sách học sinh thất bại!')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (childrenList.length > 0 && !selectedChild) {
@@ -49,14 +75,19 @@ const VaccinationSchedule: React.FC = () => {
     try {
       setLoading(true)
       const res = await getParentNotifications()
-      const mapped = res.data.$values.map((item) => ({
+      const allVaccinationData = res.data.$values || []
+      
+      const childrenIds = childrenList.map(child => child.studentId)
+      const filteredData = allVaccinationData.filter((item: VaccinationConsent) => 
+        childrenIds.includes(item.studentId)
+      )
+      
+      const mapped = filteredData.map((item: VaccinationConsent) => ({
         ...item,
         key: item.consentId.toString()
       }))
+      
       setVaccinationData(mapped)
-
-      const childrenFromVaccination = extractChildren(mapped, 'vaccination')
-      updateChildrenList(await childrenFromVaccination)
     } catch (err) {
       console.error(err)
       message.error('Lấy dữ liệu lịch tiêm thất bại!')
@@ -69,57 +100,21 @@ const VaccinationSchedule: React.FC = () => {
     try {
       setLoading(true)
       const res = await getHealthCheckNotifications()
-      console.log('Fetched data:', res.data)
-      setHealthCheckData(res.data.$values)
+      console.log('Fetched health check data:', res.data)
+      const allHealthCheckData = res.data.$values || []
       
-      const childrenFromHealthCheck = extractChildren(res.data.$values, 'healthcheck')
-      updateChildrenList(await childrenFromHealthCheck)
+      const childrenIds = childrenList.map(child => child.studentId)
+      const filteredData = allHealthCheckData.filter((item: HealthCheckNotification) => 
+        childrenIds.includes(item.studentID)
+      )
+      console.log('Filtered health check data:', filteredData)
+      setHealthCheckData(filteredData)
     } catch (err) {
       console.error(err)
       message.error('Lấy dữ liệu lịch khám thất bại!')
     } finally {
       setLoading(false)
     }
-  }
-
-  const extractChildren = async (data: any[], type: 'vaccination' | 'healthcheck'): Promise<Child[]> => {
-    const children: Child[] = []
-    const seen = new Set()
-    
-    let allStudentsData: any[] = []
-    try {
-      const res = await getAllStudents()
-      allStudentsData = res.data.$values || res.data || []
-    } catch (err) {
-      console.error('Error fetching all students:', err)
-    }
-    
-    data.forEach((item) => {
-      const studentId = type === 'vaccination' ? item.studentId : item.studentID
-      const studentName = type === 'vaccination' ? item.studentName : item.studentName
-      
-      if (!seen.has(studentId) && studentId && studentName) {
-        const matchingStudent = allStudentsData.find(student => student.studentId === studentId)
-        
-        children.push({
-          studentId,
-          studentName,
-          studentCode: matchingStudent?.studentCode || 'N/A',
-          className: matchingStudent?.className || 'N/A'
-        })
-        seen.add(studentId)
-      }
-    })
-    
-    return children
-  }
-
-  const updateChildrenList = (newChildren: Child[]) => {
-    setChildrenList(prevChildren => {
-      const existingIds = new Set(prevChildren.map(child => child.studentId))
-      const childrenToAdd = newChildren.filter(child => !existingIds.has(child.studentId))
-      return [...prevChildren, ...childrenToAdd]
-    })
   }
 
   const handleConsent = async (record: VaccinationConsent, isAgreed: boolean) => {
@@ -132,7 +127,7 @@ const VaccinationSchedule: React.FC = () => {
         note
       })
       message.success(isAgreed ? 'Đã đồng ý tiêm!' : 'Đã từ chối tiêm!')
-      setRefreshKey((prev) => prev + 1)
+      await fetchVaccinationData()
     } catch (err) {
       console.error(err)
       message.error('Xử lý thất bại!')
@@ -214,14 +209,24 @@ const VaccinationSchedule: React.FC = () => {
     {
       title: 'Ngày khám',
       dataIndex: 'date',
-      render: (text: string) => dayjs(text).format('DD/MM/YYYY HH:mm'),
+      key: 'date',
+      render: (date: string) => {
+        if (!date) return 'N/A'
+        const parsedDate = dayjs(date)
+        return parsedDate.isValid() ? parsedDate.format('DD/MM/YYYY HH:mm') : 'Invalid Date'
+      },
+      sorter: (a, b) => {
+        const dateA = dayjs(a.date)
+        const dateB = dayjs(b.date)
+        
+        if (!dateA.isValid() && !dateB.isValid()) return 0
+        if (!dateA.isValid()) return 1
+        if (!dateB.isValid()) return -1
+        
+        return dateA.unix() - dateB.unix()
+      },
       align: 'center' as const,
     },
-    // {
-    //   title: 'Y tá phụ trách',
-    //   dataIndex: 'nurseID',
-    //   key: 'nurseID',
-    // }
   ]
 
   return (
@@ -257,10 +262,10 @@ const VaccinationSchedule: React.FC = () => {
                       : 'bg-blue-100 text-blue-500'
                   }`}
                 >
-                  {child.studentName.charAt(0)}
+                  {child.fullname.trim().split(' ').pop()?.charAt(0).toUpperCase()}
                 </div>
                 <div className='flex-1'>
-                  <h3 className='text-gray-800 text-sm font-bold'>{child.studentName}</h3>
+                  <h3 className='text-gray-800 text-sm font-bold'>{child.fullname}</h3>
                   <div className='flex flex-col'>
                     <span className='text-sm text-gray-500'>Mã HS: {child.studentCode}</span>
                     <span className='text-sm text-gray-500'>Lớp: {child.className}</span>
@@ -272,7 +277,7 @@ const VaccinationSchedule: React.FC = () => {
         </div>
       </div>
 
-      <div className='flex-1 p-6 overflow-y-hidden'>
+      <div className='flex-1 p-12 overflow-y-hidden'>
         {selectedChild ? (
           <>
             <div className='mb-6'>
@@ -353,7 +358,7 @@ const VaccinationSchedule: React.FC = () => {
                     showSizeChanger: true,
                     showTotal: (total) => `Tổng số ${total} kế hoạch`
                   }}
-                  rowKey='healthCheckId'
+                  rowKey={(record : HealthCheckNotification) => record.healthCheckID.toString()}
                 />
               ) : (
                 <Table
@@ -365,7 +370,7 @@ const VaccinationSchedule: React.FC = () => {
                     showSizeChanger: true,
                     showTotal: (total) => `Tổng số ${total} kế hoạch`
                   }}
-                  rowKey='key'
+                  rowKey={(record : VaccinationConsent) => record.campaignId.toString()}
                 />
               )}
             </Card>
@@ -397,8 +402,11 @@ const VaccinationSchedule: React.FC = () => {
               <div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto'>
                 <CalendarOutlined className='text-3xl text-gray-400' />
               </div>
-              <h2 className='text-xl font-semibold text-gray-600 mb-2'>Chọn một học sinh</h2>
-              <p className='text-gray-500'>Chọn một học sinh từ thanh bên để xem lịch y tế của các em</p>
+              <div className='text-gray-500 text-xl font-medium'>Danh sách học sinh trống</div>
+              <p className='text-gray-400 mt-2 text-lg mb-6'>Vui lòng thêm thông tin con của bạn để bắt đầu xem lịch y tế</p>
+              <a href='/parent/profile' className='px-6 py-3 border border-blue-500 text-blue-500 rounded-lg font-medium hover:bg-blue-50 transition-colors'>
+                Đi đến hồ sơ
+              </a>
             </div>
           </div>
         )}

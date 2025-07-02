@@ -42,7 +42,12 @@ const ReceiveMedicine: React.FC = () => {
     setLoading(true)
     try {
       const res = await getAllRequests()
-      setRequests(res.$values || [])
+      const sorted = (res.$values || []).sort(
+        (a: MedicationRequestHistory, b: MedicationRequestHistory) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+      )
+      setRequests(sorted)
+      console.log('Fetched requests:', sorted)
     } catch (e) {
       console.error(e)
       toast.error('Lấy danh sách đơn thuốc thất bại')
@@ -96,6 +101,11 @@ const ReceiveMedicine: React.FC = () => {
       title: 'Học sinh',
       dataIndex: 'studentName',
       key: 'studentName'
+    },
+    {
+      title: 'Lớp',
+      dataIndex: 'className',
+      key: 'className',
     },
     {
       title: 'Thuốc',
@@ -201,9 +211,9 @@ const ReceiveMedicine: React.FC = () => {
       toast.success(`Thêm ghi chú thành công!${values.nurseNotes ? ' Nội dung: ' + values.nurseNotes : ''}`)
       setIsModalVisible(false)
     }
+    form.resetFields()
   }
 
-  // Thống kê
   const stats = {
     total: requests.length,
     pending: requests.filter((r) => r.status === 'Pending').length,
@@ -262,7 +272,10 @@ const ReceiveMedicine: React.FC = () => {
               <div>
                 <Descriptions bordered column={2}>
                   <Descriptions.Item label='Học sinh' span={2}>
-                    {selectedRequest.studentName}
+                    {selectedRequest.studentName} (Mã HS: {selectedRequest.studentCode})
+                  </Descriptions.Item>
+                  <Descriptions.Item label='Lớp' span={2}>
+                    {selectedRequest.className}
                   </Descriptions.Item>
                   <Descriptions.Item label='Ngày gửi' span={2}>
                     {dayjs(selectedRequest.dateCreated).format('DD/MM/YYYY HH:mm')}
@@ -287,7 +300,7 @@ const ReceiveMedicine: React.FC = () => {
                     }
                   </Descriptions.Item>
                   <Descriptions.Item label='Ghi chú của phụ huynh' span={2}>
-                    {selectedRequest.parentNote}
+                    {selectedRequest.parentNote ? selectedRequest.parentNote : 'Không có ghi chú'}
                   </Descriptions.Item>
 
                   <Descriptions.Item label='Danh sách thuốc' span={2}>
@@ -324,7 +337,7 @@ const ReceiveMedicine: React.FC = () => {
                   <Form.Item name='nurseNotes' label='Ghi chú của y tá'>
                     <TextArea rows={4} placeholder='Nhập ghi chú của y tá...' />
                   </Form.Item>
-                  <Form.Item>
+                  <Form.Item className='flex justify-end'>
                     <Button type='primary' htmlType='submit'>
                       Lưu ghi chú
                     </Button>

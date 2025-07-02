@@ -280,6 +280,7 @@ const PrivateConsultation: React.FC = () => {
         const isOverdue =
           record.status === 'Pending' && record.scheduledTime && dayjs(record.scheduledTime).isBefore(now)
         const isDone = record.status === 'Done'
+        const isDoneOrCancelled = record.status === 'Done' || record.status === 'Cancelled'
 
         return (
           <Space wrap>
@@ -330,8 +331,16 @@ const PrivateConsultation: React.FC = () => {
                 Hoàn thành
               </Button>
             )}
-
-            {!isDone && !isOverdue && record.status !== 'Cancelled' && (
+            {!isDoneOrCancelled && record.status === 'Confirmed' && (
+              <Button 
+                type='primary' 
+                size='small' 
+                onClick={() => window.location.href = `/nurse/private-consultation/video-call/${record.bookingId}`}
+              >
+                Tham gia cuộc gọi
+              </Button>
+            )}
+            {!isDoneOrCancelled && (
               <Popconfirm
                 title='Xác nhận hủy lịch tư vấn'
                 description='Bạn có chắc chắn muốn hủy lịch tư vấn này?'

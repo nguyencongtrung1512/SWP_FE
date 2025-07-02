@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Table, Button, Modal, Form, Input, Select, message, Card, Row, Col, Space, InputNumber } from 'antd'
+import { Table, Button, Modal, Form, Input, Select, message, Card, Row, Col, Space, InputNumber, DatePicker } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { getRecordsByNurse, HealthCheckRecord, updateHealthCheck } from '../../../apis/healthCheck'
@@ -41,6 +41,7 @@ function ResultsAfterHealthCheck() {
   const [students, setStudents] = useState<any[]>([])
   const [selectedGrade, setSelectedGrade] = useState<string>('1')
   const [selectedClass, setSelectedClass] = useState<Class | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -77,16 +78,24 @@ function ResultsAfterHealthCheck() {
 
   useEffect(() => {
     let filtered = records
+
     if (selectedClass) {
-      filtered = records.filter(record => record.classId === selectedClass.classId)
+      filtered = filtered.filter(record => record.classId === selectedClass.classId)
     } else if (selectedGrade) {
-      filtered = records.filter(record => 
+      filtered = filtered.filter(record => 
         record.className && record.className.startsWith(selectedGrade)
       )
     }
-    
+
+    if (selectedDate) {
+      filtered = filtered.filter(record => {
+        const recordDate = dayjs(record.date).format('YYYY-MM-DD')
+        return recordDate === selectedDate
+      })
+    }
+
     setFilteredRecords(filtered)
-  }, [selectedGrade, selectedClass, records])
+  }, [selectedGrade, selectedClass, records, selectedDate])
 
   const fetchClasses = async () => {
     try {
@@ -311,6 +320,17 @@ function ResultsAfterHealthCheck() {
               ))}
             </Select>
           </Col>
+          <Col className='ml-3'>
+            <DatePicker
+              placeholder='Ngày diễn ra'
+              format='DD/MM/YYYY'
+              value={selectedDate ? dayjs(selectedDate) : null}
+              onChange={(date) => {
+                setSelectedDate(date ? date.format('YYYY-MM-DD') : null)
+              }}
+              allowClear
+            />
+          </Col>
         </Row>
 
         <Table 
@@ -322,7 +342,7 @@ function ResultsAfterHealthCheck() {
         />
 
         <Modal
-          title={`Thêm bản ghi cho ${currentRecord?.studentName || 'học sinh'}`}
+          title={`Thêm bản ghi cho học sinh ${currentRecord?.studentName || ''}`}
           open={isModalVisible}
           onCancel={() => {
             setIsModalVisible(false)
@@ -333,7 +353,7 @@ function ResultsAfterHealthCheck() {
         >
           <Form form={form} onFinish={handleAddRecord} layout='vertical'>
             <Form.Item name='result' label='Kết quả' rules={[{ required: true, message: 'Vui lòng nhập kết quả' }]}>
-              <Input />
+              <Input placeholder='Nhập kết quả' />
             </Form.Item>
 
             <Form.Item
@@ -346,7 +366,7 @@ function ResultsAfterHealthCheck() {
               rules={[
                 { required: true, message: 'Vui lòng nhập chiều cao!' },
                 { type: 'number', min: 110, max: 160, message: 'Chiều cao phải từ 110-160cm!' },
-                { pattern: /^\d+(\.\d+)?$/, message: 'Chiều cao phải là số!' }
+                { pattern: /^\d+(\.\d+)?$/, message: 'Chiều cao phải là số dương!' }
               ]}
             >
               <InputNumber
@@ -366,7 +386,8 @@ function ResultsAfterHealthCheck() {
               }
               rules={[
                 { required: true, message: 'Vui lòng nhập cân nặng!' },
-                { type: 'number', min: 20, max: 70, message: 'Cân nặng phải từ 20-70kg!' }
+                { type: 'number', min: 20, max: 70, message: 'Cân nặng phải từ 20-70kg!' },
+                { pattern: /^\d+(\.\d+)?$/, message: 'Cân nặng phải là số dương!' }
               ]}
             >
               <InputNumber
@@ -387,7 +408,7 @@ function ResultsAfterHealthCheck() {
               rules={[
                 { required: true, message: 'Vui lòng nhập thông tin cho mắt trái!' },
                 { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
-                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số!' }
+                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số dương!' }
               ]}
             >
               <InputNumber
@@ -408,7 +429,7 @@ function ResultsAfterHealthCheck() {
               rules={[
                 { required: true, message: 'Vui lòng nhập thông tin cho mắt phải!' },
                 { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
-                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số!' }
+                { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số dương!' }
               ]}
             >
               <InputNumber

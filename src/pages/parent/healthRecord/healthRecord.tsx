@@ -321,7 +321,7 @@ const HealthRecord = () => {
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
                 ${selectedStudent?.studentId === student.studentId ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'}`}
               >
-                {student.fullname.charAt(0)}
+                {student.fullname.trim().split(' ').pop()?.charAt(0).toUpperCase()}
               </div>
               <span className='font-medium text-md'>{student.fullname}</span>
             </button>

@@ -57,7 +57,8 @@ const CategoryList = () => {
     {
       title: 'Mô tả',
       dataIndex: 'description',
-      key: 'description'
+      key: 'description',
+      render: (text: string | null ) => text ? text : '-',
     },
     {
       title: 'Thao tác',

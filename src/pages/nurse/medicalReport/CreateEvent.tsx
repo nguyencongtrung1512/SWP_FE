@@ -23,7 +23,6 @@ import {
   CalendarOutlined,
   MedicineBoxOutlined,
   FileTextOutlined,
-  HeartOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -33,7 +32,7 @@ import { getAllMedications, type Medication } from '../../../apis/medication'
 import medicalSupplyApi, { type MedicalSupply } from '../../../apis/medicalSupply'
 import { toast } from 'react-toastify'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 const { TextArea } = Input
 
 interface CreateEventProps {
@@ -48,10 +47,9 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string; type: string }[]>([])
   const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string; type: string }[]>([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
-  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
-    { medicalSupplyId: number; quantityUsed: number }[]
-  >([])
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
 
+  console.log('Da chon',selectedMedicalSupplies)
   const getMedicationUnit = (type: string): string => {
     const typeUpper = type.toUpperCase()
     switch (typeUpper) {
@@ -133,7 +131,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
         const response = await medicalSupplyApi.getAll()
         if (response.data && response.data.$values) {
           const options = response.data.$values.map((supply: MedicalSupply) => ({
-            value: supply.$id!,
+            value: supply.medicalSupplyId,
             label: supply.name,
             type: supply.type
           }))

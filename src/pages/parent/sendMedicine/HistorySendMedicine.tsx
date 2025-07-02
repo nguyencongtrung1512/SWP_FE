@@ -185,6 +185,7 @@ function HistorySendMedicine({ reload }: { reload?: boolean }) {
                           className='hover:bg-blue-50 hover:border-blue-300'
                         >
                           <Eye className='h-4 w-4' />
+                          Xem chi tiết
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -12,6 +12,7 @@ const BlogPage: React.FC = () => {
   const navigate = useNavigate()
   const [blogs, setBlogs] = useState<Blog[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
@@ -20,6 +21,10 @@ const BlogPage: React.FC = () => {
     fetchCategories()
     fetchBlogs()
   }, [])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedCategories, searchTerm])
 
   const fetchCategories = async () => {
     try {
@@ -46,14 +51,28 @@ const BlogPage: React.FC = () => {
     }
   }
 
+  const handleCategoryClick = (categoryId: number) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId)
+      } else {
+        return [...prev, categoryId]
+      }
+    })
+  }
+
+  const clearAllCategories = () => {
+    setSelectedCategories([])
+  }
+
   const postsPerPage = 3
-  
-  const filteredPosts = searchTerm 
-    ? blogs.filter(post => 
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : blogs
+
+  const filteredPosts = blogs.filter(post => {
+    const matchesSearch = searchTerm === '' || post.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(post.categoryID)
+    
+    return matchesSearch && matchesCategory
+  })
     
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
   
@@ -106,19 +125,18 @@ const BlogPage: React.FC = () => {
                 <BlogCard key={post.blogID} post={post} />
               ))
             ) : (
-              <div className='bg-white rounded-2xl shadow-sm p-8 text-center'>
+              <div className='bg-white rounded-2xl shadow-sm p-24 text-center'>
                 <h3 className='text-xl font-bold text-gray-700'>Không tìm thấy kết quả phù hợp</h3>
-                <p className='text-gray-600 mt-2'>Vui lòng thử tìm kiếm với từ khóa khác</p>
+                <p className='text-gray-600 mt-2'>Vui lòng thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác</p>
               </div>
             )}
 
-            {/* Pagination */}
-            {filteredPosts.length > 0 && (
+            {filteredPosts.length > 0 && totalPages > 1 && (
               <div className='flex gap-2 mt-12 justify-center'>
                 {currentPage > 1 && (
                   <button 
                     onClick={() => handlePageChange(currentPage - 1)}
-                    className='w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600'
+                    className='w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-50'
                   >
                     ←
                   </button>
@@ -128,10 +146,10 @@ const BlogPage: React.FC = () => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
                       currentPage === page 
                         ? 'bg-gray-900 text-white' 
-                        : 'border border-gray-300 text-gray-600'
+                        : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
                     {page}
@@ -141,7 +159,7 @@ const BlogPage: React.FC = () => {
                 {currentPage < totalPages && (
                   <button 
                     onClick={() => handlePageChange(currentPage + 1)}
-                    className='w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600'
+                    className='w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-50'
                   >
                     →
                   </button>
@@ -151,7 +169,6 @@ const BlogPage: React.FC = () => {
           </div>
           
           <div className='w-full lg:w-1/3 space-y-8'>
-            {/* Search */}
             <div className='bg-white p-6 rounded-2xl shadow-sm'>
               <h3 className='text-xl font-bold mb-4 text-gray-900'>Tìm kiếm</h3>
               <form onSubmit={handleSearch} className='relative'>
@@ -170,25 +187,51 @@ const BlogPage: React.FC = () => {
               </form>
             </div>
             
-            {/* Categories */}
             <div className='bg-white p-6 rounded-2xl shadow-sm'>
-              <h3 className='text-xl font-bold mb-4 text-gray-900'>Danh mục</h3>
-              <ul className='space-y-3'>
-                {categories.map((category, index) => (
-                  <li key={index} className='flex items-center'>
-                    <span className='w-2 h-2 bg-blue-500 rounded-full mr-3'></span>
-                    <span className='text-gray-700 hover:text-blue-500 cursor-pointer'>{category.name}</span>
-                  </li>
-                ))}
+              <div className='flex items-center justify-between mb-4'>
+                <h3 className='text-xl font-bold text-gray-900'>Danh mục</h3>
+                {selectedCategories.length > 0 && (
+                  <button 
+                    onClick={clearAllCategories}
+                    className='text-sm text-blue-600 hover:text-blue-800 underline'
+                  >
+                    Bỏ chọn tất cả
+                  </button>
+                )}
+              </div>
+              <ul className='space-y-1'>
+                {categories.map((category) => {
+                  const isSelected = selectedCategories.includes(category.categoryID)
+                  return (
+                    <li key={category.categoryID} className='flex items-center'>
+                      <label className='flex items-center w-full cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all'>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleCategoryClick(category.categoryID)}
+                          className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mr-3'
+                        />
+                        <span 
+                          className={`${
+                            isSelected 
+                              ? 'text-blue-700 font-medium' 
+                              : 'text-gray-700 hover:text-blue-500'
+                          }`}
+                        >
+                          {category.name}
+                        </span>
+                      </label>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
             
-            {/* Recent Posts */}
             <div className='bg-white p-6 rounded-2xl shadow-sm'>
-              <h3 className='text-xl font-bold mb-4 text-gray-900'>Bài viết gần đây</h3>
+              <h3 className='text-xl font-bold mb-4 text-gray-900'>Bài viết gợi ý</h3>
               <div className='space-y-4'>
                 {recentPosts.map(post => (
-                  <div key={post.blogID} className='flex gap-3 cursor-pointer' onClick={() => handlePostClick(post.blogID)}>
+                  <div key={post.blogID} className='flex gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors' onClick={() => handlePostClick(post.blogID)}>
                     <div className='w-20 h-20 min-w-[80px] rounded overflow-hidden relative'>
                       <img 
                         src={`data:image/webp;base64,${post.image}`}
@@ -210,4 +253,4 @@ const BlogPage: React.FC = () => {
   )
 }
 
-export default BlogPage 
+export default BlogPage

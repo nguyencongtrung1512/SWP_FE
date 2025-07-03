@@ -44,12 +44,12 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [allStudents, setAllStudents] = useState<Student[]>([])
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
-  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string; type: string }[]>([])
-  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string; type: string }[]>([])
+  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string; type: string; quantity: number }[]>([])
+  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string; type: string; quantity: number }[]>([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
   const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
 
-  console.log('Da chon',selectedMedicalSupplies)
+  console.log('Da chon', selectedMedicalSupplies)
   const getMedicationUnit = (type: string): string => {
     const typeUpper = type.toUpperCase()
     switch (typeUpper) {
@@ -109,7 +109,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
           const options = response.data.$values.map((med: Medication) => ({
             value: med.medicationId,
             label: med.name,
-            type: med.type
+            type: med.type,
+            quantity: med.quantity
           }))
           setMedicationOptions(options)
         }
@@ -133,7 +134,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
           const options = response.data.$values.map((supply: MedicalSupply) => ({
             value: supply.medicalSupplyId,
             label: supply.name,
-            type: supply.type
+            type: supply.type,
+            quantity: supply.quantity
           }))
           setMedicalSupplyOptions(options)
         }
@@ -202,7 +204,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             console.error('Data:', res.data)
           }
         }
-        toast.error(`Không thể tạo sự kiện y tế: ${error.message}`)
+        toast.error(`Không thể tạo sự kiện y tế hãy kiểm tra lại form gửi thuốc`)
       } else {
         console.error('Lỗi không xác định:', error)
         toast.error('Không thể tạo sự kiện y tế')
@@ -233,7 +235,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}
         >
-          
+
 
           <Form
             form={form}
@@ -422,6 +424,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                   <Form.Item label='Thuốc sử dụng'>
                     <Select
                       mode='multiple'
+                      showSearch
+                      optionFilterProp='label'
                       placeholder='Chọn thuốc đã sử dụng'
                       options={medicationOptions}
                       value={selectedMedications.map((m) => m.medicationId)}
@@ -444,13 +448,18 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                             <Row align='middle' justify='space-between'>
                               <Col>
                                 <Text strong>{medication?.label}</Text>
+                                {medication && medication.quantity !== undefined && (
+                                  <div style={{ color: '#888', fontSize: 12 }}>
+                                    Số lượng còn lại: {medication.quantity} {unitName}
+                                  </div>
+                                )}
                               </Col>
                               <Col>
                                 <Space>
                                   <Text>Số lượng ({unitName}):</Text>
                                   <InputNumber
                                     min={1}
-                                    max={10}
+                                    max={medication?.quantity ?? 10}
                                     value={item.quantityUsed}
                                     onChange={(val) => {
                                       setSelectedMedications(
@@ -479,6 +488,8 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                   >
                     <Select
                       mode='multiple'
+                      showSearch
+                      optionFilterProp='label'
                       placeholder='Chọn vật tư y tế đã sử dụng'
                       options={medicalSupplyOptions}
                       value={selectedMedicalSupplies.map((m) => m.medicalSupplyId)}
@@ -501,13 +512,18 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                             <Row align='middle' justify='space-between'>
                               <Col>
                                 <Text strong>{supply?.label}</Text>
+                                {supply && supply.quantity !== undefined && (
+                                  <div style={{ color: '#888', fontSize: 12 }}>
+                                    Số lượng còn lại: {supply.quantity} {unitName}
+                                  </div>
+                                )}
                               </Col>
                               <Col>
                                 <Space>
                                   <Text>Số lượng ({unitName}):</Text>
                                   <InputNumber
                                     min={1}
-                                    max={50}
+                                    max={supply?.quantity ?? 50}
                                     value={item.quantityUsed}
                                     onChange={(val) => {
                                       setSelectedMedicalSupplies(

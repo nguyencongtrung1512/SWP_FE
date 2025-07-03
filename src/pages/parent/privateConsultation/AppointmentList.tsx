@@ -140,11 +140,13 @@ const AppointmentList = ({
                       Hủy
                     </button>
                   )}
-                  {(appointment.status === 'Confirmed') && (
+                  {appointment.status === 'Confirmed' && (
                     <button
                       type='button'
                       className='block mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs font-semibold shadow'
-                      onClick={() => window.location.href = `/parent/private-consultation/video-call/${appointment.bookingId}`}
+                      onClick={() =>
+                        (window.location.href = `/parent/private-consultation/video-call/${appointment.bookingId}`)
+                      }
                       style={{ minWidth: 80 }}
                     >
                       Tham gia cuộc gọi

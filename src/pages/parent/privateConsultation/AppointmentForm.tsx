@@ -100,6 +100,31 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
     '16:00'
   ]
 
+  // Hàm lấy các khung giờ hợp lệ
+  const getAvailableTimeSlots = () => {
+    if (!selectedDate) return timeSlots
+    const now = dayjs()
+    const selected = dayjs(selectedDate)
+    // Nếu là hôm nay, chỉ lấy các khung giờ còn lại ít nhất 30 phút
+    if (selected.isSame(now, 'day')) {
+      return timeSlots.filter((slot) => {
+        const [h, m] = slot.split(':')
+        const slotTime = selected.hour(Number(h)).minute(Number(m)).second(0)
+        return slotTime.isAfter(now.add(30, 'minute'))
+      })
+    }
+    // Nếu là ngày khác, lấy toàn bộ
+    return timeSlots
+  }
+
+  // Reset selectedTime nếu ngày thay đổi mà không còn khung giờ hợp lệ
+  useEffect(() => {
+    const available = getAvailableTimeSlots()
+    if (selectedDate && (available.length === 0 || !available.includes(selectedTime))) {
+      setSelectedTime('')
+    }
+  }, [selectedDate, selectedTime])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedStudent || !selectedNurse || !selectedDate || !selectedTime || !reason.trim()) {
@@ -237,8 +262,8 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
                       mode='single'
                       selected={selectedDate}
                       onSelect={setSelectedDate}
-                      // disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
+                      // disabled={(date) => date < new Date()}
                       initialFocus
                       className='p-3 pointer-events-auto'
                     />
@@ -253,11 +278,17 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
                     <SelectValue placeholder='Chọn giờ...' />
                   </SelectTrigger>
                   <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
+                    {getAvailableTimeSlots().length === 0 ? (
+                      <SelectItem value='no-available-time' disabled>
+                        Không còn khung giờ nào khả dụng
                       </SelectItem>
-                    ))}
+                    ) : (
+                      getAvailableTimeSlots().map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -275,9 +306,14 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
               />
             </div>
 
-            <Button type='submit' className='w-full bg-green-600 hover:bg-green-700' disabled={loading}>
+            <Button type='submit' className='w-full bg-green-600 hover:bg-green-700' disabled={loading || getAvailableTimeSlots().length === 0}>
               {loading ? 'Đang gửi...' : 'Đặt lịch tư vấn'}
             </Button>
+            {selectedDate && getAvailableTimeSlots().length === 0 && (
+              <div className='text-red-500 text-center'>
+                Không còn khung giờ nào khả dụng cho ngày này, vui lòng chọn ngày khác.
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

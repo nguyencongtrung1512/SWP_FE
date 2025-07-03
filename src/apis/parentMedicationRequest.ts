@@ -25,6 +25,7 @@ export interface MedicationRequestHistory {
   studentName: string;
   parentNote: string;
   dateCreated: string;
+  nurseNote: string;
   status: string;
   medications: { $values: Medication[] };
 }

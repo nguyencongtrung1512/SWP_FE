@@ -7,6 +7,7 @@ import CreateClass from '../classroomManagement/Create'
 import UpdateClass from '../classroomManagement/Update'
 import { EyeOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
 import { getAllStudents } from '../../../apis/student'
+import { getStudentDistribution, StudentDistributionResponse } from '../../../apis/dashboard.api'
 
 type Class = ClassBase & { studentCount?: number }
 
@@ -17,9 +18,11 @@ function GradeList() {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false)
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false)
   const [selectedClass, setSelectedClass] = useState<Class | null>(null)
+  const [studentDistribution, setStudentDistribution] = useState<StudentDistributionResponse | null>(null)
 
   useEffect(() => {
     fetchClasses()
+    fetchStudentDistribution()
   }, [])
 
   const fetchClasses = async () => {
@@ -46,6 +49,15 @@ function GradeList() {
       setClasses(classesWithCount)
     } catch (error) {
       console.error('Error fetching classes:', error)
+    }
+  }
+
+  const fetchStudentDistribution = async () => {
+    try {
+      const res = await getStudentDistribution()
+      setStudentDistribution(res.data)
+    } catch (error) {
+      console.error('Error fetching student distribution:', error)
     }
   }
 
@@ -95,6 +107,39 @@ function GradeList() {
           </button>
         </div>
       </div>
+
+      {/* Thống kê phân bố học sinh */}
+      {studentDistribution && (
+        <div className='mb-8 grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='bg-white rounded-xl shadow p-4'>
+            <div className='font-semibold mb-2'>Phân bố theo giới tính</div>
+            {Object.entries(studentDistribution.byGender).map(([gender, count]) => (
+              <div key={gender} className='flex justify-between'>
+                <span>{gender === 'Male' ? 'Nam' : gender === 'Female' ? 'Nữ' : gender}</span>
+                <span className='font-bold'>{count}</span>
+              </div>
+            ))}
+          </div>
+          <div className='bg-white rounded-xl shadow p-4'>
+            <div className='font-semibold mb-2'>Phân bố theo nhóm tuổi</div>
+            {Object.entries(studentDistribution.byAge).map(([age, count]) => (
+              <div key={age} className='flex justify-between'>
+                <span>{age}</span>
+                <span className='font-bold'>{count}</span>
+              </div>
+            ))}
+          </div>
+          <div className='bg-white rounded-xl shadow p-4'>
+            <div className='font-semibold mb-2'>Phân bố theo lớp học</div>
+            {studentDistribution.byClass.$values.map((item) => (
+              <div key={item.className} className='flex justify-between'>
+                <span>{item.className}</span>
+                <span className='font-bold'>{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
         {filteredClasses.map((item) => (

@@ -219,12 +219,12 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
                 <span>Ghi chú</span>
               </span>
             }
-            rules={[{ max: 500, message: 'Ghi chú không được quá 500 ký tự!' }]}
+            rules={[{ max: 200, message: 'Ghi chú không được quá 200 ký tự!' }]}
           >
             <Input.TextArea
               placeholder="Nhập ghi chú về tình trạng sức khỏe (tùy chọn)"
               rows={4}
-              maxLength={500}
+              maxLength={200}
               showCount
             />
           </Form.Item>

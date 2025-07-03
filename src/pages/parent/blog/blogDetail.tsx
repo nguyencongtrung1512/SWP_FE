@@ -24,6 +24,7 @@ const BlogDetail: React.FC = () => {
       const response = await blogApi.getBlogById(id!)
       if (response.data) {
         setBlog(response.data)
+        console.log('Blog data:', response.data)
         await fetchRelatedBlogs(response.data)
       } else {
         setError('Không tìm thấy bài viết')
@@ -79,7 +80,7 @@ const BlogDetail: React.FC = () => {
           <div className='bg-green-500 hover:bg-[#001a33] text-white inline-block px-4 py-1.5 rounded-md mb-4 text-sm font-medium transition-colors duration-200'>
             {blog.categoryName}
           </div>
-          <h1 className='text-4xl md:text-5xl font-bold mb-6 text-gray-900'>{blog.title}</h1>
+          <h1 className='text-4xl md:text-4xl font-bold mb-6 text-gray-900'>{blog.title}</h1>
           <div className='flex items-center justify-center gap-2 mb-4'>
             <img 
               src='https://static.vecteezy.com/system/resources/previews/000/420/605/original/avatar-icon-vector-illustration.jpg'
@@ -110,6 +111,7 @@ const BlogDetail: React.FC = () => {
         <div className='mt-8 pt-8'>
           <Link 
             to="/blog"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className='text-blue-500 hover:text-blue-600 flex items-center gap-2'
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -208,29 +210,33 @@ const BlogDetail: React.FC = () => {
 
         <div>
           <h3 className='text-2xl font-bold mb-8'>Bài viết liên quan</h3>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-            {relatedBlogs.map(post => (
-              <Link key={post.blogID} to={`/blog/${post.blogID}`} className='group bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-300 hover:shadow-lg transition-shadow duration-300'>
-                <div className='mb-4 overflow-hidden relative h-48'>
-                  {/* <img 
-                    // src={post.image}
-                    src='https://www.sattva.co.in/wp-content/uploads/2022/12/Untitled-1200-%C3%97-630-px.png'
-                    alt=''
-                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
-                  /> */}
-                  <img src={`data:image/webp;base64,${post.image}`} alt="blog image" />
-                </div>
-                <div className='p-4'>
-                  <div className='bg-green-500 hover:bg-[#001a33] text-white inline-block px-3 py-1 rounded-md mb-2 text-sm font-medium transition-colors duration-200'>
-                    {post.categoryName}
-                  </div>
-                  <h4 className='font-bold text-lg text-gray-800 transition-colors line-clamp-2 ml-1'>
-                    {post.title}
-                  </h4>
-                </div>
-              </Link>
-            ))}
-          </div>
+            { relatedBlogs.length > 0 ? (
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+                {relatedBlogs.map(post => (
+                  <Link key={post.blogID} to={`/blog/${post.blogID}`} className='group bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-300 hover:shadow-lg transition-shadow duration-300'>
+                    <div className='mb-4 overflow-hidden relative h-48'>
+                      {/* <img 
+                        // src={post.image}
+                        src='https://www.sattva.co.in/wp-content/uploads/2022/12/Untitled-1200-%C3%97-630-px.png'
+                        alt=''
+                        className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
+                      /> */}
+                      <img src={`data:image/webp;base64,${post.image}`} alt="blog image" />
+                    </div>
+                    <div className='p-4'>
+                      <div className='bg-green-500 hover:bg-[#001a33] text-white inline-block px-3 py-1 rounded-md mb-2 text-sm font-medium transition-colors duration-200'>
+                        {post.categoryName}
+                      </div>
+                      <h4 className='font-bold text-lg text-gray-800 transition-colors line-clamp-2 ml-1'>
+                        {post.title}
+                      </h4>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className='text-gray-600 text-center'>Không có bài viết liên quan</div>
+            )}
         </div>
       </div>
     </div>

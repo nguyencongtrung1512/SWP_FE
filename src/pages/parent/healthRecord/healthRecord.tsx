@@ -431,7 +431,7 @@ const HealthRecord = () => {
                   </div>
                   <div className='bg-white rounded-lg p-4 shadow-sm'>
                     <span className='text-gray-500 text-sm block mb-1'>Ghi chú từ phụ huynh</span>
-                    <p className='font-medium text-gray-900 text-lg leading-relaxed'>
+                    <p className='font-medium text-gray-900 text-lg leading-relaxed break-words'>
                       {selectedStudent.healthRecord.note || 'Chưa có ghi chú'}
                     </p>
                   </div>

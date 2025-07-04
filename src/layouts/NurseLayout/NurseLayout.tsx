@@ -4,7 +4,7 @@ import Sidebar from './Sidebar'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
-import { getAccountInfo } from '../../api/parent.api'
+import { getAccountInfo } from '../../apis/parent.api'
 import NurseProfileModal from '../../pages/nurse/profile/NurseProfile'
 import path from '../../constants/path'
 

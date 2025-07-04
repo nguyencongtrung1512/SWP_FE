@@ -19,7 +19,7 @@ import {
 import { CiLock, CiUnlock } from 'react-icons/ci'
 import { EyeOutlined } from '@ant-design/icons'
 import { getAllUser, User, updateUserStatus } from '../../../apis/adminManageAccount'
-import { createNurse } from '../../../api/auth.api'
+import { createNurse } from '../../../apis/auth.api'
 import { FaPlus } from 'react-icons/fa6'
 import AddNurse from './AddNurse'
 import { translateMessage } from '../../../utils/message'

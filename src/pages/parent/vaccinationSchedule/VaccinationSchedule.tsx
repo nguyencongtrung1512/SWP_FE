@@ -9,7 +9,7 @@ import { getParentNotifications, VaccinationConsent, sendConsent } from '../../.
 import { getHealthCheckNotifications, HealthCheckNotification } from '../../../apis/healthCheck'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import { getAccountInfo } from '../../../api/parent.api'
+import { getAccountInfo } from '../../../apis/parent.api'
 
 dayjs.extend(utc)
 

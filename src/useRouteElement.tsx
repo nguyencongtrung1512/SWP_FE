@@ -19,7 +19,6 @@ import BlogPost from './pages/parent/blog/blogDetail'
 import AdminLayout from './layouts/AdminLayout/AdminLayout'
 import DashBoardAdmin from './pages/admin/dashBoardAdmin/DashBoardAdmin'
 import CensorList from './pages/admin/censorManagement/CensorList'
-import MedicalPlan from './pages/nurse/medicalPlan'
 import UserList from './pages/admin/userManagerment/UserList'
 import StudentList from './pages/admin/studentManagement/StudentList'
 import GradeList from './pages/admin/gradeManagement/GradeList'
@@ -85,7 +84,7 @@ export default function useRouteElements() {
               element: <SendMedicine />
             },
             {
-              path: path.Appointment,
+              path: path.appointment,
               element: <AppointmentPage />
             },
             {
@@ -148,10 +147,6 @@ export default function useRouteElements() {
             {
               path: path.MEDICAL_REPORT,
               element: <MedicalReport />
-            },
-            {
-              path: path.MEDICAL_PLAN,
-              element: <MedicalPlan />
             },
             {
               path: path.MEDICAL_SUPPLIES,

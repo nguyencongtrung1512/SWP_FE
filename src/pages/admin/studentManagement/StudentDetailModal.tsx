@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Modal, Descriptions, Typography, Spin, message } from 'antd'
 import { getParentById, getStudentById } from '../../../apis/student'
 import type { Student } from '../../../apis/student'

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getAllClasses, deleteClass } from '../../../apis/class'
 import { Select, message, Popconfirm } from 'antd'
 import { useNavigate } from 'react-router-dom'

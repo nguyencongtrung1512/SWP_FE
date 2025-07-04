@@ -13,7 +13,7 @@ import {
   getNurseListForHealthConsultation,
   createHealthConsultationBookingByParent
 } from '../../../apis/healthConsultationBooking.api'
-import { getMyChildren } from '../../../api/parent.api'
+import { getMyChildren } from '../../../apis/parent.api'
 import NurseCard from './NurseCard'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'

@@ -93,7 +93,6 @@ function Home() {
           </div>
         </div>
 
-        {/* Banner chính */}
         <div className='bg-white rounded-2xl shadow-xl overflow-hidden mb-16'>
           <div className='flex flex-col md:flex-row'>
             <div className='w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center'>
@@ -156,7 +155,6 @@ function Home() {
           </div>
         </div> */}
 
-        {/* Tính năng */}
         <div className='mb-12'>
           <h2 className='text-2xl font-bold text-gray-900 mb-6'>Tính năng của nền tảng</h2>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
@@ -185,7 +183,7 @@ function Home() {
               <div className='p-6'>
                 <h3 className='text-xl font-bold text-gray-900 mb-2'>Hồ sơ sức khỏe số</h3>
                 <p className='text-gray-600 mb-4'>Lưu trữ và theo dõi thông tin sức khỏe của học sinh như chiều cao, cân nặng, thị lực và các chỉ số quan trọng khác.</p>
-                <a href='/parent/medical-plan' className='text-blue-500 font-medium hover:underline'>Xem hồ sơ sức khỏe →</a>
+                <a href='/parent/health-record' className='text-blue-500 font-medium hover:underline'>Xem hồ sơ sức khỏe →</a>
               </div>
             </div>
             <div className='bg-white rounded-xl shadow-sm overflow-hidden'>
@@ -199,7 +197,7 @@ function Home() {
               <div className='p-6'>
                 <h3 className='text-xl font-bold text-gray-900 mb-2'>Đăng ký tư vấn sức khỏe riêng</h3>
                 <p className='text-gray-600 mb-4'>Tạo kênh liên lạc trực tiếp giữa phụ huynh và y tá trường học để trao đổi về tình hình sức khỏe của học sinh.</p>
-                <a href='/parent/private-consultation' className='text-blue-500 font-medium hover:underline'>Liên hệ →</a>
+                <a href='/parent/appointment' className='text-blue-500 font-medium hover:underline'>Liên hệ →</a>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Form, Input, Button, Avatar, Row, Col, Divider, Modal } from 'antd'
 import { UserOutlined, SaveOutlined, EditOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
-import { updateAccount } from '../../../api/parent.api'
+import { updateAccount } from '../../../apis/parent.api'
 import { translateMessage } from '../../../utils/message'
 
 interface NurseProfileData {

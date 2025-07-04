@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Form } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { resetPassword } from '../../api/auth.api'
+import { resetPassword } from '../../apis/auth.api'
 import ResetPasswordForm from './resetPasswordForm'
 import { toast } from 'react-toastify'
 

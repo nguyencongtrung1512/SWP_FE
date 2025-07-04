@@ -1,4 +1,3 @@
-import React from 'react'
 import { Modal, Form, Select, Input, DatePicker, Button } from 'antd'
 import { createHealthConsultationBookingByNurse } from '../../../apis/healthConsultationBooking.api'
 import dayjs from 'dayjs'

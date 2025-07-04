@@ -6,11 +6,10 @@ import { Badge } from '../../../components/ui/badge'
 import { Separator } from '../../../components/ui/separator'
 import { ScrollArea } from '../../../components/ui/scroll-area'
 import { User, Calendar, FileText, Stethoscope, GraduationCap, Hash } from 'lucide-react'
-import { getAllMedicalEventsForParent } from '../../../api/parent.api'
+import { getAllMedicalEventsForParent } from '../../../apis/parent.api'
 import MedicalEventDetail from './medicalEventDetail'
 import Loading from '../../../components/Loading/Loading'
 
-// Định nghĩa lại type cho MedicationUsed và MedicalSupplyUsed
 interface MedicationUsed {
   medicationId: number
   name: string
@@ -22,7 +21,6 @@ interface MedicalSupplyUsed {
   quantityUsed: number
 }
 
-// Thêm interface cho dữ liệu học sinh và event
 interface StudentEvent {
   medicalEventId: number
   type: string
@@ -43,7 +41,6 @@ interface StudentCard {
   className?: string
 }
 
-// Định nghĩa type cho selectedEvent phù hợp với MedicalEventDetailProps
 interface SelectedEventDetail {
   date: string
   type: string
@@ -66,12 +63,10 @@ const MedicalEventParent: React.FC = () => {
     const fetchMedicalEvents = async () => {
       setLoading(true)
       try {
-        // Lấy sự kiện y tế
         const medicalEventsRes = await getAllMedicalEventsForParent()
         if (medicalEventsRes.data && Array.isArray(medicalEventsRes.data.$values)) {
           setMedicalEvents(medicalEventsRes.data.$values)
           setError(null)
-          // Chọn mặc định bé đầu tiên nếu có
           const studentIds = medicalEventsRes.data.$values.map((c: StudentCard) => c.studentId)
           if (studentIds.length > 0) setSelectedStudentId(studentIds[0])
         } else {
@@ -144,7 +139,6 @@ const MedicalEventParent: React.FC = () => {
     )
   }
 
-  // Lấy danh sách các con từ dữ liệu BE trả về
   const students = medicalEvents.map((student) => ({
     studentId: student.studentId,
     studentName: student.studentName,
@@ -152,7 +146,6 @@ const MedicalEventParent: React.FC = () => {
     className: student.className || 'Không có'
   }))
 
-  // Lấy thông tin bé đang chọn
   const selectedStudent = medicalEvents.find((s) => s.studentId === selectedStudentId)
 
   return (
@@ -164,7 +157,6 @@ const MedicalEventParent: React.FC = () => {
         </div>
 
         <div className='flex gap-4'>
-          {/* Cột trái: Danh sách tên các con */}
           <div className='w-64'>
             <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-[1.01]'>
               <div className='p-4'>
@@ -210,11 +202,9 @@ const MedicalEventParent: React.FC = () => {
             </Card>
           </div>
 
-          {/* Cột phải: Thông tin chi tiết bé và các sự kiện y tế */}
           <div className='flex-1'>
             {selectedStudent ? (
               <div className='space-y-4'>
-                {/* Thông tin học sinh */}
                 <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300 min-h-[110px]'>
                   <div className='p-4'>
                     <div className='flex items-center gap-4'>
@@ -240,7 +230,6 @@ const MedicalEventParent: React.FC = () => {
                   </div>
                 </Card>
 
-                {/* Lịch sử sự kiện y tế */}
                 <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300'>
                   <div className='p-4'>
                     <div className='flex items-center gap-2 mb-4'>
@@ -335,7 +324,6 @@ const MedicalEventParent: React.FC = () => {
           </div>
         </div>
 
-        {/* Modal chi tiết */}
         <Dialog open={isModalVisible} onOpenChange={setIsModalVisible}>
           <DialogContent className='max-w-xl max-h-[80vh] overflow-y-auto bg-white/80 rounded-2xl shadow-2xl backdrop-blur-lg border-0 animate-fade-in'>
             <DialogHeader>

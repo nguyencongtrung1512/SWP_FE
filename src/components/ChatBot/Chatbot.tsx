@@ -12,7 +12,7 @@ const ChatBot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     { 
       sender: "bot", 
-      text: "Xin chào! Tôi là chatbot tư vấn tuyển sinh Đại học FPT. Tôi có thể giúp bạn tìm hiểu về các ngành học, học phí, và thông tin tuyển sinh. Bạn có câu hỏi gì không?" 
+      text: "Xin chào! Tôi là chatbot giúp bạn sử dụng web EduCare hiệu quả hơn . Bạn có câu hỏi gì không?" 
     }
   ]);
   const [knowledge, setKnowledge] = useState<string>("");
@@ -68,7 +68,7 @@ const ChatBot: React.FC = () => {
       // Tạo lịch sử hội thoại gửi kèm API
       const historyParts: { text: string }[] = [
         {
-          text: "Bạn là một chatbot tư vấn tuyển sinh. Trả lời ngắn gọn, rõ ràng và chỉ dựa trên dữ liệu sau:",
+          text: "Bạn là một chatbot giúp đỡ người dùng sử dụng web EduCare. Trả lời ngắn gọn, rõ ràng và chỉ dựa trên dữ liệu sau:",
         },
         { text: knowledge },
         { text: "Dưới đây là đoạn hội thoại giữa người dùng và bạn:" },

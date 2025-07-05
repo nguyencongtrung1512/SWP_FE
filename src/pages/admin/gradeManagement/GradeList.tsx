@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getAllClasses, deleteClass } from '../../../apis/class'
 import { Select, message, Popconfirm } from 'antd'
 import { useNavigate } from 'react-router-dom'
@@ -109,7 +109,7 @@ function GradeList() {
       </div>
 
       {/* Thống kê phân bố học sinh */}
-      {studentDistribution && (
+      {/* {studentDistribution && (
         <div className='mb-8 grid grid-cols-1 md:grid-cols-3 gap-4'>
           <div className='bg-white rounded-xl shadow p-4'>
             <div className='font-semibold mb-2'>Phân bố theo giới tính</div>
@@ -139,7 +139,7 @@ function GradeList() {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
         {filteredClasses.map((item) => (

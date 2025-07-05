@@ -225,8 +225,8 @@ const ProfileParent = () => {
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
                 {students.map((child) => (
                   <div
-                    key={child.id}
-                    className={`flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px] cursor-pointer hover:bg-gray-100 transition-colors ${selectedStudent?.id === child.id ? 'ring-2 ring-blue-400' : ''}`}
+                    key={child.studentId}
+                    className={`flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px] cursor-pointer hover:bg-gray-100 transition-colors ${selectedStudent?.studentId === child.studentId ? 'ring-2 ring-blue-400' : ''}`}
                     onClick={() => handleSelectStudent(child)}
                   >
                     <div className='flex-1'>
@@ -247,7 +247,7 @@ const ProfileParent = () => {
           </div>
 
           {selectedStudent && (
-            <div className='mt-8'>
+            <div className='mt-8 transition-all duration-500 ease-in-out'>
               <div className='flex items-center justify-between mb-4'>
                 <h2 className='text-xl font-bold'>Sổ sức khỏe điện tử - {selectedStudent.fullname}</h2>
                 <button
@@ -257,26 +257,28 @@ const ProfileParent = () => {
                   x
                 </button>
               </div>
-              {loadingBook ? (
-                <div className='text-center py-8 text-gray-500'>Đang tải dữ liệu sổ sức khỏe...</div>
-              ) : (
-                <ElectronicHealthBook
-                  student={{
-                    studentId: selectedStudent.studentId,
-                    fullname: selectedStudent.fullname,
-                    classId: selectedStudent.classID,
-                    className: selectedStudent.className,
-                    studentCode: selectedStudent.studentCode,
-                    gender: selectedStudent.gender,
-                    parentId: selectedStudent.parentID,
-                    parentName: '',
-                    dateOfBirth: selectedStudent.dateOfBirth
-                  }}
-                  medicalEvents={medicalEvents}
-                  vaccinations={vaccinations}
-                  healthChecks={healthChecks}
-                />
-              )}
+              <div className={`transition-all duration-500 ease-in-out ${loadingBook ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
+                {loadingBook ? (
+                  <div className='text-center py-8 text-gray-500'>Đang tải dữ liệu sổ sức khỏe...</div>
+                ) : (
+                  <ElectronicHealthBook
+                    student={{
+                      studentId: selectedStudent.studentId,
+                      fullname: selectedStudent.fullname,
+                      classId: selectedStudent.classID,
+                      className: selectedStudent.className,
+                      studentCode: selectedStudent.studentCode,
+                      gender: selectedStudent.gender,
+                      parentId: selectedStudent.parentID,
+                      parentName: '',
+                      dateOfBirth: selectedStudent.dateOfBirth
+                    }}
+                    medicalEvents={medicalEvents}
+                    vaccinations={vaccinations}
+                    healthChecks={healthChecks}
+                  />
+                )}
+              </div>
             </div>
           )}
         </div>

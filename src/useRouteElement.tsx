@@ -190,7 +190,7 @@ export default function useRouteElements() {
               element: <DashBoardAdmin />
             },
             {
-              path: 'dashboard',
+              path: path.DASHBOARD_ADMIN,
               element: <DashBoardAdmin />
             },
             {

@@ -6,13 +6,20 @@ import {
   EnvironmentOutlined,
   EditOutlined,
   UserAddOutlined,
-  TeamOutlined
+  TeamOutlined,
+  BookOutlined
 } from '@ant-design/icons'
 import { getAccountInfo, getMyChildren, Student } from '../../../apis/parent.api'
 import UpdateProfileModal from './updateProfile'
 import ChangePasswordModal from '../../../components/Profile/ChangePasswordModal'
 import AddStudentModal from '../../../components/Profile/AddStudentModal'
-import StudentDetailModal from '../../../components/Profile/StudentDetailModal'
+import ElectronicHealthBook from '../../../components/Profile/ElectronicHealthBook'
+import { getMedicalEventByStudent } from '../../../apis/electronicHealthBook.api'
+import { getRecordsByStudent as getVaccinationRecordsByStudent } from '../../../apis/vaccination'
+import { getRecordsByStudent as getHealthCheckRecordsByStudent } from '../../../apis/healthCheck'
+import type { MedicalEvent } from '../../../apis/electronicHealthBook.api'
+import type { VaccinationRecord } from '../../../apis/vaccination'
+import type { HealthCheckRecord } from '../../../apis/healthCheck'
 
 interface AccountInfo {
   $id: string
@@ -37,8 +44,11 @@ const ProfileParent = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false)
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
-  const [isStudentDetailModalOpen, setIsStudentDetailModalOpen] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+  const [medicalEvents, setMedicalEvents] = useState<MedicalEvent[]>([])
+  const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([])
+  const [healthChecks, setHealthChecks] = useState<HealthCheckRecord[]>([])
+  const [loadingBook, setLoadingBook] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
@@ -100,14 +110,32 @@ const ProfileParent = () => {
     fetchData()
   }
 
-  const handleOpenStudentDetailModal = (student: Student) => {
+  const handleSelectStudent = async (student: Student) => {
     setSelectedStudent(student)
-    setIsStudentDetailModalOpen(true)
+    setLoadingBook(true)
+    try {
+      const [medicalEventRes, vaccinationRes, healthCheckRes] = await Promise.all([
+        getMedicalEventByStudent(student.studentId),
+        getVaccinationRecordsByStudent(student.studentId),
+        getHealthCheckRecordsByStudent(student.studentId),
+        console.log("trang 2 :getMedicalEventByStudent", getMedicalEventByStudent(4))
+      ])
+      setMedicalEvents(medicalEventRes.data?.events?.$values || [])
+      setVaccinations(vaccinationRes.data?.$values || [])
+      setHealthChecks(healthCheckRes.data?.$values || [])
+    } catch {
+      setMedicalEvents([])
+      setVaccinations([])
+      setHealthChecks([])
+    }
+    setLoadingBook(false)
   }
 
-  const handleCloseStudentDetailModal = () => {
-    setIsStudentDetailModalOpen(false)
+  const handleCloseHealthBook = () => {
     setSelectedStudent(null)
+    setMedicalEvents([])
+    setVaccinations([])
+    setHealthChecks([])
   }
 
   if (loading) {
@@ -197,15 +225,18 @@ const ProfileParent = () => {
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
                 {students.map((child) => (
                   <div
-                    key={child.id}
-                    className='flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px] cursor-pointer hover:bg-gray-100 transition-colors'
-                    onClick={() => handleOpenStudentDetailModal(child)}
+                    key={child.studentId}
+                    className={`flex items-center gap-4 bg-gray-50 rounded-xl p-4 min-w-[220px] cursor-pointer hover:bg-gray-100 transition-colors ${selectedStudent?.studentId === child.studentId ? 'ring-2 ring-blue-400' : ''}`}
+                    onClick={() => handleSelectStudent(child)}
                   >
-                    <div>
+                    <div className='flex-1'>
                       <div className='font-semibold'>{child.fullname || 'Chưa có tên'}</div>
                       <div className='flex items-center gap-1 text-gray-400 text-xs mt-1'>
                         <TeamOutlined /> {child.studentCode || 'Chưa có mã học sinh'}
                       </div>
+                    </div>
+                    <div className='p-2 text-blue-500'>
+                      <BookOutlined />
                     </div>
                   </div>
                 ))}
@@ -214,6 +245,42 @@ const ProfileParent = () => {
               <div className='text-gray-500 text-center py-4'>Chưa có thông tin học sinh</div>
             )}
           </div>
+
+          {selectedStudent && (
+            <div className='mt-8 transition-all duration-500 ease-in-out'>
+              <div className='flex items-center justify-between mb-4'>
+                <h2 className='text-xl font-bold'>Sổ sức khỏe điện tử - {selectedStudent.fullname}</h2>
+                <button
+                  onClick={handleCloseHealthBook}
+                  className='px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium'
+                >
+                  x
+                </button>
+              </div>
+              <div className={`transition-all duration-500 ease-in-out ${loadingBook ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
+                {loadingBook ? (
+                  <div className='text-center py-8 text-gray-500'>Đang tải dữ liệu sổ sức khỏe...</div>
+                ) : (
+                  <ElectronicHealthBook
+                    student={{
+                      studentId: selectedStudent.studentId,
+                      fullname: selectedStudent.fullname,
+                      classId: selectedStudent.classID,
+                      className: selectedStudent.className,
+                      studentCode: selectedStudent.studentCode,
+                      gender: selectedStudent.gender,
+                      parentId: selectedStudent.parentID,
+                      parentName: '',
+                      dateOfBirth: selectedStudent.dateOfBirth
+                    }}
+                    medicalEvents={medicalEvents}
+                    vaccinations={vaccinations}
+                    healthChecks={healthChecks}
+                  />
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       {accountInfo && (
@@ -234,11 +301,6 @@ const ProfileParent = () => {
         isOpen={isAddStudentModalOpen}
         onClose={handleCloseAddStudentModal}
         onAddSuccess={handleAddStudentSuccess}
-      />
-      <StudentDetailModal
-        isOpen={isStudentDetailModalOpen}
-        onClose={handleCloseStudentDetailModal}
-        student={selectedStudent}
       />
     </div>
   )

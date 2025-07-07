@@ -27,14 +27,7 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ isOpen, onClose
   }
 
   return (
-    <Modal
-      open={isOpen}
-      onCancel={onClose}
-      footer={null}
-      width={600}
-      closable={false}
-      className='p-0'
-    >
+    <Modal open={isOpen} onCancel={onClose} footer={null} width={600} closable={false} className='p-0'>
       <div className='rounded-t-md bg-gradient-to-r from-indigo-500 to-blue-500 px-6 py-3 text-white flex items-center'>
         <UserOutlined className='mr-2' />
         <span className='text-lg font-semibold'>Thông tin học sinh: {student.fullname}</span>
@@ -77,7 +70,9 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ isOpen, onClose
             <label className='font-semibold text-gray-700 mb-1 block'>Lớp</label>
             <input
               className='w-full rounded border border-gray-200 px-3 py-2 bg-gray-100 text-gray-700 outline-none'
-              value={student.className || (student._class && student._class.name ? student._class.name : 'Chưa có thông tin')}
+              value={
+                student.className || (student._class && student._class.name ? student._class.name : 'Chưa có thông tin')
+              }
               disabled
             />
           </div>

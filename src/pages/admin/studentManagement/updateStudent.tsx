@@ -4,6 +4,7 @@ import { updateStudent } from '../../../apis/student'
 import type { Student } from '../../../apis/student'
 import dayjs from 'dayjs'
 import { toast } from 'react-toastify'
+import { getAllUser } from '../../../apis/adminManageAccount'
 
 interface UpdateStudentProps {
   isModalVisible: boolean
@@ -15,11 +16,17 @@ interface UpdateStudentProps {
 const UpdateStudent: React.FC<UpdateStudentProps> = ({ isModalVisible, onCancel, onSuccess, selectedStudent }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
-
+  const [parents, setParents] = React.useState<{ accountID: number; fullname: string }[]>([])
   const maxDate = dayjs().subtract(6, 'year')
   const minDate = dayjs().subtract(15, 'year')
 
   useEffect(() => {
+    if (isModalVisible) {
+      getAllUser.getAllUsers().then((res) => {
+        const parentList = res.filter((u) => u.role?.roleName === 'Parent')
+        setParents(parentList)
+      })
+    }
     if (selectedStudent) {
       form.setFieldsValue({
         ...selectedStudent,
@@ -99,12 +106,22 @@ const UpdateStudent: React.FC<UpdateStudentProps> = ({ isModalVisible, onCancel,
           />
         </Form.Item>
 
-        <Form.Item
-          name='parentId'
-          label='ID Phụ huynh'
-          rules={[{ required: true, message: 'Vui lòng nhập ID phụ huynh!' }]}
-        >
-          <Input type='number' placeholder='Nhập ID phụ huynh' />
+        <Form.Item name='parentId' label='Phụ huynh' rules={[{ required: false, message: 'Vui lòng chọn phụ huynh!' }]}>
+          <Select
+            showSearch
+            placeholder='Chọn phụ huynh'
+            optionFilterProp='children'
+            filterOption={(input, option) => {
+              const label = option?.children?.toString() || '';
+              return label.toLowerCase().includes(input.toLowerCase());
+            }}
+          >
+            {parents.map((p) => (
+              <Select.Option key={p.accountID} value={p.accountID}>
+                {p.fullname}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

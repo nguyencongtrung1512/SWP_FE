@@ -95,7 +95,7 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
         return { min: 1, max: 100 }
       case 'SOLUTION':
       case 'SYRUP':
-        return { min: 1, max: 100 }
+        return { min: 1, max: 200 }
       case 'CREAM':
       case 'OINTMENT':
         return { min: 1, max: 200 }

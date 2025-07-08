@@ -1,262 +1,93 @@
+HƯỚNG DẪN SỬ DỤNG WEB DÀNH CHO PHỤ HUYNH (PARENT)
 
-GIỚI THIỆU CHUNG VỀ ĐẠI HỌC FPT
+---
 
-Đại học FPT là một trong những trường đại học tư thục hàng đầu tại Việt Nam, trực thuộc Tập đoàn FPT. Được thành lập năm 2006, Đại học FPT định hướng phát triển sinh viên toàn diện với chương trình đào tạo chuẩn quốc tế, môi trường học tập hiện đại, và các hoạt động ngoại khóa đa dạng.
+1. XEM VÀ CẬP NHẬT THÔNG TIN CÁ NHÂN PHỤ HUYNH
 
-CÁC CƠ SỞ (CAMPUS) CỦA ĐẠI HỌC FPT
+Câu hỏi ví dụ:
+- Làm sao xem hoặc sửa thông tin cá nhân?
+- Đổi email/số điện thoại như thế nào?
+- Tôi muốn cập nhật địa chỉ liên hệ.
 
-1. FPT Hà Nội
-   - Địa chỉ: Khu CNC Hòa Lạc, Thạch Thất, Hà Nội
-   - Môi trường học tập xanh, rộng rãi, hiện đại
+Trả lời:
+- Đăng nhập vào tài khoản phụ huynh → Vào mục "Hồ sơ của tôi" → Nhấn nút "Chỉnh sửa" để cập nhật thông tin cá nhân (họ tên, email, số điện thoại, địa chỉ...).
 
-2. FPT TP. Hồ Chí Minh
-   - Địa chỉ: Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP. Thủ Đức, Thành Phố Hồ Chí Minh
-   - Gần trung tâm công nghệ lớn, thuận tiện đi lại
+---
 
-3. FPT Đà Nẵng
-   - Địa chỉ: Khu đô thị công nghệ FPT Đà Nẵng, P. Hoà Hải, Quận Ngũ Hành Sơn, Thành Phố Đà Nẵng
-   - Cơ sở hiện đại, môi trường thân thiện gần biển
+2. THÊM, XEM, CHỈNH SỬA THÔNG TIN CON (HỌC SINH)
 
-4. FPT Cần Thơ
-   - Địa chỉ: Số 600 Đường Nguyễn Văn Cừ (nối dài), Phường An Bình, Quận Ninh Kiều, Thành Phố Cần Thơ
-   - Không gian mở, cơ sở vật chất mới
+Câu hỏi ví dụ:
+- Thêm con vào tài khoản như thế nào?
+- Xem danh sách con ở đâu?
+- Không thấy thông tin con, phải làm sao?
 
-5. FPT Quy Nhơn
-   - Địa chỉ: Khu đô thị mới An Phú Thịnh, Phường Nhơn Bình & Phường Đống Đa, TP. Quy Nhơn, Bình Định
-   - Tập trung phát triển ngành Trí tuệ nhân tạo
+Trả lời:
+- Vào "Hồ sơ của tôi" → Kéo xuống phần "Danh sách con" → Nhấn "Thêm con" để nhập mã học sinh và thông tin cần thiết.
+- Nếu không thấy thông tin con, kiểm tra lại mã học sinh hoặc liên hệ nhà trường để được hỗ trợ.
 
-HỌC PHÍ THAM KHẢO (CÓ THỂ THAY ĐỔI THEO NĂM HỌC)
+---
 
-Campus       | Học phí Đại học (VNĐ/năm) | Ghi chú
-------------------------------------------------------------
-Hà Nội       | ~ 27 – 32.5 triệu/kỳ        | 3 kỳ/năm
-TP.HCM       | ~ 27.3 – 32.5 triệu/kỳ        | Có chương trình tiếng Nhật
-Đà Nẵng      | ~ 25 – 28 triệu/kỳ        |
-Cần Thơ      | ~ 23 – 26 triệu/kỳ        |
-Quy Nhơn     | ~ 20 – 24 triệu/kỳ        | Chuyên về AI
+3. XEM HỒ SƠ SỨC KHỎE ĐIỆN TỬ CỦA CON
 
-*Lưu ý: Chưa bao gồm học phí học kỳ tiếng Anh dự bị (~30 triệu đồng/kỳ cập nhật vào tháng 12/2024).
+Câu hỏi ví dụ:
+- Xem hồ sơ sức khỏe của con ở đâu?
+- Muốn biết chiều cao, cân nặng, thị lực của con thì làm thế nào?
+- Theo dõi lịch sử khám sức khỏe cho con?
 
+Trả lời:
+- Chọn con trong "Danh sách con" → Nhấn vào tên con → Xem chi tiết hồ sơ sức khỏe điện tử (chiều cao, cân nặng, thị lực, lịch sử khám...).
 
-HƯỚNG DẪN ĐĂNG KÝ TƯ VẤN TUYỂN SINH
+---
 
-Bạn quan tâm đến một ngành học cụ thể hoặc cần tư vấn chọn ngành phù hợp với năng lực và sở thích?
+4. XEM LỊCH TIÊM CHỦNG, LỊCH KHÁM SỨC KHỎE
 
-➡ Hãy nhấn vào nút “Đăng ký tư vấn” dưới đây để được đội ngũ tư vấn viên hỗ trợ trực tiếp.
+Câu hỏi ví dụ:
+- Xem lịch tiêm chủng cho con ở đâu?
+- Làm sao biết con sắp đến lịch tiêm?
+- Nhận thông báo tiêm chủng như thế nào?
 
-LIÊN HỆ ĐẠI HỌC FPT
+Trả lời:
+- Vào mục "Lịch tiêm chủng" hoặc "Lịch khám sức khỏe" trên menu → Chọn tên con để xem chi tiết lịch tiêm, lịch khám.
+- Hệ thống sẽ gửi thông báo nhắc lịch tiêm/chủng cho phụ huynh trước ngày tiêm.
 
-- Website: http://localhost:5173/consulting
-- Hotline: 1900 6606
-- Email: tuyensinh@fpt.edu.vn
-- Fanpage: http://localhost:5173/
+---
 
-HƯỚNG DẪN ĐĂNG KÝ XÉT TUYỂN
+5. XÁC NHẬN ĐỒNG Ý/ KHÔNG ĐỒNG Ý TIÊM CHỦNG
 
-Theo quy định của trường Đại học FPT, việc xét tuyển vào trường theo phương thức điểm thi Tốt nghiệp (Toán, Văn, Anh)
-➡ Hãy nhấn vào nút “Đăng ký Xét tuyển” dưới đây để nộp đơn đăng ký xét tuyển vào trường nhé.
+Câu hỏi ví dụ:
+- Làm sao để xác nhận đồng ý tiêm cho con?
+- Tôi muốn từ chối tiêm chủng thì làm thế nào?
 
-LIÊN HỆ ĐẠI HỌC FPT
+Trả lời:
+- Trong mục "Lịch tiêm chủng", chọn mũi tiêm cần xác nhận → Nhấn "Đồng ý" hoặc "Từ chối" → Ghi chú lý do nếu cần.
 
-- Website: http://localhost:5173/admission-form
-- Hotline: 1900 6606
-- Email: tuyensinh@fpt.edu.vn
-- Fanpage: http://localhost:5173/
+---
 
+6. ĐĂNG KÝ TƯ VẤN SỨC KHỎE RIÊNG VỚI Y TẾ NHÀ TRƯỜNG
 
-TRA CỨU HỒ SƠ XÉT TUYỂN
+Câu hỏi ví dụ:
+- Đăng ký tư vấn sức khỏe cho con như thế nào?
+- Muốn trao đổi riêng với y tá thì làm sao?
 
-Để tra cứu hồ sơ xét tuyển, bạn vui lòng nhấn vào mục "TRA CỨU HỒ SƠ" hiển thị trên thanh Menu
-hoặc tìm kiếm "http://localhost:5173/lookup-profile".
-Đảm bảo (Họ và tên, Số điện thoại, Email) bạn đã điền vào form "Đăng ký xét tuyển" là khớp dữ liệu.
+Trả lời:
+- Vào mục "Tư vấn sức khỏe riêng" → Nhấn "Đăng ký tư vấn" → Chọn con và điền nội dung cần tư vấn → Gửi yêu cầu, y tá sẽ liên hệ lại.
 
-TRƯỜNG HỢP KHÔNG CÓ DỮ LIỆU TRẢ VỀ
+---
 
-Vui lòng liên hệ với số hotline nơi Campus bạn đăng ký để bộ phận Tư vấn viên có thể phản hồi kết quả sớm nhất nhé !
+7. TRA CỨU THÔNG TIN, HỖ TRỢ XỬ LÝ LỖI
 
+Câu hỏi ví dụ:
+- Không thấy thông tin con, phải làm sao?
+- Không nhận được thông báo tiêm chủng?
+- Không cập nhật được hồ sơ sức khỏe?
 
-50 Câu hỏi - Đáp án Tư vấn Tuyển sinh Đại học FPT 2025
+Trả lời:
+- Kiểm tra lại thông tin đăng nhập, mã học sinh.
+- Nếu vẫn gặp lỗi, liên hệ bộ phận hỗ trợ hoặc y tế nhà trường để được giải đáp.
 
-THÔNG TIN CHUNG VỀ TRƯỜNG
-1. Trường Đại học FPT có bao nhiều cơ sở đào tạo? Trường Đại học FPT có 5 địa điểm đào tạo hệ đại học chính quy tại: Hà Nội, Đà Nẵng, Quy Nhơn, TP. Hồ Chí Minh và Cần Thơ.
-2. Tại sao nên chọn Trường Đại học FPT? Trường Đại học FPT mang đến 5 lợi thế vượt trội: (1) Trải nghiệm quốc tế với hơn 200 đối tác tại 36 quốc gia, (2) 100% sinh viên thực tập tại doanh nghiệp từ năm 3, (3) Chương trình đào tạo chuẩn quốc tế với giảng viên chuyên gia, (4) 98% sinh viên có việc làm sau tốt nghiệp, 19% làm việc tại các nước phát triển, (5) Hệ thống cơ sở rộng khắp cả nước.
-3. Tỷ lệ sinh viên có việc làm sau tốt nghiệp là bao nhiêu? 98% sinh viên FPTU có việc làm sau tốt nghiệp, trong đó 19% cựu sinh viên FPTU làm việc tại các nước phát triển như Anh, Mỹ, Đức, Nhật, Canada…
-4. Trường có chương trình du học không? Có, sinh viên được du học ngắn hạn 3-6 tháng tại các đại học danh tiếng trên thế giới thông qua mạng lưới hợp tác với hơn 200 đối tác tại 36 quốc gia.
-5. Chương trình thực tập của trường như thế nào? 100% sinh viên thực tập tại doanh nghiệp từ năm 3, giúp tích lũy kinh nghiệm thực tế và làm thật trong môi trường doanh nghiệp.
-CÁC NGÀNH ĐÀO TẠO
-6. Trường Đại học FPT có những ngành học nào năm 2025? Các ngành đào tạo năm 2025 gồm: Công Nghệ Thông Tin, Quản Trị Kinh Doanh, Công nghệ Truyền thông, Ngôn Ngữ Anh, Ngôn Ngữ Nhật, Ngôn Ngữ Hàn Quốc, Ngôn ngữ Trung Quốc, Luật.
-7. Ngành Công nghệ Thông tin có những chuyên ngành nào? Ngành Công nghệ Thông tin có các chuyên ngành: Công nghệ thông tin
-An toàn thông tin
-Công nghệ ô tô số
-Hệ thống thông tin
-Kỹ thuật phần mềm
-Thiết kế mỹ thuật số
-Thiết kế vi mạch bán dẫn
-Trí tuệ nhân tạo
-8. Ngành Công nghệ Truyền thông đào tạo những gì? Ngành Công nghệ Truyền thông đào tạo sinh viên trở thành chuyên gia trong lĩnh vực truyền thông số, trang bị kiến thức và kỹ năng để xác định mục tiêu, lập kế hoạch và quản trị hiệu quả các hoạt động truyền thông.
-9. Ngành Quản trị Kinh doanh có đặc điểm gì? Ngành Quản trị Kinh doanh được thiết kế với tư duy hướng chuẩn đầu ra đáp ứng nhu cầu thị trường lao động và tạo nền tảng phát triển sự nghiệp lâu dài cho người học, bao gồm: Quản Trị Kinh Doanh
-Tài chính đầu tư
-Công nghệ tài chính (Fintech)
-Digital Marketing
-Kinh doanh quốc tế
-Logistics và quản lý chuỗi cung ứng toàn cầu
-Quản trị dịch vụ du lịch & lữ hành
-Quản trị khách sạn
-Tài chính doanh nghiệp
-Ngân hàng số – Tài chính (Digital Banking and Finance)
-Ngành Luật có đặc điểm gì?
-Trọng tâm đổi mới phương thức dạy và học, đánh trọng tâm thực hành vào thực tiễn, ngành Luật mang đến cơ hội làm việc toàn cầu với
-các chuyên ngành mới nhất của đại học FPT: 
- Luật kinh doanh
- Luật kinh tế
- Luật thương mại quốc tế
- (vừa được mở mới vào đầu năm 2025) 
-10. Trường có đào tạo các ngành ngôn ngữ nước ngoài không? Có, trường đào tạo 4 ngành ngôn ngữ: Ngôn Ngữ Anh (có chuyên ngành Quản trị khách sạn), Ngôn Ngữ Nhật, Ngôn Ngữ Hàn Quốc, và Ngôn ngữ Trung Quốc.
-PHƯƠNG THỨC TUYỂN SINH
-11. Trường Đại học FPT có bao nhiêu phương thức tuyển sinh năm 2025? 
-Trường tuyển sinh theo 4 phương thức:
-Phương thức 1: Xét kết quả xếp hạng học sinh THPT (Top50 năm 2025 theo điểm học bạ lớp 11 và học kỳ 1 lớp 12, với điểm Toán + 2 môn bất kỳ học kỳ 2 lớp 12 từ 21 điểm trở lên).
-Phương thức 2: Xét tuyển thẳng (theo quy định của Bộ GD&ĐT hoặc chứng chỉ ngoại ngữ như TOEFL iBT ≥ 80, IELTS ≥ 6.0, JLPT ≥ N3, v.v.).
-Phương thức 3: Dựa vào kết quả kỳ thi đánh giá năng lực của ĐHQG Hà Nội và ĐHQG TP.HCM năm 2025.
-Phương thức 4: Xét kết quả thi tốt nghiệp THPT năm 2025 (tổ hợp: Điểm Toán * 2 + điểm 2 môn bất kỳ).
-12. Phương thức xét kết quả xếp hạng học sinh THPT như thế nào? Thí sinh cần đạt xếp hạng Top50 năm 2025 theo điểm học bạ lớp 11 và học kỳ 1 lớp 12 (chứng nhận trên trang School-Rank.fpt.edu.vn) với điều kiện điểm Toán + 2 môn bất kỳ của học kỳ 2 lớp 12 đạt từ 21 điểm trở lên.
-13. Website xếp hạng học sinh là gì? Website xếp hạng học sinh là https://schoolrank.fpt.edu.vn/, nơi thí sinh có thể kiểm tra và xác nhận xếp hạng của mình.
-14. Phương thức xét tuyển theo kết quả thi tốt nghiệp THPT như thế nào? Sử dụng tổ hợp Toán + 2 môn bất kỳ + Điểm ưu tiên theo quy định của Bộ GD&ĐT. Điểm cụ thể sẽ được công bố sau khi có kết quả thi.
-15. Trường có xét tuyển theo kết quả thi đánh giá năng lực không? Có, trường xét tuyển dựa vào kết quả kỳ thi đánh giá năng lực của ĐHQG Hà Nội và ĐHQG TP.HCM năm 2025. Điểm trúng tuyển sẽ công bố sau khi có kết quả.
-HỌC PHÍ
-16. Mức học phí tại cơ sở Hà Nội là bao nhiêu? Học phí tại Hà Nội từ 22.120.000 VNĐ đến 35.800.000 VNĐ/học kỳ. (Tính đến thời điểm năm 2025)
-17. Mức học phí tại cơ sở TP. Hồ Chí Minh là bao nhiêu? Học phí tại TP. HCM từ 22.120.000 VNĐ đến 35.800.000 VNĐ/học kỳ. (Tính đến thời điểm năm 2025)
-18. Mức học phí tại cơ sở Đà Nẵng là bao nhiêu? Học phí tại Đà Nẵng từ 15.480.000 VNĐ đến 25.060.000 VNĐ/học kỳ. (Tính đến thời điểm năm 2025)
-19. Mức học phí tại cơ sở Quy Nhơn là bao nhiêu? Học phí tại Quy Nhơn từ 11.060.000 VNĐ đến 17.900.000 VNĐ/học kỳ. (Tính đến thời điểm năm 2025)
-20. Mức học phí tại cơ sở Cần Thơ là bao nhiêu? Học phí tại Cần Thơ từ 15.480.000 VNĐ đến 25.060.000 VNĐ/học kỳ. (Tính đến thời điểm năm 2025)
-HỌC BỔNG VÀ HỖ TRỢ TÀI CHÍNH
-21. Trường có những loại học bổng nào? Trường có 2800 suất học bổng Giáo sư Nguyễn Văn Đạo (từ 100% năm đầu đến 100% toàn khóa), học bổng nữ sinh STEM 20 triệu đồng cho ngành CNTT, và chương trình "Học trước - Trả sau" hỗ trợ 1000 sinh viên.
-22. Học bổng Giáo sư Nguyễn Văn Đạo có giá trị như thế nào? Có 2800 suất học bổng với giá trị từ 100% học phí năm đầu đến 100% học phí toàn khóa học. (https://daihoc.fpt.edu.vn/hoc-bong/)
-23. Học bổng nữ sinh STEM là gì? Tặng học bổng trị giá 20 triệu đồng cho các thí sinh nữ đăng ký học ngành Công nghệ thông tin. (https://daihoc.fpt.edu.vn/hoc-bong/)
-24. Chương trình "Học trước - Trả sau" hoạt động như thế nào? Trường hỗ trợ 1000 sinh viên theo chương trình này, cho phép sinh viên trả dần học phí sau khi tốt nghiệp. (https://daihoc.fpt.edu.vn/hoc-bong/)
-25. Điều kiện để nhận học bổng là gì? Điều kiện cụ thể cho từng loại học bổng sẽ được thông báo chi tiết trong quy chế tuyển sinh. Thí sinh cần liên hệ phòng tuyển sinh để biết thêm chi tiết.
-CHẤT LƯỢNG ĐÀO TẠO
-26. Đội ngũ giảng viên của trường như thế nào? Giảng viên Trường Đại học FPT là các chuyên gia trong và ngoài nước, dày dặn chuyên môn sư phạm và kinh nghiệm thực chiến.
-27. Chương trình đào tạo có đặc điểm gì? Chương trình đào tạo chuẩn quốc tế, được thiết kế từ đầu với tư duy hướng chuẩn đầu ra đáp ứng nhu cầu thị trường lao động.
-28. Sinh viên có cơ hội thực tập không? 100% sinh viên được thực tập tại doanh nghiệp từ năm 3, tích lũy kinh nghiệm thực tế trong môi trường làm việc chuyên nghiệp.
-29. Trường có hợp tác quốc tế không? Có, trường đã hợp tác với hơn 200 đối tác tại 36 quốc gia, mang đến cơ hội trải nghiệm quốc tế cho sinh viên.
-30. Sinh viên có cơ hội du học không? Sinh viên được du học ngắn hạn 3-6 tháng tại các đại học danh tiếng trên thế giới thông qua mạng lưới đối tác quốc tế.
-TUYỂN SINH 2025
-31. Khi nào bắt đầu tuyển sinh 2025? Tuyển sinh 2025 đã bắt đầu từ ngày 20-1-2025. Thí sinh có thể đăng ký ngay hôm nay.
-32. Thí sinh cần chuẩn bị gì để đăng ký? Thí sinh cần chuẩn bị kết quả học tập (học bạ hoặc kết quả thi) tùy theo phương thức xét tuyển đã chọn và các giấy tờ cá nhân theo quy định.
-33. Có thể đăng ký nhiều ngành cùng lúc không? Thí sinh có thể đăng ký xét tuyển nhiều ngành và nhiều phương thức khác nhau để tăng cơ hội trúng tuyển.
-34. Khi nào có kết quả xét tuyển? Kết quả xét tuyển sẽ được thông báo theo từng đợt tùy theo phương thức tuyển sinh. Thí sinh cần theo dõi website chính thức của trường.
-35. Làm thế nào để đăng ký xét tuyển? Thí sinh có thể đăng ký trực tuyến trên website chính thức của trường hoặc liên hệ trực tiếp với các cơ sở để được hướng dẫn chi tiết.
-XÉT TUYỂN THẲNG
-36. Ai được xét tuyển thẳng? Ngoài các đối tượng được xét tuyển thẳng theo Quy chế của Bộ GD&ĐT, trường còn có quy định riêng về 4 nhóm thuộc diện xét tuyển thẳng.
-Thí sinh tham gia các kỳ thi quốc tế: 
-Thí sinh là thành viên đội tuyển quốc gia dự thi Olympic quốc tế hoặc các cuộc thi khoa học kỹ thuật quốc tế.
-Thí sinh đạt giải Nhất, Nhì, Ba trong các cuộc thi văn hóa, thể thao cấp quốc tế.
-Thí sinh đạt giải trong kỳ thi học sinh giỏi quốc gia: 
-Thí sinh đạt giải Nhất, Nhì, Ba trong kỳ thi chọn học sinh giỏi quốc gia do Bộ Giáo dục và Đào tạo tổ chức.
-Thí sinh có chứng chỉ ngoại ngữ quốc tế: 
+---
 
-
-Ngành Ngôn ngữ Hàn Quốc hoặc Ngôn ngữ Trung Quốc: Có chứng chỉ tương đương theo quy định của trường.
-Thí sinh thuộc diện xét tuyển thẳng theo quy định của Bộ Giáo dục và Đào tạo: 
-Bao gồm các đối tượng được quy định trong Quy chế tuyển sinh đại học của Bộ GD&ĐT, như thí sinh thuộc diện ưu tiên đặc biệt, thí sinh có thành tích đặc biệt khác theo quy định hiện hành.
-Lưu ý: Thí sinh cần nộp các giấy tờ chứng minh thành tích (bằng khen, chứng chỉ, v.v.) để được xét duyệt. Thông tin cụ thể về điều kiện và hồ sơ cần kiểm tra cập nhật trên website của trường cho năm tuyển sinh 2025.
-
-37. Thí sinh đạt giải học sinh giỏi có được xét tuyển thẳng không? Có, theo quy định của Bộ GD&ĐT và quy định riêng của trường về xét tuyển thẳng.
-38. Cần nộp hồ sơ xét tuyển thẳng như thế nào? Thí sinh cần nộp hồ sơ chứng minh đạt điều kiện xét tuyển thẳng theo quy định của trường và Bộ GD&ĐT.
-CƠ HỘI NGHỀ NGHIỆP
-39. Ra trường có dễ tìm việc không? 98% sinh viên FPTU có việc làm sau tốt nghiệp, cho thấy cơ hội việc làm rất cao.
-40. Có cơ hội làm việc ở nước ngoài không? Có, 19% cựu sinh viên FPTU làm việc tại các nước phát triển như Anh, Mỹ, Đức, Nhật, Canada.
-41. Trường có hỗ trợ tìm việc làm không? Trường có mạng lưới doanh nghiệp đối tác rộng lớn và chương trình thực tập 100% giúp sinh viên có cơ hội việc làm tốt.
-THÔNG TIN LIÊN HỆ
-42. Làm thế nào để liên hệ tư vấn tuyển sinh? Thí sinh có thể truy cập website daihoc.fpt.edu.vn/tuyen-sinh/ hoặc liên hệ trực tiếp với các cơ sở của trường.
-43. Website chính thức của trường là gì? Website chính thức: daihoc.fpt.edu.vn
-44. Có thể tham quan trường trước khi quyết định không? Có, thí sinh và phụ huynh có thể liên hệ để được tham quan cơ sở và tìm hiểu thêm về môi trường học tập.
-CÂU HỎI KHÁC
-45. Sinh viên quốc tế có thể học tại FPT không? Có, trường đào tạo cho cả sinh viên trong và ngoài nước với chương trình chuẩn quốc tế.
-46. Trường có ký túc xá không? Thông tin về ký túc xá cần liên hệ trực tiếp với từng cơ sở để biết chi tiết.
-47. Có thể chuyển ngành trong quá trình học không? Có thể, tùy theo quy định cụ thể của trường và điều kiện học tập của sinh viên.
-48. Thời gian đào tạo là bao lâu? Thời gian đào tạo đại học là 4 năm (8 học kỳ) theo chuẩn của Bộ GD&ĐT.
-49. Trường có chương trình liên kết quốc tế nào đặc biệt? Trường hợp tác với hơn 200 đối tác tại 36 quốc gia, tạo cơ hội du học và trải nghiệm quốc tế cho sinh viên.
-50. Điều gì làm nên sự khác biệt của Đại học FPT? Sự khác biệt của FPTU là môi trường giáo dục thực tế với 100% thực tập doanh nghiệp, 98% có việc làm sau tốt nghiệp, cơ hội quốc tế rộng mở và chương trình đào tạo chuẩn quốc tế với đội ngũ giảng viên chuyên gia.
-
-
-BỔ SUNG THÊM
-FPT là trường gì?
-FPT là trường đại học tư thục, đào tạo hệ chính quy, kết hợp quốc tế.
-FPT có bao nhiêu cơ sở đào tạo đại học?
-Trường Đại học FPT có tổng cộng 5 cơ sở (Campus) trải dài xuyên suốt mọi miền đất nước, bao gồm: Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ, Quy Nhơn
-FPT là trường Đại học công lập hay tư thực?
-FPT là trường đại học tư thục, đào tạo hệ chính quy, kết hợp quốc tế.
-Xét học bạ Top50 là gì?
-Top 50 theo điểm học bạ lớp 11 + học kỳ 1 lớp 12, và Toán + 2 môn HK2 ≥ 21
-Điểm chuẩn các năm trước?
-Năm 2018 tại TP.HCM: hầu hết ngành lấy 21 điểm
-Hotline Hà Nội là gì?
-(024) 7300 5588 tuyensinhso.vn+4daihoc.fpt.edu.vn+4daihoc.fpt.edu.vn+4.
-Hotline TP.HCM là gì?
-(028) 7300 5588 daihoc.fpt.edu.vn+3daihoc.fpt.edu.vn+3tuyensinhso.vn+3.
-Hotline Đà Nẵng là gì?
-(0236) 7300999 .
-Hotline Cần Thơ là gì?
-(0292) 7303636 .
-Hotline Quy Nhơn là gì?
-(0256) 7300999 .
-Có chương trình đào tạo khởi nghiệp không?
-Trường đại học FPT là một trong những trường đại học tiên phong về lĩnh vực dạy và học, kết hợp giữa thực hành lẫn thực tiễn. Do đó, từ năm 4 ( Kỳ 7 – Kỳ 9 ), sinh viên có thể tiếp cận với môi trường khởi nghiệp bởi sự dẫn dắt từ những chuyên gia hàng đầu của bộ môn (EXE), mang đến những trải nghiệm về khởi nghiệp – giúp người học có thêm kiến thức về biến động không ngừng của đời sống xã hội.
-
-Sinh viên FPT được đánh giá ra sao?
-“Thông minh, chủ động, sáng tạo”, “làm được việc ngay khi mới ra trường” — theo Niteco, Shopee, cựu sinh viên…
-Địa chỉ Đại học FPT Hà Nội?
-Khu Công nghệ cao Hòa Lạc, Thạch Thất, Hà Nội.
-
-Địa chỉ Đại học FPT TP.HCM?
-Lô E2a-7, Đường D1 Khu Công nghệ cao, P. Long Thạnh Mỹ, TP. Thủ Đức, TP. Hồ Chí Minh
-
-Địa chỉ Đại học FPT Đà Nẵng?
-Khu đô thị công nghệ FPT Đà Nẵng, P. Hoà Hải, Q. Ngũ Hành Sơn, TP. Đà Nẵng
-
-Địa chỉ Đại học FPT Quy Nhơn?
-Khu đô thị mới An Phú Thịnh, Phường Nhơn Bình & Phường Đống Đa, TP. Quy Nhơn, Bình Định
-
-Địa chỉ Đại học FPT Cần Thơ?
-Số 600 Đường Nguyễn Văn Cừ (nối dài), P. An Bình, Q. Ninh Kiều, TP. Cần Thơ
-
-Khi người dùng hỏi "còn" một cái gì đấy "thì sao"? thì hãy kiểm tra câu hỏi trước để đưa ra kết quả phù hợp.
-
-Ngành công nghệ thông tin bao gồm ?
-Công nghệ thông tin
-An toàn thông tin
-Công nghệ ô tô số
-Hệ thống thông tin
-Kỹ thuật phần mềm
-Thiết kế mỹ thuật số
-Thiết kế vi mạch bán dẫn
-Trí tuệ nhân tạo
-
-Ngành quản trị kinh doanh gồm có ?
-Quản Trị Kinh Doanh
-Tài chính đầu tư
-Công nghệ tài chính (Fintech)
-Digital Marketing
-Kinh doanh quốc tế
-Logistics và quản lý chuỗi cung ứng toàn cầu
-Quản trị dịch vụ du lịch & lữ hành
-Quản trị khách sạn
-Tài chính doanh nghiệp
-Ngân hàng số – Tài chính (Digital Banking and Finance)
-
-Làm sao tôi có thể đăng ký tư vấn/ đăng ký xét tuyển ?
-Bạn có thể chọn mục "Đăng ký" hiển thị trên thanh Menu của trang chủ chính.
-Sau đó, hệ thống sẽ hiển ra danh sách Đăng ký (bao gồm "Tư vấn" và "Xét tuyển")
-phụ thuộc vào nhu cầu của chính bạn.
-
-Ai sẽ là người liên lạc lại cho tôi ?
-Bộ phận tư vấn viên của trường Đại học FPT sẽ là nhóm người chủ động liên lạc lại với bạn trong thời gian sớm nhất
-
-Thời gian xử lý hồ sơ đăng ký tư vấn / đăng ký xét tuyển ?
-
-.Đối với hồ sơ đăng ký tư vấn, bộ phận Tư vấn viên sẽ chủ động liên hệ và xử lý hồ sơ cho bạn (chậm nhất là 2 ngày làm việc), không tính Thứ 7/Chủ nhật và ngày nghỉ lễ
-.Đối với hô sơ xét tuyển, bộ phận Tư vấn viên sẽ sàng lọc và đánh giá hồ sơ của bạn dựa theo quy định xét tuyển của Đại học FPT (2 tuần kể từ ngày nộp hồ sơ), , không tính Thứ 7/Chủ nhật và ngày nghỉ lễ
+Lưu ý:
+- Phụ huynh có thể hỏi chatbot bằng nhiều cách diễn đạt khác nhau, chỉ cần nêu đúng ý chính, chatbot sẽ tự động tìm và trả lời phù hợp nhất dựa trên file knowledge này.
 
 

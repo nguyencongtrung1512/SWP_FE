@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select } from 'antd'
 import { createStudent } from '../../../apis/student'
 import dayjs from 'dayjs'
@@ -21,7 +21,7 @@ const CreateStudent: React.FC<CreateStudentProps> = ({ isModalVisible, onCancel,
   const maxDate = dayjs().subtract(6, 'year')
   const minDate = dayjs().subtract(15, 'year')
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isModalVisible) {
       getAllUser.getAllUsers().then((res) => {
         const parentList = res.filter((u) => u.role?.roleName === 'Parent')

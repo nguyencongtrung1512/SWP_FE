@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './SideBar'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useAuth } from '../../contexts/auth.context'
-import { getAccountInfo } from '../../api/parent.api'
+import { getAccountInfo } from '../../apis/parent.api'
 import path from '../../constants/path'
 
 interface AccountInfo {

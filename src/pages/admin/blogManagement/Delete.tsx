@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, message } from 'antd'
+import { Modal } from 'antd'
 import blogApi from '../../../apis/blog.api'
 import type { Blog } from '../../../apis/blog.api'
 import { toast } from 'react-toastify'
@@ -16,7 +16,7 @@ const DeleteBlog: React.FC<DeleteBlogProps> = ({ blog, visible, onCancel, onSucc
     if (!blog) return
 
     try {
-      await blogApi.deleteBlog(blog.blogID)
+      await blogApi.deleteBlog(blog.blogID.toString())
       toast.success('Xóa blog thành công!')
       onSuccess()
     } catch (error) {

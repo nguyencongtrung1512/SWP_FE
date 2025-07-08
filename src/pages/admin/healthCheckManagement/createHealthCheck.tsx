@@ -133,12 +133,7 @@ const ScheduleHealthCheck: React.FC = () => {
   }
 
   const uniqueHealthChecks = examinations.filter((value, index, self) =>
-    index === self.findIndex(
-      (v) =>
-        v.nurseID === value.nurseID &&
-        v.date === value.date &&
-        v.healthCheckDescription === value.healthCheckDescription
-    )
+    index === self.findIndex((v) => v.nurseID === value.nurseID && v.date === value.date)
   )
 
   console.log('Examinations:', uniqueHealthChecks)

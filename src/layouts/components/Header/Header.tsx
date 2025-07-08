@@ -3,7 +3,7 @@ import path from '../../../constants/path'
 import { useAuth } from '../../../contexts/auth.context'
 import { useNavigate } from 'react-router-dom'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
-import { getAccountInfo } from '../../../api/parent.api'
+import { getAccountInfo } from '../../../apis/parent.api'
 
 interface AccountInfo {
   $id: string
@@ -89,7 +89,7 @@ function Header() {
         <a href={path.medicalEvent} className='text-gray-900 hover:text-blue-500 transition-colors'>
           Báo cáo y tế
         </a>
-        <a href={path.Appointment} className='text-gray-900 hover:text-blue-500 transition-colors'>
+        <a href={path.appointment} className='text-gray-900 hover:text-blue-500 transition-colors'>
           Đặt lịch tư vấn
         </a>
         <a href={path.blog} className='text-gray-900 hover:text-blue-500 transition-colors'>

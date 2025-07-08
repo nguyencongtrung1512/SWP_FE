@@ -24,7 +24,7 @@ import type { UploadFile } from 'antd/es/upload/interface'
 import type { TabsProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
-const { Title, Text } = Typography
+const { Title } = Typography
 const { Option } = Select
 const { Search } = Input
 

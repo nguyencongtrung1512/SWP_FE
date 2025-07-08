@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { Table, Button, Card, Typography, Space, message, Popconfirm } from 'antd'
 import type { ColumnsType } from 'antd/es/table'

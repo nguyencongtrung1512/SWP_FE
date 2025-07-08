@@ -9,7 +9,7 @@ import {
   TeamOutlined,
   BookOutlined
 } from '@ant-design/icons'
-import { getAccountInfo, getMyChildren, Student } from '../../../api/parent.api'
+import { getAccountInfo, getMyChildren, Student } from '../../../apis/parent.api'
 import UpdateProfileModal from './updateProfile'
 import ChangePasswordModal from '../../../components/Profile/ChangePasswordModal'
 import AddStudentModal from '../../../components/Profile/AddStudentModal'

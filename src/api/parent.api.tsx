@@ -7,7 +7,7 @@ const API_HEALTH_RECORD = '/HealthRecord'
 
 export interface Student {
   $id: string
-  id: number
+  studentId: number
   fullname: string
   studentCode: string
   dateOfBirth: string

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Modal, Form, Input, message } from 'antd'
-import { updateClass } from '../../../apis/class'
-import type { Class } from '../../../apis/class'
+import { updateClass } from '../../../apis/class.api'
+import type { Class } from '../../../apis/class.api'
 
 interface UpdateClassProps {
   isModalVisible: boolean

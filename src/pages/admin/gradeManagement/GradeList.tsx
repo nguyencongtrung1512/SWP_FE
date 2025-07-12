@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { getAllClasses, deleteClass } from '../../../apis/class'
+import { getAllClasses, deleteClass } from '../../../apis/class.api'
 import { Select, message, Popconfirm } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import type { Class as ClassBase } from '../../../apis/class'
+import type { Class as ClassBase } from '../../../apis/class.api'
 import CreateClass from '../classroomManagement/Create'
 import UpdateClass from '../classroomManagement/Update'
 import { EyeOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons'
-import { getAllStudents } from '../../../apis/student'
+import { getAllStudents } from '../../../apis/student.api'
 import { getStudentDistribution, StudentDistributionResponse } from '../../../apis/dashboard.api'
 
 type Class = ClassBase & { studentCount?: number }

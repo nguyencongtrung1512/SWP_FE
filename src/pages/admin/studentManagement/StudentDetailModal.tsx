@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, Descriptions, Typography, Spin, message } from 'antd'
-import { getParentById, getStudentById } from '../../../apis/student'
-import type { Student } from '../../../apis/student'
+import { getParentById, getStudentById } from '../../../apis/student.api'
+import type { Student } from '../../../apis/student.api'
 
 const { Title } = Typography
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select, Tooltip, InputNumber } from 'antd'
-import { updateMedication } from '../../../apis/medication'
-import type { Medication } from '../../../apis/medication'
+import { updateMedication } from '../../../apis/medication.api'
+import type { Medication } from '../../../apis/medication.api'
 import dayjs from 'dayjs'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
@@ -179,8 +179,8 @@ const UpdateMedication: React.FC<UpdateMedicationProps> = ({ isModalVisible, onC
           />
         </Form.Item>
 
-        <Form.Item 
-          name='quantity' 
+        <Form.Item
+          name='quantity'
           label={`Số lượng ${unitName ? `(${unitName})` : ''}`}
           rules={[
             {

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select } from 'antd'
-import { createStudent } from '../../../apis/student'
+import { createStudent } from '../../../apis/student.api'
 import dayjs from 'dayjs'
-import { getAllUser } from '../../../apis/adminManageAccount'
+import { getAllUser } from '../../../apis/adminManageAccount.api'
 import { toast } from 'react-toastify'
 import { AxiosError } from 'axios'
 

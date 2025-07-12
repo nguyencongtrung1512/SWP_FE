@@ -5,8 +5,8 @@ import type { ColumnsType } from 'antd/es/table'
 import { FaRegBell } from 'react-icons/fa'
 import HistoryVaccination from './HistoryVaccination'
 import HistoryHealthCheck from './HistoryHealthCheck'
-import { getParentNotifications, VaccinationConsent, sendConsent } from '../../../apis/vaccination'
-import { getHealthCheckNotifications, HealthCheckNotification } from '../../../apis/healthCheck'
+import { getParentNotifications, VaccinationConsent, sendConsent } from '../../../apis/vaccinatapi.api'
+import { getHealthCheckNotifications, HealthCheckNotification } from '../../../apis/healthCheck.api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getAccountInfo } from '../../../apis/parent.api'
@@ -29,7 +29,7 @@ const VaccinationSchedule: React.FC = () => {
   const [childrenList, setChildrenList] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [isHealthCheck, setIsHealthCheck] = useState(false)
-  
+
   useEffect(() => {
     const fetchData = async () => {
       await fetchChildrenList()
@@ -76,17 +76,17 @@ const VaccinationSchedule: React.FC = () => {
       setLoading(true)
       const res = await getParentNotifications()
       const allVaccinationData = res.data.$values || []
-      
+
       const childrenIds = childrenList.map(child => child.studentId)
-      const filteredData = allVaccinationData.filter((item: VaccinationConsent) => 
+      const filteredData = allVaccinationData.filter((item: VaccinationConsent) =>
         childrenIds.includes(item.studentId)
       )
-      
+
       const mapped = filteredData.map((item: VaccinationConsent) => ({
         ...item,
         key: item.consentId.toString()
       }))
-      
+
       setVaccinationData(mapped)
     } catch (err) {
       console.error(err)
@@ -102,9 +102,9 @@ const VaccinationSchedule: React.FC = () => {
       const res = await getHealthCheckNotifications()
       console.log('Fetched health check data:', res.data)
       const allHealthCheckData = res.data.$values || []
-      
+
       const childrenIds = childrenList.map(child => child.studentId)
-      const filteredData = allHealthCheckData.filter((item: HealthCheckNotification) => 
+      const filteredData = allHealthCheckData.filter((item: HealthCheckNotification) =>
         childrenIds.includes(item.studentID)
       )
       console.log('Filtered health check data:', filteredData)
@@ -152,11 +152,11 @@ const VaccinationSchedule: React.FC = () => {
     setIsHealthCheck(isHealthCheckMode)
   }
 
-  const filteredVaccinationData = selectedChild 
+  const filteredVaccinationData = selectedChild
     ? vaccinationData.filter(item => item.studentId === selectedChild.studentId)
     : vaccinationData
 
-  const filteredHealthCheckData = selectedChild 
+  const filteredHealthCheckData = selectedChild
     ? healthCheckData.filter(item => item.studentID === selectedChild.studentId)
     : healthCheckData
 
@@ -198,7 +198,7 @@ const VaccinationSchedule: React.FC = () => {
       )
     }
   ]
-  
+
   const healthCheckColumns: ColumnsType<HealthCheckNotification> = [
     {
       title: 'Mô tả',
@@ -218,11 +218,11 @@ const VaccinationSchedule: React.FC = () => {
       sorter: (a, b) => {
         const dateA = dayjs(a.date)
         const dateB = dayjs(b.date)
-        
+
         if (!dateA.isValid() && !dateB.isValid()) return 0
         if (!dateA.isValid()) return 1
         if (!dateB.isValid()) return -1
-        
+
         return dateA.unix() - dateB.unix()
       },
       align: 'center' as const,
@@ -231,11 +231,10 @@ const VaccinationSchedule: React.FC = () => {
 
   return (
     <div
-      className={`flex ${
-        isHealthCheck
-          ? 'bg-gradient-to-br from-blue-100 via-red-100 to-purple-100'
-          : 'bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100'
-      }`}
+      className={`flex ${isHealthCheck
+        ? 'bg-gradient-to-br from-blue-100 via-red-100 to-purple-100'
+        : 'bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100'
+        }`}
     >
       <div className='w-80 bg-gray-50 shadow-lg p-6 overflow-y-auto'>
         <div className='mb-6'>
@@ -248,19 +247,17 @@ const VaccinationSchedule: React.FC = () => {
             <div
               key={child.studentId}
               onClick={() => handleChildSelect(child)}
-              className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-2 ${
-                selectedChild?.studentId === child.studentId
-                  ? 'border-blue-500 bg-white shadow-md'
-                  : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
-              }`}
+              className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-2 ${selectedChild?.studentId === child.studentId
+                ? 'border-blue-500 bg-white shadow-md'
+                : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
+                }`}
             >
               <div className='flex items-center space-x-3'>
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium ${
-                    selectedChild?.studentId === child.studentId 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-blue-100 text-blue-500'
-                  }`}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium ${selectedChild?.studentId === child.studentId
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-blue-100 text-blue-500'
+                    }`}
                 >
                   {child.fullname.trim().split(' ').pop()?.charAt(0).toUpperCase()}
                 </div>
@@ -284,34 +281,30 @@ const VaccinationSchedule: React.FC = () => {
               <div className='flex justify-start mb-6 space-x-4'>
                 <button
                   onClick={() => handleSwitchChange(false)}
-                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
-                    !isHealthCheck
-                      ? 'bg-blue-500 text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
-                  }`}
+                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${!isHealthCheck
+                    ? 'bg-blue-500 text-white shadow-lg scale-105'
+                    : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
+                    }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                      !isHealthCheck ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${!isHealthCheck ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'
+                      }`}
                   >
                     <MedicineBoxOutlined />
                   </div>
                   <span className='font-medium text-md'>Tiêm chủng</span>
                 </button>
-                
+
                 <button
                   onClick={() => handleSwitchChange(true)}
-                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
-                    isHealthCheck
-                      ? 'bg-red-500 text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-600 hover:bg-red-50 shadow-md'
-                  }`}
+                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${isHealthCheck
+                    ? 'bg-red-500 text-white shadow-lg scale-105'
+                    : 'bg-white text-gray-600 hover:bg-red-50 shadow-md'
+                    }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                      isHealthCheck ? 'bg-white text-red-500' : 'bg-red-100 text-red-500'
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${isHealthCheck ? 'bg-white text-red-500' : 'bg-red-100 text-red-500'
+                      }`}
                   >
                     <HeartOutlined />
                   </div>
@@ -345,10 +338,10 @@ const VaccinationSchedule: React.FC = () => {
                 <div className='w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3'>
                   <FaRegBell className='text-lg text-white' />
                 </div>
-                <h2 className='text-lg font-semibold text-gray-800'>Thông báo lịch {isHealthCheck? 'khám sức khỏe' : 'tiêm'}</h2>
+                <h2 className='text-lg font-semibold text-gray-800'>Thông báo lịch {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}</h2>
               </div>
 
-              { isHealthCheck ? (
+              {isHealthCheck ? (
                 <Table
                   columns={healthCheckColumns}
                   dataSource={filteredHealthCheckData}
@@ -358,7 +351,7 @@ const VaccinationSchedule: React.FC = () => {
                     showSizeChanger: true,
                     showTotal: (total) => `Tổng số ${total} kế hoạch`
                   }}
-                  rowKey={(record : HealthCheckNotification) => record.healthCheckID.toString()}
+                  rowKey={(record: HealthCheckNotification) => record.healthCheckID.toString()}
                 />
               ) : (
                 <Table
@@ -370,7 +363,7 @@ const VaccinationSchedule: React.FC = () => {
                     showSizeChanger: true,
                     showTotal: (total) => `Tổng số ${total} kế hoạch`
                   }}
-                  rowKey={(record : VaccinationConsent) => record.campaignId.toString()}
+                  rowKey={(record: VaccinationConsent) => record.campaignId.toString()}
                 />
               )}
             </Card>
@@ -380,16 +373,16 @@ const VaccinationSchedule: React.FC = () => {
                 <div className='w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3'>
                   <HistoryOutlined className='text-white text-lg' />
                 </div>
-                <h2 className='text-lg font-semibold text-gray-800'>Lịch sử {isHealthCheck? 'khám sức khỏe' : 'tiêm'}</h2>
+                <h2 className='text-lg font-semibold text-gray-800'>Lịch sử {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}</h2>
               </div>
 
-              { !isHealthCheck ? (
-                <HistoryVaccination 
+              {!isHealthCheck ? (
+                <HistoryVaccination
                   key={selectedChild.studentId}
-                  studentId={selectedChild.studentId} 
+                  studentId={selectedChild.studentId}
                 />
               ) : (
-                <HistoryHealthCheck 
+                <HistoryHealthCheck
                   key={selectedChild.studentId}
                   studentId={selectedChild.studentId}
                 />

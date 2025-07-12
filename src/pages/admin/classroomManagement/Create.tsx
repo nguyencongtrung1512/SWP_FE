@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Form, Input } from 'antd'
-import { createClass } from '../../../apis/class'
+import { createClass } from '../../../apis/class.api'
 import { toast } from 'react-toastify'
 
 interface CreateClassProps {

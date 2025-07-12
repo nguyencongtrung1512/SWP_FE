@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Card, Spin } from 'antd'
-import { getRecordsByStudent, HealthCheckRecord } from '../../../apis/healthCheck'
+import { getRecordsByStudent, HealthCheckRecord } from '../../../apis/healthCheck.api'
 import { getNurseListForHealthConsultation } from '../../../apis/healthConsultationBooking.api'
 import dayjs from 'dayjs'
 
@@ -105,7 +105,7 @@ const HistoryHealthCheck: React.FC<HistoryHealthCheckProps> = ({ studentId }) =>
       setLoading(false)
     }
   }
-  
+
   return (
     <Card>
       <Spin spinning={loading}>

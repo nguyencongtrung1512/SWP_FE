@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { Table, Button, Modal, Form, Input, Select, message, Card, Row, Col, Space, InputNumber, DatePicker } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { getRecordsByNurse, HealthCheckRecord, updateHealthCheck } from '../../../apis/healthCheck'
-import { getAllStudents } from '../../../apis/student'
-import { Class, getAllClasses } from '../../../apis/class'
+import { getRecordsByNurse, HealthCheckRecord, updateHealthCheck } from '../../../apis/healthCheck.api'
+import { getAllStudents } from '../../../apis/student.api'
+import { Class, getAllClasses } from '../../../apis/class.api'
 
 const { Option } = Select
 
@@ -64,10 +64,10 @@ function ResultsAfterHealthCheck() {
       setNurseId(user.accountID)
     }
   }, [])
-  
+
   useEffect(() => {
     if (classes.length > 0 && !selectedClass && selectedGrade) {
-      const defaultClass = classes.find(cls => 
+      const defaultClass = classes.find(cls =>
         cls.className.startsWith(selectedGrade)
       )
       if (defaultClass) {
@@ -82,7 +82,7 @@ function ResultsAfterHealthCheck() {
     if (selectedClass) {
       filtered = filtered.filter(record => record.classId === selectedClass.classId)
     } else if (selectedGrade) {
-      filtered = filtered.filter(record => 
+      filtered = filtered.filter(record =>
         record.className && record.className.startsWith(selectedGrade)
       )
     }
@@ -130,11 +130,11 @@ function ResultsAfterHealthCheck() {
       const res = await getRecordsByNurse(nurseId || 0)
       if (res.data) {
         const healthCheckRecords = res.data.$values
-        
+
         const recordsWithNames = healthCheckRecords.map((record: HealthCheckRecord) => {
           const student = students.find(s => s.studentId === record.studentID)
           const studentClass = student ? classes.find(c => c.classId === student.classId) : null
-          
+
           return {
             ...record,
             studentName: student?.fullname || '',
@@ -171,21 +171,21 @@ function ResultsAfterHealthCheck() {
   }
 
   const columns: ColumnsType<EnrichedHealthCheckRecord> = [
-    { 
-      title: 'Học sinh', 
-      dataIndex: 'studentName', 
+    {
+      title: 'Học sinh',
+      dataIndex: 'studentName',
       key: 'studentName',
       render: (text) => text || 'Unknown Student'
     },
-    { 
-      title: 'Lớp', 
-      dataIndex: 'className', 
+    {
+      title: 'Lớp',
+      dataIndex: 'className',
       key: 'className',
       render: (text) => text || 'Unknown Class'
     },
-    { 
-      title: 'Thời gian', 
-      dataIndex: 'date', 
+    {
+      title: 'Thời gian',
+      dataIndex: 'date',
       key: 'date',
       render: (date) => date ? dayjs(new Date(date)).format('DD/MM/YYYY HH:mm') : ''
     },
@@ -333,10 +333,10 @@ function ResultsAfterHealthCheck() {
           </Col>
         </Row>
 
-        <Table 
-          columns={columns} 
-          dataSource={filteredRecords} 
-          pagination={false} 
+        <Table
+          columns={columns}
+          dataSource={filteredRecords}
+          pagination={false}
           loading={loading}
           rowKey="healthCheckID"
         />

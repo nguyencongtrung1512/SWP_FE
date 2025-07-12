@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select } from 'antd'
-import { updateStudent } from '../../../apis/student'
-import type { Student } from '../../../apis/student'
+import { updateStudent } from '../../../apis/student.api'
+import type { Student } from '../../../apis/student.api'
 import dayjs from 'dayjs'
 import { toast } from 'react-toastify'
-import { getAllUser } from '../../../apis/adminManageAccount'
+import { getAllUser } from '../../../apis/adminManageAccount.api'
 
 interface UpdateStudentProps {
   isModalVisible: boolean

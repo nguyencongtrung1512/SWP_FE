@@ -42,7 +42,7 @@ import {
   type MedicationRequestHistory,
   type Medication,
   processRequest
-} from '../../../apis/parentMedicationRequest'
+} from '../../../apis/parentMedicationRequest.api'
 import { toast } from 'react-toastify'
 
 const { Title, Text } = Typography

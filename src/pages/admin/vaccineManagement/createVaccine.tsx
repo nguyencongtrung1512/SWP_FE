@@ -25,8 +25,8 @@ import {
   VaccinationCampaign,
   getVaccines,
   Vaccine
-} from '../../../apis/vaccination'
-import { getAllClasses, Class } from '../../../apis/class'
+} from '../../../apis/vaccinatapi.api'
+import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
@@ -233,12 +233,12 @@ const ScheduleVaccination: React.FC = () => {
                 placeholder='Chọn ngày tiêm'
                 showTime={{ format: 'HH:mm', defaultValue: dayjs('08:00', 'HH:mm') }}
                 style={{ width: '100%' }}
-                disabledDate={(current) => { 
-                  return current && current < dayjs().add(3, 'day').startOf('day') 
+                disabledDate={(current) => {
+                  return current && current < dayjs().add(3, 'day').startOf('day')
                 }}
                 disabledTime={(selectedDate) => {
                   const { disabledHours } = getDisabledTimes(selectedDate, campaigns)
-                  
+
                   return {
                     disabledHours: () => {
                       const businessHoursDisabled = Array.from({ length: 24 }, (_, i) => i).filter(
@@ -249,17 +249,17 @@ const ScheduleVaccination: React.FC = () => {
                     disabledMinutes: (selectedHour) => {
                       if (!selectedDate) return []
                       const selectedDateStr = selectedDate.format('YYYY-MM-DD')
-                      
+
                       const campaignsAtHour = campaigns.filter(campaign => {
                         const campaignDate = dayjs(campaign.date)
                         return campaignDate.format('YYYY-MM-DD') === selectedDateStr && campaignDate.hour() === selectedHour
                       })
-                      
+
                       const campaignsAtNextHour = campaigns.filter(campaign => {
                         const campaignDate = dayjs(campaign.date)
                         return campaignDate.format('YYYY-MM-DD') === selectedDateStr && campaignDate.hour() === selectedHour + 1
                       })
-                      
+
                       const disabledMinutes: number[] = []
                       campaignsAtHour.forEach(campaign => {
                         const campaignMinute = dayjs(campaign.date).minute()
@@ -267,14 +267,14 @@ const ScheduleVaccination: React.FC = () => {
                           disabledMinutes.push(m)
                         }
                       })
-                      
+
                       campaignsAtNextHour.forEach(campaign => {
                         const campaignMinute = dayjs(campaign.date).minute()
                         for (let m = Math.max(0, campaignMinute + 30); m <= 59; m++) {
                           disabledMinutes.push(m)
                         }
                       })
-                      
+
                       return [...new Set(disabledMinutes)]
                     }
                   }

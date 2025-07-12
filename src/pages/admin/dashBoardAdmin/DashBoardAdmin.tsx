@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, ReferenceLine } from "recharts"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "../../../components/ui/chart"
-import { ArrowUp, Activity, Users, Calendar } from "lucide-react"
+import { ArrowUp, Activity, Users, Calendar, TrendingUp, TrendingDown } from "lucide-react"
 import { getTrends } from "../../../apis/dashboard.api"
 import type { DashboardTrends } from "../../../apis/dashboard.api"
 import { NurseActivities } from "./NurseActivities"
@@ -21,12 +21,8 @@ const DashBoardAdmin = () => {
   const [timeRange, setTimeRange] = useState<"7days" | "30days" | "3months" | "1year">("7days")
   const [loading, setLoading] = useState<boolean>(true)
   const [chartData, setChartData] = useState<ChartData[]>([])
-  const [stats, setStats] = useState({
-    totalHealthChecks: 0,
-    totalMedicalEvents: 0,
-    totalConsultations: 0,
-    totalVaccinations: 0,
-  })
+  const [stats, setStats] = useState({ totalHealthChecks: 0, totalMedicalEvents: 0, totalConsultations: 0, totalVaccinations: 0 })
+  const [prevStats, setPrevStats] = useState({ totalHealthChecks: 0, totalMedicalEvents: 0, totalConsultations: 0, totalVaccinations: 0 })
 
   const formatDate = (dateString: string): string => {
     if (dateString.includes("-") && dateString.length === 7) {
@@ -88,6 +84,29 @@ const DashBoardAdmin = () => {
     setStats(newStats)
   }
 
+  const calculatePreviousStats = (data: DashboardTrends) => {
+    const dataTypes = ["healthChecks", "medicalEvents", "consultations", "vaccinations"] as const
+    const newPrevStats = {} as any
+    const currentMonth = new Date().getMonth()
+    const currentYear = new Date().getFullYear()
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
+    const prevMonthStr = `${prevYear}-${(prevMonth + 1).toString().padStart(2, '0')}`
+
+    dataTypes.forEach((type) => {
+      const key = `total${type.charAt(0).toUpperCase() + type.slice(1)}`
+      newPrevStats[key] = data[type]?.$values?.filter(item => item.date.startsWith(prevMonthStr)).reduce((sum, item) => sum + item.count, 0) || 0
+    })
+
+    setPrevStats(newPrevStats)
+  }
+
+  const getTrendingData = (current: number, previous: number) => {
+    if (previous === 0) return { percentage: 0, isUp: true }
+    const percentage = ((current - previous) / previous) * 100
+    return { percentage: Math.abs(percentage), isUp: percentage >= 0 }
+  }
+
   useEffect(() => {
     const fetchTrends = async () => {
       setLoading(true)
@@ -98,6 +117,10 @@ const DashBoardAdmin = () => {
         const transformedData = transformDataForChart(data)
         setChartData(transformedData)
         calculateStats(data)
+        
+        if (timeRange === "30days") {
+          calculatePreviousStats(data)
+        }
       } catch (error) {
         console.error("Error fetching trends data:", error)
       } finally {
@@ -116,10 +139,10 @@ const DashBoardAdmin = () => {
   ].filter((item) => item.value > 0)
 
   const statisticCards = [
-    { title: "Kiểm tra sức khỏe", value: stats.totalHealthChecks, icon: Users, color: "hsl(var(--chart-1))" },
-    { title: "Sự kiện y tế", value: stats.totalMedicalEvents, icon: Activity, color: "hsl(var(--chart-2))" },
-    { title: "Tư vấn", value: stats.totalConsultations, icon: Calendar, color: "hsl(var(--chart-3))" },
-    { title: "Tiêm chủng", value: stats.totalVaccinations, icon: ArrowUp, color: "hsl(var(--chart-4))" },
+    { title: "Kiểm tra sức khỏe", value: stats.totalHealthChecks, prevValue: prevStats.totalHealthChecks, icon: Users, color: "hsl(var(--chart-1))" },
+    { title: "Sự kiện y tế", value: stats.totalMedicalEvents, prevValue: prevStats.totalMedicalEvents, icon: Activity, color: "hsl(var(--chart-2))" },
+    { title: "Tư vấn", value: stats.totalConsultations, prevValue: prevStats.totalConsultations, icon: Calendar, color: "hsl(var(--chart-3))" },
+    { title: "Tiêm chủng", value: stats.totalVaccinations, prevValue: prevStats.totalVaccinations, icon: ArrowUp, color: "hsl(var(--chart-4))" },
   ]
 
   const lineChartConfig = {
@@ -191,6 +214,9 @@ const DashBoardAdmin = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statisticCards.map((card, index) => {
           const Icon = card.icon
+          const trending = getTrendingData(card.value, card.prevValue)
+          const TrendIcon = trending.isUp ? TrendingUp : TrendingDown
+          
           return (
             <Card key={index}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -201,6 +227,14 @@ const DashBoardAdmin = () => {
                 <div className="text-2xl font-bold" style={{ color: card.color }}>
                   {card.value.toLocaleString()}
                 </div>
+                {timeRange === "30days" && (
+                  <div className="flex gap-2 leading-none font-medium text-sm mt-2">
+                    <span className={trending.isUp ? "text-green-600" : "text-red-600"}>
+                      {trending.isUp ? "Tăng" : "Giảm"} {trending.percentage.toFixed(1)}% so với tháng trước
+                    </span>
+                    <TrendIcon className={`h-4 w-4 ${trending.isUp ? "text-green-600" : "text-red-600"}`} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           )
@@ -222,7 +256,7 @@ const DashBoardAdmin = () => {
                   margin={{
                     top: 15,
                     left: 15,
-                    right: 50,
+                    right: 60,
                     bottom: 15,
                   }}
                 >

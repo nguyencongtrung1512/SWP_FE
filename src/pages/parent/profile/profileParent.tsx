@@ -9,17 +9,17 @@ import {
   TeamOutlined,
   BookOutlined
 } from '@ant-design/icons'
-import { getAccountInfo, getMyChildren, Student } from '../../../api/parent.api'
+import { getAccountInfo, getMyChildren, Student } from '../../../apis/parent.api'
 import UpdateProfileModal from './updateProfile'
 import ChangePasswordModal from '../../../components/Profile/ChangePasswordModal'
 import AddStudentModal from '../../../components/Profile/AddStudentModal'
 import ElectronicHealthBook from '../../../components/Profile/ElectronicHealthBook'
 import { getMedicalEventByStudent } from '../../../apis/electronicHealthBook.api'
-import { getRecordsByStudent as getVaccinationRecordsByStudent } from '../../../apis/vaccination'
-import { getRecordsByStudent as getHealthCheckRecordsByStudent } from '../../../apis/healthCheck'
+import { getRecordsByStudent as getVaccinationRecordsByStudent } from '../../../apis/vaccinatapi.api'
+import { getRecordsByStudent as getHealthCheckRecordsByStudent } from '../../../apis/healthCheck.api'
 import type { MedicalEvent } from '../../../apis/electronicHealthBook.api'
-import type { VaccinationRecord } from '../../../apis/vaccination'
-import type { HealthCheckRecord } from '../../../apis/healthCheck'
+import type { VaccinationRecord } from '../../../apis/vaccinatapi.api'
+import type { HealthCheckRecord } from '../../../apis/healthCheck.api'
 
 interface AccountInfo {
   $id: string

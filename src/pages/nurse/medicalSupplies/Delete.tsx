@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal } from 'antd'
-import medicalSupplyApi from '../../../apis/medicalSupply'
-import type { MedicalSupply } from '../../../apis/medicalSupply'
+import medicalSupplyApi from '../../../apis/medicalSupply.api'
+import type { MedicalSupply } from '../../../apis/medicalSupply.api'
 import { toast } from 'react-toastify'
 
 interface DeleteMedicalSupplyProps {

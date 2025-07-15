@@ -10,11 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { CalendarIcon, Plus, Trash2, Pill } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
-
 import { cn } from '../../../lib/utils'
 import { toast } from 'react-toastify'
-import { sendMedicationToStudent } from '../../../apis/parentMedicationRequest'
-import { getMyChildren } from '../../../api/parent.api'
+import { sendMedicationToStudent } from '../../../apis/parentMedicationRequest.api'
+import { getMyChildren } from '../../../apis/parent.api'
 
 interface FormValues {
   studentId: string

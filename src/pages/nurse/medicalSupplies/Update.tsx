@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select, Tooltip, InputNumber } from 'antd'
-import medicalSupplyApi from '../../../apis/medicalSupply'
-import type { MedicalSupply } from '../../../apis/medicalSupply'
+import medicalSupplyApi from '../../../apis/medicalSupply.api'
+import type { MedicalSupply } from '../../../apis/medicalSupply.api'
 import dayjs from 'dayjs'
 import { toast } from 'react-toastify'
 import { InfoCircleOutlined } from '@ant-design/icons'
@@ -22,7 +22,7 @@ const UpdateMedicalSupply: React.FC<UpdateMedicalSupplyProps> = ({
   const [form] = Form.useForm()
   const selectedType = Form.useWatch('type', form)
   const supplyName = Form.useWatch('name', form)
-  
+
   useEffect(() => {
     if (selectedMedicalSupply) {
       const expiredDate = selectedMedicalSupply.expiredDate
@@ -64,14 +64,14 @@ const UpdateMedicalSupply: React.FC<UpdateMedicalSupplyProps> = ({
   const getMedicalSupplyUnit = (type: string, name: string): string => {
     const typeUpper = type.toUpperCase()
     const nameUpper = name.toUpperCase()
-    
+
     if (typeUpper === 'VẬT TƯ TIÊU HAO') {
       if (nameUpper.includes('BÔNG Y TẾ')) {
         return 'gói'
       }
       return 'chiếc'
     }
-    
+
     switch (typeUpper) {
       case 'THIẾT BỊ ĐO':
         return 'thiết bị'
@@ -99,7 +99,7 @@ const UpdateMedicalSupply: React.FC<UpdateMedicalSupplyProps> = ({
     >
       <Form form={form} layout='vertical'>
         <Form.Item name='name' label='Tên vật tư' rules={[{ required: true, message: 'Vui lòng nhập tên vật tư!' }]}>
-          <Input placeholder='Nhập tên vật tư'/>
+          <Input placeholder='Nhập tên vật tư' />
         </Form.Item>
 
         <Form.Item name='type' label='Loại vật tư' rules={[{ required: true, message: 'Vui lòng chọn loại vật tư!' }]}>
@@ -132,16 +132,16 @@ const UpdateMedicalSupply: React.FC<UpdateMedicalSupplyProps> = ({
           <DatePicker style={{ width: '100%' }} format='DD/MM/YYYY' />
         </Form.Item>
 
-        <Form.Item 
-          name='quantity' 
-          label={`Số lượng ${unitName ? `(${unitName})` : ''}`} 
+        <Form.Item
+          name='quantity'
+          label={`Số lượng ${unitName ? `(${unitName})` : ''}`}
           rules={[
             { required: true, message: 'Vui lòng nhập số lượng!' },
             { type: 'number', min: 1, max: 999, message: 'Số lượng phải từ 1-999!' },
             { pattern: /^\d+(\.\d+)?$/, message: 'Số lượng phải là số dương!' }
           ]}
         >
-          <InputNumber 
+          <InputNumber
             style={{ width: '100%' }}
             placeholder='Nhập số lượng'
           />

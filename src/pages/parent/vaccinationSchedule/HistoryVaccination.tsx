@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Card, Spin } from 'antd'
-import { getRecordsByStudent, VaccinationRecord } from '../../../apis/vaccination'
+import { getRecordsByStudent, VaccinationRecord } from '../../../apis/vaccinatapi.api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { ColumnsType } from 'antd/es/table'
@@ -43,8 +43,8 @@ const HistoryVaccination: React.FC<HistoryVaccinationProps> = ({ studentId }) =>
   const fetchRecords = async (studentId: number) => {
     try {
       const response = await getRecordsByStudent(studentId)
-      if (response.data) 
-        setRecords(response?.data?.$values|| [])
+      if (response.data)
+        setRecords(response?.data?.$values || [])
     } catch (error) {
       console.error('Error fetching records:', error)
     } finally {

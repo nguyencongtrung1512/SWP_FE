@@ -3,8 +3,8 @@ import { Form, Input, Button, Table, Card, Typography, Tabs, Row, Col, Modal, De
 import { FileTextOutlined, SearchOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { TabsProps } from 'antd'
-import { createHealthCheckList, getAllHealthChecks, HealthCheckList as OriginalHealthCheckList } from '../../../apis/healthCheck'
-import { getAllClasses, Class } from '../../../apis/class'
+import { createHealthCheckList, getAllHealthChecks, HealthCheckList as OriginalHealthCheckList } from '../../../apis/healthCheck.api'
+import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getNurseListForHealthConsultation } from '../../../apis/healthConsultationBooking.api'
@@ -81,7 +81,7 @@ const ScheduleHealthCheck: React.FC = () => {
   const isTimeConflict = (selectedTime: dayjs.Dayjs, nurseID: number): boolean => {
     const selectedDateStr = selectedTime.format('YYYY-MM-DD')
     const nurseExaminations = uniqueHealthChecks.filter(
-      exam => 
+      exam =>
         exam.nurseID === nurseID &&
         dayjs(exam.date).format('YYYY-MM-DD') === selectedDateStr
     )
@@ -126,19 +126,14 @@ const ScheduleHealthCheck: React.FC = () => {
 
   const handleTabChange = (key: string) => {
     setActiveTab(key as '1' | '2')
-    
+
     if (key === '2' && examinations.length === 0) {
       fetchExaminations()
     }
   }
 
   const uniqueHealthChecks = examinations.filter((value, index, self) =>
-    index === self.findIndex(
-      (v) =>
-        v.nurseID === value.nurseID &&
-        v.date === value.date &&
-        v.healthCheckDescription === value.healthCheckDescription
-    )
+    index === self.findIndex((v) => v.nurseID === value.nurseID && v.date === value.date)
   )
 
   console.log('Examinations:', uniqueHealthChecks)
@@ -199,8 +194,8 @@ const ScheduleHealthCheck: React.FC = () => {
             <Form.Item name='date' label='Ngày khám' rules={[{ required: true, message: 'Vui lòng chọn ngày khám sức khỏe' }]}>
               <DatePicker
                 placeholder='Chọn ngày khám'
-                showTime={{ 
-                  format: 'HH:mm', 
+                showTime={{
+                  format: 'HH:mm',
                   defaultValue: dayjs('08:00', 'HH:mm')
                 }}
                 style={{ width: '100%' }}
@@ -225,7 +220,7 @@ const ScheduleHealthCheck: React.FC = () => {
                           disabledMinutes.push(minute)
                         }
                       }
-                      
+
                       return disabledMinutes
                     }
                   }
@@ -272,7 +267,7 @@ const ScheduleHealthCheck: React.FC = () => {
   return (
     <div>
       <Title level={3}>Quản lý lịch khám sức khỏe</Title>
-      <Tabs activeKey={activeTab} items={items} onChange={handleTabChange}/>
+      <Tabs activeKey={activeTab} items={items} onChange={handleTabChange} />
       <Modal
         title='Chi tiết buổi khám sức khỏe'
         open={isModalOpen}

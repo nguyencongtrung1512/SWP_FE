@@ -1,6 +1,6 @@
 import { Modal, Form, Input, Spin } from 'antd'
 import React, { useEffect } from 'react'
-import { updateAccount } from '../../../api/parent.api'
+import { updateAccount } from '../../../apis/parent.api'
 import { toast } from 'react-toastify'
 import { translateMessage } from '../../../utils/message'
 

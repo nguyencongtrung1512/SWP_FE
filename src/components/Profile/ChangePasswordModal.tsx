@@ -1,6 +1,6 @@
 import { Modal, Form, Input, Spin } from 'antd'
 import React from 'react'
-import { changePassword } from '../../api/parent.api'
+import { changePassword } from '../../apis/parent.api'
 import { toast } from 'react-toastify'
 import { translateMessage } from '../../utils/message'
 

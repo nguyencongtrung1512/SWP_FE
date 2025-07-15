@@ -8,7 +8,7 @@ import {
   MedicineBoxOutlined,
   PlusOutlined
 } from '@ant-design/icons'
-import { getAccountInfo, getMyChildren, Student, addHealthRecord, getHealthRecordsByStudentId, editHealthRecord, HealthRecordData } from '../../../api/parent.api'
+import { getAccountInfo, getMyChildren, Student, addHealthRecord, getHealthRecordsByStudentId, editHealthRecord, HealthRecordData } from '../../../apis/parent.api'
 import HealthRecordModal from './healthRecordModal'
 import dayjs from 'dayjs'
 import { translateMessage } from '../../../utils/message'
@@ -175,7 +175,7 @@ const HealthRecord = () => {
         height: healthRecordData.height,
         leftEye: healthRecordData.leftEye,
         rightEye: healthRecordData.rightEye,
-        note: ''
+        note: healthRecordData.note || ''
       })
 
       if (response.success && response.data) {

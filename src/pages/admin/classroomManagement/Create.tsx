@@ -1,16 +1,12 @@
 import React from 'react'
-import { Modal, Form, Input, message } from 'antd'
-import { createClass } from '../../../apis/class'
+import { Modal, Form, Input } from 'antd'
+import { createClass } from '../../../apis/class.api'
 import { toast } from 'react-toastify'
 
 interface CreateClassProps {
   isModalVisible: boolean
   onCancel: () => void
   onSuccess: () => void
-}
-
-interface CreateClassForm {
-  className: string
 }
 
 const CreateClass: React.FC<CreateClassProps> = ({ isModalVisible, onCancel, onSuccess }) => {

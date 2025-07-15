@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select } from 'antd'
-import { createStudent } from '../../../apis/student'
+import { createStudent } from '../../../apis/student.api'
 import dayjs from 'dayjs'
-import { getAllUser } from '../../../apis/adminManageAccount'
+import { getAllUser } from '../../../apis/adminManageAccount.api'
 import { toast } from 'react-toastify'
 import { AxiosError } from 'axios'
 
@@ -21,7 +21,7 @@ const CreateStudent: React.FC<CreateStudentProps> = ({ isModalVisible, onCancel,
   const maxDate = dayjs().subtract(6, 'year')
   const minDate = dayjs().subtract(15, 'year')
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isModalVisible) {
       getAllUser.getAllUsers().then((res) => {
         const parentList = res.filter((u) => u.role?.roleName === 'Parent')

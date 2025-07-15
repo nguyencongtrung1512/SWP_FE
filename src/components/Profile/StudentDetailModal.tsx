@@ -1,5 +1,5 @@
 import { Modal } from 'antd'
-import { Student as StudentBase } from '../../api/parent.api'
+import { Student as StudentBase } from '../../apis/parent.api'
 import dayjs from 'dayjs'
 import { UserOutlined } from '@ant-design/icons'
 
@@ -9,7 +9,6 @@ interface ClassInfo {
 
 interface Student extends Omit<StudentBase, '_class'> {
   _class?: ClassInfo | null
-  className?: string
 }
 
 interface StudentDetailModalProps {

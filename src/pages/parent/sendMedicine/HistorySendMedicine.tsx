@@ -18,7 +18,7 @@ import {
   MedicationRequestHistory,
   MedicationRequestUpdate,
   Medication
-} from '../../../apis/parentMedicationRequest'
+} from '../../../apis/parentMedicationRequest.api'
 import { toast } from 'react-toastify'
 import MedicationNoData from '../../../components/nodata/medicationNoData'
 

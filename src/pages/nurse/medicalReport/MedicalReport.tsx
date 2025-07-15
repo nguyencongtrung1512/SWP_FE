@@ -43,7 +43,7 @@ import {
   type MedicalEvent,
   deleteMedicalEvent,
   getMedicalEventById
-} from '../../../apis/medicalEvent'
+} from '../../../apis/medicalEvent.api'
 import CreateEvent from './CreateEvent'
 import UpdateEvent from './UpdateEvent'
 

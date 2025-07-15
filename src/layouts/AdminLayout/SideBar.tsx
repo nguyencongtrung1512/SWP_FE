@@ -11,11 +11,11 @@ const Sidebar: React.FC = () => {
   const location = useLocation()
 
   const menuItems = [
-    // {
-    //   key: path.DASHBOARD_ADMIN,
-    //   icon: <FileSearchOutlined className='text-lg' />,
-    //   label: 'DashBoard'
-    // },
+    {
+      key: path.DASHBOARD_ADMIN,
+      icon: <FileSearchOutlined className='text-lg' />,
+      label: 'Thống kê tổng quan'
+    },
     // {
     //   key: path.CENSOR_LIST,
     //   icon: <FileSearchOutlined className='text-lg' />,

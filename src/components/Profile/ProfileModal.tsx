@@ -1,8 +1,8 @@
 import { Modal, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { formatDate } from '../../utils/ulits'
-import type { Profile } from '../../apis/adminManageAccount'
-import { profileInfor } from '../../apis/adminManageAccount'
+import type { Profile } from '../../apis/adminManageAccount.api'
+import { profileInfor } from '../../apis/adminManageAccount.api'
 
 interface ProfileModalProps {
   isOpen: boolean

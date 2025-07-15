@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Form, Input, DatePicker, Select, Tooltip, InputNumber } from 'antd'
-import { createMedication } from '../../../apis/medication'
+import { createMedication } from '../../../apis/medication.api'
 import dayjs from 'dayjs'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { toast } from 'react-toastify'
@@ -153,8 +153,8 @@ const CreateMedication: React.FC<CreateMedicationProps> = ({ isModalVisible, onC
           />
         </Form.Item>
 
-        <Form.Item 
-          name='quantity' 
+        <Form.Item
+          name='quantity'
           label={`Số lượng ${unitName ? `(${unitName})` : ''}`}
           rules={[
             {

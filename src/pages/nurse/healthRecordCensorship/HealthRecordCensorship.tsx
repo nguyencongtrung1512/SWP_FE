@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Table, Button, Space, Modal, Tabs, Typography, Select, Row, Col, Card } from 'antd'
 import type { TabsProps } from 'antd'
-import { getAllClasses } from '../../../apis/class'
-import { getAllHealthRecords } from '../../../apis/healthRecord'
-import { getAllStudents, Student } from '../../../apis/student'
-import { Class } from '../../../apis/class'
+import { getAllClasses } from '../../../apis/class.api'
+import { getAllHealthRecords } from '../../../apis/healthRecord.api'
+import { getAllStudents, Student } from '../../../apis/student.api'
+import { Class } from '../../../apis/class.api'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -89,7 +89,7 @@ const HealthRecordCensorship: React.FC = () => {
 
   useEffect(() => {
     if (classes.length > 0 && !selectedClass && selectedGrade) {
-      const defaultClass = classes.find(cls => 
+      const defaultClass = classes.find(cls =>
         cls.className.startsWith(selectedGrade)
       )
       if (defaultClass) {
@@ -299,11 +299,11 @@ const HealthRecordCensorship: React.FC = () => {
           </Row>
 
           <Title level={4}>Hồ sơ sức khỏe lớp {selectedClass?.className} ({filteredData.length} học sinh)</Title>
-          
-          <Table 
-            columns={columns} 
-            dataSource={filteredData} 
-            pagination={{ pageSize: 10 }} 
+
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            pagination={{ pageSize: 10 }}
             loading={loading}
             scroll={{ x: 800 }}
           />

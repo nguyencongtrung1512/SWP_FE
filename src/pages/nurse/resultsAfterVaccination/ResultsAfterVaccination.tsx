@@ -10,7 +10,7 @@ import {
   getAllVaccinationCampaigns,
   VaccinationCampaign,
   getVaccinationRecordsByCampaign
-} from '../../../apis/vaccination'
+} from '../../../apis/vaccinatapi.api'
 
 dayjs.extend(utc)
 
@@ -115,15 +115,15 @@ function ResultsAfterVaccination() {
     { title: 'Kết quả', dataIndex: 'result', key: 'result' },
     { title: 'Phản ứng với Vắc-Xin', dataIndex: 'immediateReaction', key: 'immediateReaction' },
     // { title: 'Uống thuốc', dataIndex: 'medication', key: 'medication' },
-    { 
-      title: 'Thời gian', 
-      dataIndex: 'time', 
+    {
+      title: 'Thời gian',
+      dataIndex: 'time',
       key: 'time',
       render: (time) => time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : ''
     },
-    { 
-      title: 'Ghi chú', 
-      dataIndex: 'note', 
+    {
+      title: 'Ghi chú',
+      dataIndex: 'note',
       key: 'note',
       render: (value: string) => value?.trim() ? value : 'Không có',
     },

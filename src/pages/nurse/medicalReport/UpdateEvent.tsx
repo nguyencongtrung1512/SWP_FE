@@ -6,10 +6,10 @@ import {
   getMedicalEventById,
   MedicalEvent,
   CreateMedicalEventRequest
-} from '../../../apis/medicalEvent'
-import { getStudentByCode, getStudentById, Student } from '../../../apis/student'
-import { getAllMedications, Medication } from '../../../apis/medication'
-import medicalSupplyApi, { MedicalSupply } from '../../../apis/medicalSupply'
+} from '../../../apis/medicalEvent.api'
+import { getStudentByCode, getStudentById, Student } from '../../../apis/student.api'
+import { getAllMedications, Medication } from '../../../apis/medication.api'
+import medicalSupplyApi, { MedicalSupply } from '../../../apis/medicalSupply.api'
 import { toast } from 'react-toastify'
 
 const { Text } = Typography

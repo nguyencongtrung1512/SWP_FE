@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal, Form, Input, InputNumber, Button } from 'antd'
 import { UserOutlined, HeartOutlined, SaveOutlined, FileTextOutlined } from '@ant-design/icons'
-import { HealthRecordData } from '../../../api/parent.api'
+import { HealthRecordData } from '../../../apis/parent.api'
 
 interface Student {
   studentId: number
@@ -35,7 +35,7 @@ const HealthRecordModal: React.FC<HealthRecordModalProps> = ({
   const [form] = Form.useForm()
   const [loading, setLoading] = React.useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && mode === 'edit' && initialData) {
       form.setFieldsValue({
         weight: initialData.weight,

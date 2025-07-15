@@ -26,10 +26,10 @@ import {
   InfoCircleOutlined
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { createMedicalEvent } from '../../../apis/medicalEvent'
-import { getAllStudents, type Student } from '../../../apis/student'
-import { getAllMedications, type Medication } from '../../../apis/medication'
-import medicalSupplyApi, { type MedicalSupply } from '../../../apis/medicalSupply'
+import { createMedicalEvent } from '../../../apis/medicalEvent.api'
+import { getAllStudents, type Student } from '../../../apis/student.api'
+import { getAllMedications, type Medication } from '../../../apis/medication.api'
+import medicalSupplyApi, { type MedicalSupply } from '../../../apis/medicalSupply.api'
 import { toast } from 'react-toastify'
 
 const { Text } = Typography

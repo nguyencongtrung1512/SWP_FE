@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Descriptions } from 'antd'
-import type { MedicalSupply } from '../../../apis/medicalSupply'
+import type { MedicalSupply } from '../../../apis/medicalSupply.api'
 import dayjs from 'dayjs'
 
 interface MedicalSupplyDetailProps {

@@ -24,6 +24,8 @@ interface Nurse {
 
 interface HealthCheckList extends OriginalHealthCheckList {
   nurseFullName?: string
+  total?: number
+  participated?: number
 }
 
 const ScheduleHealthCheck: React.FC = () => {
@@ -64,6 +66,7 @@ const ScheduleHealthCheck: React.FC = () => {
     try {
       const res = await getAllHealthChecks()
       const examinationData = res.data?.$values || []
+
       const fullData = examinationData.map((item: HealthCheckList) => {
         const nurse = nurses.find(n => n.accountID === item.nurseID)
         return {
@@ -100,6 +103,20 @@ const ScheduleHealthCheck: React.FC = () => {
       }
     }
     return false
+  }
+
+  const getHealthCheckCounts = (nurseID: number, date: string) => {
+    const filteredHealthCheck = examinations.filter(
+      exam => exam.nurseID === nurseID && exam.date === date
+    )
+    
+    const total = filteredHealthCheck.length
+    const participated = filteredHealthCheck.filter(
+      exam => exam.weight !== null || exam.height !== null || 
+            exam.leftEye !== null || exam.rightEye !== null
+    ).length
+    
+    return { total, participated }
   }
 
   const handleCreateExamination = async (values: any) => {
@@ -153,6 +170,23 @@ const ScheduleHealthCheck: React.FC = () => {
       key: 'healthCheckDescription'
     },
     {
+      title: 'Đã tham gia',
+      key: 'consent',
+      render: (_, record) => {
+        const { total, participated } = getHealthCheckCounts(record.nurseID, record.date)
+        return (
+          <span>
+            <span style={{ color: 'green', fontWeight: 600 }}>
+              {participated}
+            </span>
+            <span style={{ color: 'black', fontWeight: 600 }}>
+              /{total} học sinh
+            </span>
+          </span>
+        )
+      }
+    },
+    {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
@@ -200,7 +234,7 @@ const ScheduleHealthCheck: React.FC = () => {
                 }}
                 style={{ width: '100%' }}
                 disabledDate={(current) => {
-                  return current && current < dayjs().add(3, 'day').startOf('day')
+                  return current && current < dayjs().add(3, 'day').startOf('day') || current.day() === 0
                 }}
                 disabledTime={(selectedDate) => {
                   if (!selectedDate || selectedNurseID == null) {

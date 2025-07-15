@@ -24,7 +24,8 @@ import {
   getAllVaccinationCampaigns,
   VaccinationCampaign,
   getVaccines,
-  Vaccine
+  Vaccine,
+  getConsentsByCampaign
 } from '../../../apis/vaccinatapi.api'
 import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
@@ -40,15 +41,20 @@ interface DisabledTimes {
   disabledMinutes: number[]
 }
 
+interface VaccinationCampaignWithConsent extends VaccinationCampaign {
+  consentedCount?: number
+  totalSent?: number
+}
+
 const ScheduleVaccination: React.FC = () => {
   const [vaccineForm] = Form.useForm()
   const [campaignForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<'1' | '2' | '3'>('1')
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [classes, setClasses] = useState<Class[]>([])
-  const [campaigns, setCampaigns] = useState<VaccinationCampaign[]>([])
+  const [campaigns, setCampaigns] = useState<VaccinationCampaignWithConsent[]>([])
   const [searchText, setSearchText] = useState('')
-  const [selectedCampaign, setSelectedCampaign] = useState<VaccinationCampaign | null>(null)
+  const [selectedCampaign, setSelectedCampaign] = useState<VaccinationCampaignWithConsent | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
@@ -81,12 +87,35 @@ const ScheduleVaccination: React.FC = () => {
       const res = await getAllVaccinationCampaigns()
       const campaignsData = res.data?.$values || []
       console.log('API trả về:', campaignsData)
-      setCampaigns(
-        campaignsData.map((item) => ({
-          ...item,
-          key: item.campaignId.toString()
-        }))
+      
+      const campaignsWithConsents = await Promise.all(
+        campaignsData.map(async (campaign) => {
+          try {
+            const consentRes = await getConsentsByCampaign(campaign.campaignId)
+            const consents = consentRes.data?.$values || []
+            
+            const consentedCount = consents.filter(consent => consent.isAgreed === true).length
+            const totalSent = consents.length
+            
+            return {
+              ...campaign,
+              key: campaign.campaignId.toString(),
+              consentedCount,
+              totalSent
+            }
+          } catch (err) {
+            console.error(`Error fetching consents for campaign ${campaign.campaignId}:`, err)
+            return {
+              ...campaign,
+              key: campaign.campaignId.toString(),
+              consentedCount: 0,
+              totalSent: 0
+            }
+          }
+        })
       )
+      
+      setCampaigns(campaignsWithConsents)
     } catch (err) {
       console.error('lỗi', err)
       message.error('Lấy danh sách chiến dịch thất bại!')
@@ -123,7 +152,7 @@ const ScheduleVaccination: React.FC = () => {
     }
   }
 
-  const getDisabledTimes = (selectedDate: dayjs.Dayjs | null, campaigns: VaccinationCampaign[]): DisabledTimes => {
+  const getDisabledTimes = (selectedDate: dayjs.Dayjs | null, campaigns: VaccinationCampaignWithConsent[]): DisabledTimes => {
     if (!selectedDate) return { disabledHours: [], disabledMinutes: [] }
 
     const selectedDateStr = selectedDate.format('YYYY-MM-DD')
@@ -153,8 +182,7 @@ const ScheduleVaccination: React.FC = () => {
     }
   }
 
-
-  const columns: ColumnsType<VaccinationCampaign> = [
+  const columns: ColumnsType<VaccinationCampaignWithConsent> = [
     { title: 'Tên chiến dịch', dataIndex: 'name', key: 'name' },
     { title: 'Vaccine', dataIndex: 'vaccineName', key: 'vaccineName' },
     {
@@ -162,7 +190,21 @@ const ScheduleVaccination: React.FC = () => {
       dataIndex: 'date',
       key: 'date',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
-      sorter: (a: VaccinationCampaign, b: VaccinationCampaign) => a.date.localeCompare(b.date)
+      sorter: (a: VaccinationCampaignWithConsent, b: VaccinationCampaignWithConsent) => a.date.localeCompare(b.date)
+    },
+    {
+      title: 'Đã đồng ý tham gia',
+      key: 'consent',
+      render: (_, record) => (
+        <span>
+          <span style={{ color: 'green', fontWeight: 600 }}>
+            {record.consentedCount || 0}
+          </span>
+          <span style={{ color: 'black', fontWeight: 600 }}>
+            /{record.totalSent || 0} học sinh
+          </span>
+        </span>
+      )
     },
     {
       title: 'Hành động',
@@ -234,7 +276,7 @@ const ScheduleVaccination: React.FC = () => {
                 showTime={{ format: 'HH:mm', defaultValue: dayjs('08:00', 'HH:mm') }}
                 style={{ width: '100%' }}
                 disabledDate={(current) => {
-                  return current && current < dayjs().add(3, 'day').startOf('day')
+                  return current && current < dayjs().add(3, 'day').startOf('day') || current.day() === 0
                 }}
                 disabledTime={(selectedDate) => {
                   const { disabledHours } = getDisabledTimes(selectedDate, campaigns)
@@ -338,6 +380,7 @@ const ScheduleVaccination: React.FC = () => {
             <Descriptions.Item label='Vaccine'>{selectedCampaign.vaccineName}</Descriptions.Item>
             <Descriptions.Item label='Ngày dự kiến'>{dayjs.utc(selectedCampaign.date).local().format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedCampaign.description}</Descriptions.Item>
+            <Descriptions.Item label='Đã đồng ý'>{selectedCampaign.consentedCount || 0}/{selectedCampaign.totalSent || 0}</Descriptions.Item>
           </Descriptions>
         )}
       </Modal>

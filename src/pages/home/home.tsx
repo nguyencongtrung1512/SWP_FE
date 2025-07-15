@@ -11,7 +11,7 @@ function Home() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-16'>
           <div className='flex flex-col gap-8'>
             <div className='bg-[#0094f6] rounded-2xl p-8 text-white min-h-[220px] flex flex-col justify-between'>
-              <span className='uppercase tracking-widest text-sm font-semibold opacity-80 mb-4'>Nền Tảng Kết Nối</span>
+              <span className='uppercase tracking-widest text-sm font-semibold opacity-80 mb-4'>Nền Tảng Theo Dõi</span>
               <span className='text-3xl font-bold leading-tight'>Quản lý sức khỏe học đường thông minh</span>
             </div>
             <img
@@ -29,9 +29,6 @@ function Home() {
           </div>
           <div className='flex flex-col gap-8'>
             <div>
-              <span className='uppercase tracking-widest text-sm font-semibold opacity-80 mb-4 block'>
-                Nền Tảng Theo Dõi
-              </span>
               <h1 className='text-5xl font-extrabold text-gray-900 mb-3 leading-tight'>
                 Kết nối phụ huynh và nhà trường
               </h1>
@@ -167,8 +164,8 @@ function Home() {
                 />
               </div>
               <div className='p-6'>
-                <h3 className='text-xl font-bold text-gray-900 mb-2'>Thông báo tiêm chủng</h3>
-                <p className='text-gray-600 mb-4'>Cập nhật lịch tiêm chủng và gửi thông báo nhắc nhở cho phụ huynh về các mũi tiêm sắp tới cho học sinh.</p>
+                <h3 className='text-xl font-bold text-gray-900 mb-2'>Thông báo sự kiện y tế</h3>
+                <p className='text-gray-600 mb-4'>Cập nhật lịch sự kiện y tế và gửi thông báo nhắc nhở cho phụ huynh về các sự kiện sắp tới của học sinh.</p>
                 <a href='/parent/vaccination-schedule' className='text-blue-500 font-medium hover:underline'>Xem lịch tiêm chủng →</a>
               </div>
             </div>
@@ -183,7 +180,7 @@ function Home() {
               <div className='p-6'>
                 <h3 className='text-xl font-bold text-gray-900 mb-2'>Hồ sơ sức khỏe số</h3>
                 <p className='text-gray-600 mb-4'>Lưu trữ và theo dõi thông tin sức khỏe của học sinh như chiều cao, cân nặng, thị lực và các chỉ số quan trọng khác.</p>
-                <a href='/parent/health-record' className='text-blue-500 font-medium hover:underline'>Xem hồ sơ sức khỏe →</a>
+                <a href='/parent/profile' className='text-blue-500 font-medium hover:underline'>Xem hồ sơ sức khỏe →</a>
               </div>
             </div>
             <div className='bg-white rounded-xl shadow-sm overflow-hidden'>

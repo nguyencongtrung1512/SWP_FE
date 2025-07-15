@@ -22,7 +22,7 @@ Câu hỏi ví dụ:
 - Không thấy thông tin con, phải làm sao?
 
 Trả lời:
-- Vào "Hồ sơ của tôi" → Kéo xuống phần "Danh sách con" → Nhấn "Thêm con" để nhập mã học sinh và thông tin cần thiết.
+- Vào "Hồ sơ của tôi" → Kéo xuống phần "Danh sách con" → Nhấn "Thêm con" để nhập mã học sinh -> Hệ thống sẽ đưa ra thông tin của học sinh để phụ huynh xác nhận -> Khi phụ huynh xác nhận con của mình hệ thống sẽ thêm con vào tài khoản của phụ huynh.
 - Nếu không thấy thông tin con, kiểm tra lại mã học sinh hoặc liên hệ nhà trường để được hỗ trợ.
 
 ---
@@ -72,6 +72,14 @@ Câu hỏi ví dụ:
 Trả lời:
 - Vào mục "Tư vấn sức khỏe riêng" → Nhấn "Đăng ký tư vấn" → Chọn con và điền nội dung cần tư vấn → Gửi yêu cầu, y tá sẽ liên hệ lại.
 
+Câu hỏi ví dụ:
+- Hình thức tư vấn sức khoẻ là gì ?
+- Tư vấn sức khoẻ như thế nào ?
+- Cách thực hiện tư vấn sức khoẻ ?
+
+Trả lời:
+-Tư vấn sức khoẻ bằng hình thức online trực tiếp tại trên web, sau khi phụ huynh gửi lịch tư vấn sức khoẻ và được xác nhận của y tá, hệ thống sẽ tạo một cuộc họp online để phụ huynh và y tá có thể trò chuyện trực tiếp với nhau.
+
 ---
 
 7. TRA CỨU THÔNG TIN, HỖ TRỢ XỬ LÝ LỖI
@@ -86,7 +94,50 @@ Trả lời:
 - Nếu vẫn gặp lỗi, liên hệ bộ phận hỗ trợ hoặc y tế nhà trường để được giải đáp.
 
 ---
+8. THÔNG TIN CỦA CON MÌNH 
+Câu hỏi ví dụ:
+- Làm sao để xem toàn bộ thông tin của con mình ?
+- Sổ sức khỏe điện tử ở đâu ?
+- Coi sổ sức khỏe điện tử của con tôi như thế nào ?
+Trả lời:
+- Vào "Hồ sơ của tôi" ở phía bên phải trên cùng -> bấm vào con của tôi -> xuất hiện sổ sức khoẻ điện tử -> bấm vào trang bên phải hoặc bên trái để lật sang trang khác.
+9. ĐĂNG KÝ HỒ SƠ SỨC KHOẺ 
+Câu hỏi ví dụ:
+- Làm sao để đăng ký sức khoẻ của con tôi ?
+- Khai báo sức khoẻ như thế nào ?
+Trả lời:
+- Bấm vào danh mục "Khai báo sức khoẻ" -> chọn học sinh của mình và tạo hồ sơ sức khoẻ -> Nhập thông tin theo yêu cầu của hệ thống (cân nặng, chiều cao, mắt trái, mắt phải, ghi chú) -> bấm tạo mới để khai báo hồ sơ.
 
+10. GỬI THUỐC CHO Y TÁ 
+Câu hỏi ví dụ:
+- Làm sao để gửi thuốc ?
+- Gửi thuốc cho con mình như thế nào ?
+Trả lời:
+- Bấm vào danh mục khai báo "Gửi thuốc" -> chọn con mình trong "1.Thông tin học sinh" -> Nhập thông tin thuốc trong "2. Thông tin thuốc" (phụ huynh có thể gửi hơn 1 thuốc bằng cách bấm vào thêm thuốc bên dưới) -> Ghi lý do gửi thuốc (*bắt buộc) trong "3. Lý do gửi thuốc" -> xác nhận cam kết trong "4. Xác nhận và cam kết" -> ấn nút "Gửi yêu cầu"
+11. XEM LỊCH SỬ GỬI THUỐC 
+Câu hỏi ví dụ:
+- Làm sao để xem lịch sử gửi thuốc ?
+- Xem lịch sử gửi thuốc ở đâu ?
+Trả lời:
+- Bấm vào danh mục "Gửi thuốc" -> Xem thuốc ở mục "Lịch sử gửi thuốc"
+12. BÁO CÁO Y TẾ
+Câu hỏi ví dụ:
+- Làm sao để coi báo tình hình sức khỏe và các sự kiện y tế của con tôi ?
+- Xem tình hình sức khỏe và các sự kiện y tế của con tôi ở đâu ?
+Trả lời:
+- Bấm vào danh mục "Báo cáo y tế" -> Xem tình hình sức khỏe và các sự kiện y tế của con mình ở "Lịch sử sự kiện y tế"
+13. BLOG
+Câu hỏi ví dụ:
+- Web này có tin tức không ?
+- Làm sao để coi blog ?
+- Làm sao để xem tin tức ?
+Trả lời:
+- Bấm vào danh mục "Blog" -> khi vào trang blog có thể xem các loại danh mục với nhiều bài viết khác nhau do y tá của trường viết, đồng thơi phụ huynh cũng có thể lựa chọn danh mục cùng với tìm kiếm bài viết. Bấm vào 1 bài blog sẽ xuất hiện bài viết với nội dung chi tiết hơn.
+14. ĐĂNG XUẤT 
+- Đăng xuất ở đâu ?
+- Làm sao để đăng xuất ?
+Trả lời:
+- Bấm vào hồ sơ bên phải trên cùng -> Bấm "Đăng xuất"
 Lưu ý:
 - Phụ huynh có thể hỏi chatbot bằng nhiều cách diễn đạt khác nhau, chỉ cần nêu đúng ý chính, chatbot sẽ tự động tìm và trả lời phù hợp nhất dựa trên file knowledge này.
 

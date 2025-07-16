@@ -198,7 +198,7 @@ const Login: React.FC = () => {
           </svg>
         </div>
         <h1 className='text-5xl font-bold mb-4'>EduCare</h1>
-        <p className='text-xl text-center max-w-xs'>Nền tảng y tế trực tuyến bảo vệ sức khỏe của con bạn!</p>
+        <p className='text-xl text-center max-w-xs'>Nền tảng trực tuyến hỗ trợ theo dõi sức khỏe của con bạn!</p>
       </div>
       <div className='flex-1 flex items-center justify-center p-4'>
         <div

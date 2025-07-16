@@ -64,7 +64,7 @@ const ChatBot: React.FC = () => {
     ]
   })
 
-  const API_KEY = import.meta.env.VITE_CHATBOT_API || "AIzaSyBRy1Tn2_To2RWcCu1WNSMqqOykdp1LxUc"
+  const API_KEY = import.meta.env.VITE_CHATBOT_API || "AIzaSyB24u6XfbZLhMEYgpZ0yUjVWf5zaA4f9ek"
   
   if (!API_KEY) {
     console.error('VITE_CHATBOT_API environment variable is not set')

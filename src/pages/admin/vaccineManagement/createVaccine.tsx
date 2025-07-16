@@ -192,20 +192,20 @@ const ScheduleVaccination: React.FC = () => {
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
       sorter: (a: VaccinationCampaignWithConsent, b: VaccinationCampaignWithConsent) => a.date.localeCompare(b.date)
     },
-    {
-      title: 'Đã đồng ý tham gia',
-      key: 'consent',
-      render: (_, record) => (
-        <span>
-          <span style={{ color: 'green', fontWeight: 600 }}>
-            {record.consentedCount || 0}
-          </span>
-          <span style={{ color: 'black', fontWeight: 600 }}>
-            /{record.totalSent || 0} học sinh
-          </span>
-        </span>
-      )
-    },
+    // {
+    //   title: 'Đã đồng ý tham gia',
+    //   key: 'consent',
+    //   render: (_, record) => (
+    //     <span>
+    //       <span style={{ color: 'green', fontWeight: 600 }}>
+    //         {record.consentedCount || 0}
+    //       </span>
+    //       <span style={{ color: 'black', fontWeight: 600 }}>
+    //         /{record.totalSent || 0} học sinh
+    //       </span>
+    //     </span>
+    //   )
+    // },
     {
       title: 'Hành động',
       key: 'action',

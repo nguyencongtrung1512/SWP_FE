@@ -7,14 +7,13 @@ interface Message {
   text: string
 }
 
-// Thêm hàm parseListMessage để chuyển đổi text dạng liệt kê thành danh sách React
+
 function parseListMessage(text: string) {
-  // Nhận diện danh sách dạng số thứ tự (1. ... 2. ...)
-  const numberedList = text.match(/^(.*?)(\d+\. .+)/s);
+ 
+  const numberedList = text.match(/^(.*?)(\d+\. .+)/s)
   if (numberedList) {
-    const [_, intro, listPart] = numberedList;
-    // Tách các mục theo số thứ tự
-    const items = listPart.split(/\n?\d+\. /).filter(Boolean);
+    const [_, intro, listPart] = numberedList
+    const items = listPart.split(/\n?\d+\. /).filter(Boolean)
     return (
       <div>
         {intro && <div className="font-semibold mb-1">{intro.trim()}</div>}
@@ -24,14 +23,13 @@ function parseListMessage(text: string) {
           ))}
         </ol>
       </div>
-    );
+    )
   }
-  // Nhận diện danh sách dạng gạch đầu dòng (- ... hoặc • ...)
-  const bulletList = text.match(/^(.*?)([-•] .+)/s);
+
+  const bulletList = text.match(/^(.*?)([-•] .+)/s)
   if (bulletList) {
-    const [_, intro, listPart] = bulletList;
-    // Tách các mục theo dấu gạch đầu dòng
-    const items = listPart.split(/\n?[-•] /).filter(Boolean);
+    const [_, intro, listPart] = bulletList
+    const items = listPart.split(/\n?[-•] /).filter(Boolean)
     return (
       <div>
         {intro && <div className="font-semibold mb-1">{intro.trim()}</div>}
@@ -41,10 +39,10 @@ function parseListMessage(text: string) {
           ))}
         </ul>
       </div>
-    );
+    )
   }
-  // Nếu không phải dạng danh sách, trả về text bình thường
-  return text;
+
+  return text
 }
 
 const ChatBot: React.FC = () => {

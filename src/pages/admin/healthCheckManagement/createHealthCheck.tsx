@@ -169,23 +169,23 @@ const ScheduleHealthCheck: React.FC = () => {
       dataIndex: 'healthCheckDescription',
       key: 'healthCheckDescription'
     },
-    {
-      title: 'Đã tham gia',
-      key: 'consent',
-      render: (_, record) => {
-        const { total, participated } = getHealthCheckCounts(record.nurseID, record.date)
-        return (
-          <span>
-            <span style={{ color: 'green', fontWeight: 600 }}>
-              {participated}
-            </span>
-            <span style={{ color: 'black', fontWeight: 600 }}>
-              /{total} học sinh
-            </span>
-          </span>
-        )
-      }
-    },
+    // {
+    //   title: 'Đã tham gia',
+    //   key: 'consent',
+    //   render: (_, record) => {
+    //     const { total, participated } = getHealthCheckCounts(record.nurseID, record.date)
+    //     return (
+    //       <span>
+    //         <span style={{ color: 'green', fontWeight: 600 }}>
+    //           {participated}
+    //         </span>
+    //         <span style={{ color: 'black', fontWeight: 600 }}>
+    //           /{total} học sinh
+    //         </span>
+    //       </span>
+    //     )
+    //   }
+    // },
     {
       title: 'Hành động',
       key: 'action',

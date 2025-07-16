@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import knowledgeRaw from "../../constants/knowledge.txt?raw";
+import React, { useEffect, useState } from "react"
+import axios from "axios"
+import knowledgeRaw from "../../constants/knowledge.txt?raw"
 
 interface Message {
-  sender: "user" | "bot";
-  text: string;
+  sender: "user" | "bot"
+  text: string
 }
 
 // Thêm hàm parseListMessage để chuyển đổi text dạng liệt kê thành danh sách React
@@ -48,90 +48,91 @@ function parseListMessage(text: string) {
 }
 
 const ChatBot: React.FC = () => {
-  const [input, setInput] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([
-    { 
-      sender: "bot", 
-      text: "Xin chào! Tôi là chatbot giúp bạn sử dụng web EduCare hiệu quả hơn . Bạn có câu hỏi gì không?" 
-    }
-  ]);
-  const [knowledge, setKnowledge] = useState<string>("");
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [input, setInput] = useState<string>("")
+  const LOCAL_KEY = "chatbot_msg"
+  const [knowledge, setKnowledge] = useState<string>("")
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const stored = localStorage.getItem(LOCAL_KEY)
+    if (stored) return JSON.parse(stored)
+    return [
+      {
+        sender: "bot",
+        text: "Xin chào! Tôi là chatbot giúp bạn sử dụng web EduCare hiệu quả hơn. Bạn có câu hỏi gì không?",
+      },
+    ]
+  })
 
-  const API_KEY = import.meta.env.VITE_CHATBOT_API || "AIzaSyBRy1Tn2_To2RWcCu1WNSMqqOykdp1LxUc";
+  const API_KEY = import.meta.env.VITE_CHATBOT_API || "AIzaSyBRy1Tn2_To2RWcCu1WNSMqqOykdp1LxUc"
   
-  // Validate API key
   if (!API_KEY) {
-    console.error('VITE_CHATBOT_API environment variable is not set');
+    console.error('VITE_CHATBOT_API environment variable is not set')
   }
   
-  // Try the newer endpoint format
-  const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+  const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
   
-  // Debug: Check if API key is loaded
-  console.log('API Key loaded:', API_KEY ? 'Yes' : 'No');
-  console.log('API Key length:', API_KEY?.length);
-  console.log('API Key (first 10 chars):', API_KEY?.substring(0, 10));
-  console.log('Full URL:', URL);
-  console.log('All env vars:', import.meta.env);
+  console.log('API Key loaded:', API_KEY ? 'Yes' : 'No')
+  console.log('API Key length:', API_KEY?.length)
+  console.log('API Key (first 10 chars):', API_KEY?.substring(0, 10))
+  console.log('Full URL:', URL)
+  console.log('All env vars:', import.meta.env)
 
   useEffect(() => {
-    setKnowledge(knowledgeRaw);
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(messages));
+  }, [messages])
+
+  useEffect(() => {
+    setKnowledge(knowledgeRaw)
     
-    // Test API key on component mount
     if (API_KEY) {
-      console.log('Testing API key...');
-      // You can add a simple test here if needed
+      console.log('Testing API key...')
     }
-  }, [API_KEY]);
+  }, [API_KEY])
 
   const sendMessage = async (): Promise<void> => {
-    if (!input.trim()) return;
+    if (!input.trim()) return
 
-    const userMsg: Message = { sender: "user", text: input };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+    const userMsg: Message = { sender: "user", text: input }
+    setMessages((prev) => [...prev, userMsg])
+    setInput("")
+    setLoading(true)
 
-    // Check if API key is available
     if (!API_KEY) {
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "❌ API key không được cấu hình. Vui lòng kiểm tra file .env" },
-      ]);
-      setLoading(false);
-      return;
+      ])
+      setLoading(false)
+      return
     }
 
     try {
-      // Tạo lịch sử hội thoại gửi kèm API
       const historyParts: { text: string }[] = [
         {
           text: "Bạn là một chatbot giúp đỡ người dùng sử dụng web EduCare. Trả lời ngắn gọn, rõ ràng và chỉ dựa trên dữ liệu sau:",
         },
         { text: knowledge },
         { text: "Dưới đây là đoạn hội thoại giữa người dùng và bạn:" },
-      ];
+      ]
 
-      // Chỉ gửi 6 tin nhắn gần nhất để tránh request quá dài
       const recentMessages = [...messages, userMsg].slice(-6);
       recentMessages.forEach((msg) => {
         historyParts.push({
           text: `${msg.sender === "user" ? "Người dùng" : "Chatbot"}: ${
             msg.text
           }`,
-        });
-      });
+        })
+      })
 
-      console.log('Making API call to:', URL);
+      console.log('Making API call to:', URL)
       console.log('Request payload:', {
         contents: [
           {
             parts: historyParts,
           },
         ],
-      });
+      })
       
       const res = await axios.post(
         URL,
@@ -145,37 +146,36 @@ const ChatBot: React.FC = () => {
         {
           headers: { "Content-Type": "application/json" },
         }
-      );
+      )
       
-      console.log('API Response:', res.data);
+      console.log('API Response:', res.data)
 
       const botReply =
         res.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Không có phản hồi.";
-      setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
+        "Không có phản hồi."
+      setMessages((prev) => [...prev, { sender: "bot", text: botReply }])
     } catch (error: any) {
-      console.error('API Error:', error);
+      console.error('API Error:', error)
       
-      let errorMessage = "❌ Lỗi khi gọi API";
+      let errorMessage = "❌ Lỗi khi gọi API"
       
       if (error.response?.data?.error?.message) {
-        errorMessage = `❌ ${error.response.data.error.message}`;
+        errorMessage = `❌ ${error.response.data.error.message}`
       } else if (error.message) {
-        errorMessage = `❌ ${error.message}`;
+        errorMessage = `❌ ${error.message}`
       }
       
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: errorMessage },
-      ]);
+      ])
     }
 
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <>
-      {/* Nút mở chat */}
       {!isOpen && (
         <button
           className="fixed bottom-5 right-5 bg-blue-600 text-white p-3 rounded-full shadow-lg z-[9999] hover:bg-blue-700"
@@ -185,7 +185,6 @@ const ChatBot: React.FC = () => {
         </button>
       )}
 
-      {/* Hộp chat */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl h-[60vh] z-[9999] bg-white border border-gray-300 rounded-xl shadow-2xl flex flex-col animate-fade-in">
           <div className="bg-blue-600 text-white text-center py-2 rounded-t-xl font-semibold relative">
@@ -256,8 +255,8 @@ const ChatBot: React.FC = () => {
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
 export default ChatBot; 
 

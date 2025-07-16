@@ -68,7 +68,7 @@ const ChatBot: React.FC = () => {
     console.error('VITE_CHATBOT_API environment variable is not set')
   }
   
-  const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
+  const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
   
   console.log('API Key loaded:', API_KEY ? 'Yes' : 'No')
   console.log('API Key length:', API_KEY?.length)

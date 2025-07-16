@@ -21,7 +21,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ onVerify, loading, em
     useRef<InputRef>(null),
     useRef<InputRef>(null),
   ]
-  const [countdown, setCountdown] = useState(180)
+  const [countdown, setCountdown] = useState(240)
   const [canResend, setCanResend] = useState(false)
 
   useEffect(() => {

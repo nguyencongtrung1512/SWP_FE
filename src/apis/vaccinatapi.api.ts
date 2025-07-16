@@ -1,4 +1,3 @@
-// import http from '../utils/http'// import http from '../utils/http'
 import http from '../utils/http'
 
 export interface VaccinationCampaign {
@@ -30,7 +29,7 @@ export interface VaccinationConsent {
 }
 
 export interface VaccinationRecord {
-  recordId?: number // <-- Thêm dòng này ở đầu hoặc cuối
+  recordId?: number
   campaignId: number
   studentId: number
   nurseId: number
@@ -45,9 +44,6 @@ export interface ApiResponse<T> {
   $values: T[]
 }
 
-// ===== Các API liên quan =====
-
-// Chiến dịch tiêm chủng
 export const getAllVaccinationCampaigns = () => {
   return http.get<ApiResponse<VaccinationCampaign>>('/Vaccination/Campaigns')
 }
@@ -62,7 +58,6 @@ export const createVaccinationCampaign = (data: {
   return http.post('/Vaccination/Campaign', data)
 }
 
-// Vaccine
 export const getVaccines = () => {
   return http.get<ApiResponse<Vaccine>>('/Vaccination/Vaccines')
 }
@@ -71,7 +66,6 @@ export const createVaccine = (data: { name: string; description: string }) => {
   return http.post('/Vaccination/Vaccine', data)
 }
 
-// Thông báo cho phụ huynh
 export const getParentNotifications = () => {
   return http.get<ApiResponse<VaccinationConsent>>('/Vaccination/ParentNotifications')
 }
@@ -85,7 +79,6 @@ export const sendConsent = (data: {
   return http.post('/Vaccination/Consent', data)
 }
 
-// Ghi nhận tiêm chủng
 export const createVaccinationRecord = (data: VaccinationRecord) => {
   return http.post('/Vaccination/Record', data)
 }

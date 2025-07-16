@@ -83,9 +83,7 @@ function ResultsAfterVaccination() {
       ])
       const agreed = consentsRes.data.$values.filter((item) => item.isAgreed === true)
       const recordsMap = new Map<number, any>()
-      recordsRes.data.$values.forEach((r) => {
-        recordsMap.set(r.studentId, r)
-      })
+      recordsRes.data.$values.forEach((r) => { recordsMap.set(r.studentId, r) })
 
       const mapped = agreed.map((item) => {
         const record = recordsMap.get(item.studentId)
@@ -94,11 +92,11 @@ function ResultsAfterVaccination() {
           consentId: item.consentId,
           studentId: item.studentId,
           studentName: item.studentName,
-          result: record?.result || '',
-          immediateReaction: record?.immediateReaction || '',
-          medication: record?.medication || '',
-          time: record?.dateInjected || '',
-          note: record?.note || '',
+          result: record?.result || 'Chưa cập nhật',
+          immediateReaction: record?.immediateReaction || 'Chưa cập nhật',
+          medication: record?.medication || 'Chưa cập nhật',
+          time: record?.dateInjected,
+          note: record?.note || 'Chưa cập nhật',
           recordId: record?.recordId,
           isCompleted: !!record
         }
@@ -119,7 +117,7 @@ function ResultsAfterVaccination() {
       title: 'Thời gian',
       dataIndex: 'time',
       key: 'time',
-      render: (time) => time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : ''
+      render: (time) => time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : 'Chưa cập nhật'
     },
     {
       title: 'Ghi chú',

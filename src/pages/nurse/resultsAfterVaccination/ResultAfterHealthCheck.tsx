@@ -16,7 +16,7 @@ interface FormValues {
   rightEye: number
 }
 
-interface EnrichedHealthCheckRecord extends HealthCheckRecord {
+interface FullHealthCheckRecord extends HealthCheckRecord {
   studentName?: string
   classId?: number
   className?: string
@@ -33,8 +33,8 @@ const grades = [
 function ResultsAfterHealthCheck() {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [form] = Form.useForm()
-  const [records, setRecords] = useState<EnrichedHealthCheckRecord[]>([])
-  const [filteredRecords, setFilteredRecords] = useState<EnrichedHealthCheckRecord[]>([])
+  const [records, setRecords] = useState<FullHealthCheckRecord[]>([])
+  const [filteredRecords, setFilteredRecords] = useState<FullHealthCheckRecord[]>([])
   const [recordId, setRecordId] = useState<number | null>(null)
   const [nurseId, setNurseId] = useState<number | null>(null)
   const [classes, setClasses] = useState<Class[]>([])
@@ -139,7 +139,7 @@ function ResultsAfterHealthCheck() {
             ...record,
             studentName: student?.fullname || '',
             classId: student?.classId,
-            className: studentClass?.className || ''
+            className: studentClass?.className || '',
           }
         })
         setRecords(recordsWithNames)
@@ -166,11 +166,11 @@ function ResultsAfterHealthCheck() {
     return classes.filter(cls => cls.className.startsWith(selectedGrade))
   }
 
-  const checkIfCompleted = (record: EnrichedHealthCheckRecord) => {
+  const checkIfCompleted = (record: FullHealthCheckRecord) => {
     return record.result && record.height != null && record.weight != null && record.leftEye != null && record.rightEye != null
   }
 
-  const columns: ColumnsType<EnrichedHealthCheckRecord> = [
+  const columns: ColumnsType<FullHealthCheckRecord> = [
     {
       title: 'Học sinh',
       dataIndex: 'studentName',
@@ -245,7 +245,7 @@ function ResultsAfterHealthCheck() {
     }
   ]
 
-  const openAddModal = (record: EnrichedHealthCheckRecord) => {
+  const openAddModal = (record: FullHealthCheckRecord) => {
     setRecordId(record.healthCheckID)
     setIsModalVisible(true)
   }

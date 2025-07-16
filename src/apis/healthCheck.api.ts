@@ -18,6 +18,17 @@ export interface HealthCheckList {
   classIds: number[]
   date: string
   healthCheckDescription: string
+  weight: number
+  height: number
+  leftEye: number
+  rightEye: number
+}
+
+export interface HealthCheckCreateParams {
+  nurseID: number
+  classIds: number[]
+  date: string
+  healthCheckDescription: string
 }
 
 export interface HealthCheckRecord {
@@ -40,7 +51,7 @@ export const getRecordsByStudent = (studentId: number) => {
   return http.get<ApiResponse<HealthCheckRecord>>(`/HealthCheck/student/${studentId}`)
 }
 
-export const createHealthCheckList = (params: HealthCheckList) => {
+export const createHealthCheckList = (params: HealthCheckCreateParams) => {
   return http.post('/HealthCheck/CreateHealthCheckList', params)
 }
 

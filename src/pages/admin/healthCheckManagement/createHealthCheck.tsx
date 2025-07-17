@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Form, Input, Button, Table, Card, Typography, Tabs, Row, Col, Modal, Descriptions, Select, DatePicker, message } from 'antd'
-import { FileTextOutlined, SearchOutlined } from '@ant-design/icons'
+import { EyeOutlined, FileTextOutlined, SearchOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { TabsProps } from 'antd'
-import { createHealthCheckList, getAllHealthChecks, HealthCheckList as OriginalHealthCheckList } from '../../../apis/healthCheck.api'
+import { createHealthCheckList, getAllHealthChecks, HealthCheckList } from '../../../apis/healthCheck.api'
 import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getNurseListForHealthConsultation } from '../../../apis/healthConsultationBooking.api'
+import { getAllStudents } from '../../../apis/student.api'
 dayjs.extend(utc)
 
 const { Title } = Typography
@@ -22,22 +23,25 @@ interface Nurse {
   image?: string | null
 }
 
-interface HealthCheckList extends OriginalHealthCheckList {
-  nurseFullName?: string
-  total?: number
+interface FullHealthCheckList extends HealthCheckList {
+  nurseFullName: string
   participated?: number
+  studentName: string
+  studentCode: string
+  className: string
 }
 
 const ScheduleHealthCheck: React.FC = () => {
   const [examinationForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<'1' | '2' | '3'>('1')
-  const [examinations, setExaminations] = useState<HealthCheckList[]>([])
+  const [examinations, setExaminations] = useState<FullHealthCheckList[]>([])
   const [nurses, setNurses] = useState<Nurse[]>([])
   const [classes, setClasses] = useState<Class[]>([])
   const [searchText, setSearchText] = useState('')
-  const [selectedExamination, setSelectedExamination] = useState<HealthCheckList | null>(null)
+  const [selectedExamination, setSelectedExamination] = useState<FullHealthCheckList | null>(null)
   const [selectedNurseID, setSelectedNurseID] = useState<number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false)
 
   useEffect(() => {
     fetchNurses()
@@ -64,20 +68,41 @@ const ScheduleHealthCheck: React.FC = () => {
 
   const fetchExaminations = async () => {
     try {
-      const res = await getAllHealthChecks()
+      const [studentsRes, res] = await Promise.all([getAllStudents(), getAllHealthChecks()])
       const examinationData = res.data?.$values || []
-
-      const fullData = examinationData.map((item: HealthCheckList) => {
+      const studentData = studentsRes.data?.$values || []
+      console.log(studentData)
+      const fullData = examinationData.map((item: FullHealthCheckList) => {
         const nurse = nurses.find(n => n.accountID === item.nurseID)
         return {
           ...item,
-          nurseFullName: nurse ? nurse.fullname : 'Không rõ'
+          nurseFullName: nurse ? nurse.fullname : 'N/A',
+          studentName: studentData.find(s => s.studentId === item.studentID)?.fullname || 'N/A',
+          studentCode: studentData.find(s => s.studentId === item.studentID)?.studentCode || 'N/A',
+          className: studentData.find(s => s.studentId === item.studentID)?.className || 'N/A',
         }
       })
+      console.log('Danh sách buổi khám:', fullData)
       setExaminations(fullData)
     } catch (err) {
       console.error('lỗi', err)
       message.error('Lấy danh sách buổi khám thất bại!')
+    }
+  }
+
+  const getParticipationStatus = (exam: FullHealthCheckList) => {
+    if (exam.weight == null || exam.height == null || exam.leftEye == null || exam.rightEye == null) {
+      return 'Không tham gia'
+    }
+    else if (exam.weight > 0 && exam.height > 0 && exam.leftEye >= 0 && exam.rightEye >= 0) {
+      return 'Đã ghi nhận kết quả'
+    }
+
+    const currentDate = dayjs()
+    const examDate = dayjs(exam.date)
+    
+    if (currentDate.isAfter(examDate)) {
+      return 'Không tham gia'
     }
   }
 
@@ -103,20 +128,6 @@ const ScheduleHealthCheck: React.FC = () => {
       }
     }
     return false
-  }
-
-  const getHealthCheckCounts = (nurseID: number, date: string) => {
-    const filteredHealthCheck = examinations.filter(
-      exam => exam.nurseID === nurseID && exam.date === date
-    )
-    
-    const total = filteredHealthCheck.length
-    const participated = filteredHealthCheck.filter(
-      exam => exam.weight !== null || exam.height !== null || 
-            exam.leftEye !== null || exam.rightEye !== null
-    ).length
-    
-    return { total, participated }
   }
 
   const handleCreateExamination = async (values: any) => {
@@ -153,44 +164,26 @@ const ScheduleHealthCheck: React.FC = () => {
     index === self.findIndex((v) => v.nurseID === value.nurseID && v.date === value.date)
   )
 
-  console.log('Examinations:', uniqueHealthChecks)
-
-  const columns: ColumnsType<HealthCheckList> = [
+  const columns: ColumnsType<FullHealthCheckList> = [
     { title: 'Y tá phụ trách', dataIndex: 'nurseFullName', key: 'nurseFullName' },
     {
       title: 'Ngày dự kiến',
       dataIndex: 'date',
       key: 'date',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
-      sorter: (a: HealthCheckList, b: HealthCheckList) => a.date.localeCompare(b.date)
+      sorter: (a: FullHealthCheckList, b: FullHealthCheckList) => a.date.localeCompare(b.date)
     },
     {
       title: 'Mô tả',
       dataIndex: 'healthCheckDescription',
       key: 'healthCheckDescription'
     },
-    // {
-    //   title: 'Đã tham gia',
-    //   key: 'consent',
-    //   render: (_, record) => {
-    //     const { total, participated } = getHealthCheckCounts(record.nurseID, record.date)
-    //     return (
-    //       <span>
-    //         <span style={{ color: 'green', fontWeight: 600 }}>
-    //           {participated}
-    //         </span>
-    //         <span style={{ color: 'black', fontWeight: 600 }}>
-    //           /{total} học sinh
-    //         </span>
-    //       </span>
-    //     )
-    //   }
-    // },
     {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Button
+        <div>
+          <Button
           type='link'
           icon={<FileTextOutlined />}
           onClick={() => {
@@ -200,14 +193,33 @@ const ScheduleHealthCheck: React.FC = () => {
         >
           Xem chi tiết
         </Button>
+        <Button
+          type='link'
+          icon={<EyeOutlined />}
+          onClick={() => {
+            setSelectedExamination(record)
+            setIsStudentModalOpen(true)
+          }}
+          >
+          Danh sách học sinh
+        </Button>
+        </div>
       )
     }
   ]
 
   const filteredHealthChecks = uniqueHealthChecks.filter(
-    (d) =>
-      (d.nurseFullName ?? '').toString().toLowerCase().includes(searchText.toLowerCase())
+    (d) => (d.nurseFullName ?? '').toString().toLowerCase().includes(searchText.toLowerCase())
   )
+
+  const getStudentsForExamination = () => {
+    if (!selectedExamination) return []
+    
+    return examinations.filter(exam => 
+      exam.nurseID === selectedExamination.nurseID && 
+      exam.date === selectedExamination.date
+    ).sort((a, b) => a.className.localeCompare(b.className))
+  }
 
   const items: TabsProps['items'] = [
     {
@@ -317,7 +329,37 @@ const ScheduleHealthCheck: React.FC = () => {
             <Descriptions.Item label='Y tá phụ trách'>{selectedExamination.nurseFullName}</Descriptions.Item>
             <Descriptions.Item label='Ngày dự kiến'>{dayjs.utc(selectedExamination.date).local().format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedExamination.healthCheckDescription}</Descriptions.Item>
+            <Descriptions.Item label='Đã ghi nhận kết quả'>{selectedExamination.participated || 0} học sinh</Descriptions.Item>
           </Descriptions>
+        )}
+      </Modal>
+      <Modal
+        width={800}
+        title='Danh sách học sinh trong buổi khám sức khỏe'
+        open={isStudentModalOpen}
+        onCancel={() => setIsStudentModalOpen(false)}
+        footer={[
+          <Button key='close' onClick={() => setIsStudentModalOpen(false)}>
+            Đóng
+          </Button>
+        ]}
+      >
+        {selectedExamination && (
+          <Table
+            dataSource={getStudentsForExamination()}
+            rowKey='campaignId'
+            pagination={{ pageSize: 5 }}
+            columns={[
+              { title: 'Họ tên học sinh', dataIndex: 'studentName', key: 'studentName' },
+              { title: 'Mã số HS', dataIndex: 'studentCode', key: 'studentCode' },
+              { title: 'Lớp', dataIndex: 'className', key: 'className' },
+              { 
+                title: 'Trạng thái', 
+                key: 'isParticipated', 
+                render: (_, record) => getParticipationStatus(record)
+              },
+            ]}
+          />
         )}
       </Modal>
     </div>

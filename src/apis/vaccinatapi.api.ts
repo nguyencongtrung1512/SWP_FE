@@ -26,6 +26,10 @@ export interface VaccinationConsent {
   note: string | null
   dateConfirmed: string | null
   key?: string
+  class: {
+    classId: number
+    className: string
+  }
 }
 
 export interface VaccinationRecord {
@@ -106,4 +110,8 @@ export const getFollowUpsByRecord = (recordId: number) => {
 
 export const getRecordsByStudent = (studentId: number) => {
   return http.get<ApiResponse<VaccinationRecord>>(`/Vaccination/RecordsByStudent/${studentId}`)
+}
+
+export const getRecordsByCampaign = (campaignId: number) => {
+  return http.get<ApiResponse<VaccinationRecord>>(`/Vaccination/Records/${campaignId}`)
 }

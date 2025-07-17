@@ -15,7 +15,7 @@ import {
   DatePicker,
   message
 } from 'antd'
-import { FileTextOutlined, SearchOutlined } from '@ant-design/icons'
+import { EyeOutlined, FileTextOutlined, SearchOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { TabsProps } from 'antd'
 import {
@@ -25,7 +25,8 @@ import {
   VaccinationCampaign,
   getVaccines,
   Vaccine,
-  getConsentsByCampaign
+  getConsentsByCampaign,
+  getRecordsByCampaign
 } from '../../../apis/vaccinatapi.api'
 import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
@@ -43,9 +44,24 @@ interface DisabledTimes {
 
 interface VaccinationCampaignWithConsent extends VaccinationCampaign {
   consentedCount?: number
-  totalSent?: number
+  participated?: number
+  consents?: {
+    campaignId: number
+    class: {
+      classId: number
+      className: string
+    }
+    consentId: number
+    dateConfirmed: string
+    isAgreed: boolean
+    note: string
+    parentId: number
+    parentName: string
+    studentId: number
+    studentName: string
+    studentCode: string
+  }[]
 }
-
 const ScheduleVaccination: React.FC = () => {
   const [vaccineForm] = Form.useForm()
   const [campaignForm] = Form.useForm()
@@ -56,6 +72,7 @@ const ScheduleVaccination: React.FC = () => {
   const [searchText, setSearchText] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState<VaccinationCampaignWithConsent | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false)
 
   useEffect(() => {
     fetchVaccines()
@@ -86,22 +103,36 @@ const ScheduleVaccination: React.FC = () => {
     try {
       const res = await getAllVaccinationCampaigns()
       const campaignsData = res.data?.$values || []
-      console.log('API trả về:', campaignsData)
       
       const campaignsWithConsents = await Promise.all(
         campaignsData.map(async (campaign) => {
           try {
             const consentRes = await getConsentsByCampaign(campaign.campaignId)
-            const consents = consentRes.data?.$values || []
-            
+            const consents = (consentRes.data?.$values || []).map((consent: any) => ({
+              campaignId: consent.campaignId,
+              class: consent.class,
+              consentId: consent.consentId,
+              dateConfirmed: consent.dateConfirmed,
+              isAgreed: consent.isAgreed,
+              note: consent.note,
+              parentId: consent.parentId,
+              parentName: consent.parentName,
+              studentId: consent.studentId,
+              studentName: consent.studentName,
+              studentCode: consent.studentCode
+            }))
+            console.log(`Consents for campaign ${campaign.campaignId}:`, consents)
             const consentedCount = consents.filter(consent => consent.isAgreed === true).length
-            const totalSent = consents.length
-            
+
+            const participatedRes = await getRecordsByCampaign(campaign.campaignId) 
+            const participatedCount = participatedRes.data?.$values.filter(record => record.result).length || 0
+
             return {
               ...campaign,
               key: campaign.campaignId.toString(),
               consentedCount,
-              totalSent
+              consents: consents,
+              participated: participatedCount
             }
           } catch (err) {
             console.error(`Error fetching consents for campaign ${campaign.campaignId}:`, err)
@@ -109,13 +140,14 @@ const ScheduleVaccination: React.FC = () => {
               ...campaign,
               key: campaign.campaignId.toString(),
               consentedCount: 0,
-              totalSent: 0
+              totalSent: 0,
+              consents: []
             }
           }
         })
       )
       
-      setCampaigns(campaignsWithConsents)
+      setCampaigns(campaignsWithConsents as VaccinationCampaignWithConsent[])
     } catch (err) {
       console.error('lỗi', err)
       message.error('Lấy danh sách chiến dịch thất bại!')
@@ -192,34 +224,32 @@ const ScheduleVaccination: React.FC = () => {
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
       sorter: (a: VaccinationCampaignWithConsent, b: VaccinationCampaignWithConsent) => a.date.localeCompare(b.date)
     },
-    // {
-    //   title: 'Đã đồng ý tham gia',
-    //   key: 'consent',
-    //   render: (_, record) => (
-    //     <span>
-    //       <span style={{ color: 'green', fontWeight: 600 }}>
-    //         {record.consentedCount || 0}
-    //       </span>
-    //       <span style={{ color: 'black', fontWeight: 600 }}>
-    //         /{record.totalSent || 0} học sinh
-    //       </span>
-    //     </span>
-    //   )
-    // },
     {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Button
-          type='link'
-          icon={<FileTextOutlined />}
-          onClick={() => {
-            setSelectedCampaign(record)
-            setIsModalOpen(true)
-          }}
-        >
-          Xem chi tiết
-        </Button>
+        <div>
+          <Button
+            type='link'
+            icon={<FileTextOutlined />}
+            onClick={() => {
+              setSelectedCampaign(record)
+              setIsModalOpen(true)
+            }}
+          >
+            Xem chi tiết
+          </Button>
+          <Button
+            type='link'
+            icon={<EyeOutlined />}
+            onClick={() => {
+              setSelectedCampaign(record)
+              setIsStudentModalOpen(true)
+            }}
+          >
+            Danh sách học sinh
+          </Button>
+        </div>
       )
     }
   ]
@@ -380,8 +410,50 @@ const ScheduleVaccination: React.FC = () => {
             <Descriptions.Item label='Vaccine'>{selectedCampaign.vaccineName}</Descriptions.Item>
             <Descriptions.Item label='Ngày dự kiến'>{dayjs.utc(selectedCampaign.date).local().format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedCampaign.description}</Descriptions.Item>
-            <Descriptions.Item label='Đã đồng ý'>{selectedCampaign.consentedCount || 0}/{selectedCampaign.totalSent || 0}</Descriptions.Item>
+            <Descriptions.Item label='Đã đồng ý tham gia'>{selectedCampaign.consentedCount || 0} học sinh</Descriptions.Item>
+            <Descriptions.Item label='Đã ghi nhận kết quả'>{selectedCampaign.participated || 0} học sinh</Descriptions.Item>
           </Descriptions>
+        )}
+      </Modal>
+      <Modal
+        width={800}
+        title='Danh sách học sinh trong chiến dịch'
+        open={isStudentModalOpen}
+        onCancel={() => setIsStudentModalOpen(false)}
+        footer={[
+          <Button key='close' onClick={() => setIsStudentModalOpen(false)}>
+            Đóng
+          </Button>
+        ]}
+      >
+        {selectedCampaign && (
+          <Table
+            dataSource={selectedCampaign.consents || []}
+            rowKey='consentId'
+            pagination={{ pageSize: 5 }}
+            columns={[
+              { title: 'Họ tên học sinh', dataIndex: 'studentName', key: 'studentName' },
+              { title: 'Mã số HS', dataIndex: 'studentCode', key: 'studentCode' },
+              { 
+                title: 'Lớp', 
+                dataIndex: ['class', 'className'], 
+                key: 'className',
+                render: (_, record) => record.class?.className || 'N/A'
+              },
+              { title: 'Phụ huynh', dataIndex: 'parentName', key: 'parentName' },
+              { title: 'Ngày xác nhận', dataIndex: 'dateConfirmed', key: 'dateConfirmed', render: (date: string) => date ? dayjs(date).format('HH:mm DD/MM/YYYY') : 'Chưa xác nhận' },
+              { 
+                title: 'Trạng thái', 
+                dataIndex: 'isAgreed', 
+                key: 'isAgreed', 
+                render: (text) => {
+                  if (text === true) return 'Đã đồng ý'
+                  if (text === false) return 'Không đồng ý'
+                  return 'Chưa phản hồi'
+                }
+              },
+            ]}
+          />
         )}
       </Modal>
     </div>

@@ -22,6 +22,7 @@ export interface HealthCheckList {
   height: number
   leftEye: number
   rightEye: number
+  studentID: number
 }
 
 export interface HealthCheckCreateParams {

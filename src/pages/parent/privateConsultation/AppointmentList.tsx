@@ -182,7 +182,7 @@ const AppointmentList = ({
   )
 }
 
-const AppointmentListContainer = () => {
+const AppointmentListContainer = ({ reload }: { reload?: boolean }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -209,7 +209,8 @@ const AppointmentListContainer = () => {
 
   useEffect(() => {
     fetchAppointments()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reload])
 
   const handleCancel = async (bookingId: number) => {
     try {
@@ -222,7 +223,7 @@ const AppointmentListContainer = () => {
   }
 
   if (loading) return <Loading />
-  return <AppointmentList appointments={appointments} onCancel={handleCancel} />
+  return <AppointmentList appointments={appointments} onCancel={handleCancel} reload={reload} />
 }
 
 export default AppointmentListContainer

@@ -119,7 +119,6 @@ const MedicalReport: React.FC = () => {
     try {
       const res = await getMedicalEventById(record.medicalEventId)
       setDetailEvent(res.data)
-      console.log('trung', res.data)
     } catch (error) {
       console.error('Lỗi khi lấy chi tiết sự kiện y tế:', error)
       setDetailEvent(null)
@@ -145,13 +144,13 @@ const MedicalReport: React.FC = () => {
   // Thống kê
   const todayEvents = medicalEvents.filter((event) => dayjs(event.date).isSame(dayjs(), 'day')).length
   const thisWeekEvents = medicalEvents.filter((event) => dayjs(event.date).isSame(dayjs(), 'week')).length
-  const eventTypeStats = medicalEvents.reduce(
-    (acc, event) => {
-      acc[event.type] = (acc[event.type] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>
-  )
+  // const eventTypeStats = medicalEvents.reduce(
+  //   (acc, event) => {
+  //     acc[event.type] = (acc[event.type] || 0) + 1
+  //     return acc
+  //   },
+  //   {} as Record<string, number>
+  // )
 
   const getEventTypeColor = (type: string) => {
     const colors: Record<string, string> = {
@@ -507,7 +506,7 @@ const MedicalReport: React.FC = () => {
                       <Space direction='vertical' style={{ width: '100%' }}>
                         {detailEvent.medications.$values.map((med: any, idx: number) => (
                           <Card key={idx} size='small' style={{ backgroundColor: '#f6ffed' }}>
-                            <Space justify='space-between' style={{ width: '100%' }}>
+                            <Space style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                               <Text strong>{med.name || 'Tên thuốc'}</Text>
                               {med.quantityUsed && <Badge count={med.quantityUsed} showZero />}
                             </Space>
@@ -528,7 +527,7 @@ const MedicalReport: React.FC = () => {
                       <Space direction='vertical' style={{ width: '100%' }}>
                         {detailEvent.medicalSupplies.$values.map((sup: any, idx: number) => (
                           <Card key={idx} size='small' style={{ backgroundColor: '#fff7e6' }}>
-                            <Space justify='space-between' style={{ width: '100%' }}>
+                            <Space style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                               <Text strong>{sup.name || 'Tên vật tư'}</Text>
                               {sup.quantityUsed && <Badge count={sup.quantityUsed} showZero />}
                             </Space>

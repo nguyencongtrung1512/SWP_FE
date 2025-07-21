@@ -209,7 +209,7 @@ const UserList: React.FC = () => {
       title: 'Vai trò',
       dataIndex: 'role.roleName',
       key: 'role',
-      render: (text: string, record: User) => {
+      render: (_: string, record: User) => {
         if (!record.role) return 'N/A'
         switch (record.role.roleName) {
           case 'Parent':

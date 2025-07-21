@@ -12,7 +12,7 @@ class ChatService {
   private connection: HubConnection | null = null
   private messageCallbacks: ((message: ChatMessage) => void)[] = []
   private messages: ChatMessage[] = []
-  private isConnected = false
+  // private isConnected = false
 
   async connect(appointmentId: string) {
     if (this.connection) return true; // Already connected

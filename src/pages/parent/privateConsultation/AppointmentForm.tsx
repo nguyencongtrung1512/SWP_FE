@@ -75,7 +75,15 @@ const AppointmentForm = ({ onSubmit }: AppointmentFormProps) => {
     const fetchStudents = async () => {
       try {
         const res = await getMyChildren()
-        setStudents(res.data || [])
+        // Map lại dữ liệu để đảm bảo đúng interface Student
+        type ApiStudent = { studentId: number; studentCode: string; fullname: string; className?: string }
+        const studentsData = (res.data || []).map((s: ApiStudent) => ({
+          id: s.studentId,
+          studentCode: s.studentCode,
+          fullname: s.fullname,
+          className: s.className
+        }))
+        setStudents(studentsData)
       } catch {
         toast.error('Không thể tải danh sách học sinh!')
       }

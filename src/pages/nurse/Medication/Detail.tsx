@@ -28,10 +28,10 @@ const MedicationDetail: React.FC<MedicationDetailProps> = ({ isModalVisible, onC
             </Tag>
           )}
         </Descriptions.Item>
-        <Descriptions.Item label='Ngày tạo'>{dayjs(medication.createdAt).format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
+        {/* <Descriptions.Item label='Ngày tạo'>{dayjs(medication.createdAt).format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
         <Descriptions.Item label='Cập nhật lần cuối'>
           {dayjs(medication.updatedAt).format('DD/MM/YYYY HH:mm')}
-        </Descriptions.Item>
+        </Descriptions.Item> */}
         <Descriptions.Item label='Số lượng'>{medication.quantity}</Descriptions.Item>
       </Descriptions>
     </Modal>

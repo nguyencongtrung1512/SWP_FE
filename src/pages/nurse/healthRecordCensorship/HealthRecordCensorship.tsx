@@ -41,7 +41,7 @@ const HealthRecordCensorship: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null)
   const [selectedGrade, setSelectedGrade] = useState<string>('1')
   const [selectedClass, setSelectedClass] = useState<Class | null>(null)
-  const [students, setStudents] = useState<Student[]>([])
+  const [, setStudents] = useState<Student[]>([])
   const [classes, setClasses] = useState<Class[]>([])
   const [filteredData, setFilteredData] = useState<HealthRecord[]>([])
   const [loading, setLoading] = useState(false)

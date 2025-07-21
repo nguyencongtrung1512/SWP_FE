@@ -44,10 +44,16 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [allStudents, setAllStudents] = useState<Student[]>([])
   const [foundStudent, setFoundStudent] = useState<Student | null>(null)
-  const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string; type: string; quantity: number }[]>([])
-  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string; type: string; quantity: number }[]>([])
+  const [medicationOptions, setMedicationOptions] = useState<
+    { value: number; label: string; type: string; quantity: number }[]
+  >([])
+  const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<
+    { value: number; label: string; type: string; quantity: number }[]
+  >([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
-  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
+    { medicalSupplyId: number; quantityUsed: number }[]
+  >([])
 
   console.log('Da chon', selectedMedicalSupplies)
   const getMedicationUnit = (type: string): string => {
@@ -173,6 +179,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
       setIsSubmitting(true)
 
       const data = {
+        studentId: foundStudent.studentId,
         studentCode: String(values.studentCode),
         type: String(values.type),
         description: String(values.description),
@@ -215,7 +222,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   }
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto', }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
       <Space direction='vertical' size='large' style={{ width: '100%' }}>
         {/* Header */}
         {/* <Card style={{ background: 'linear-gradient(135deg, #7c91ef 0%, #2171cc 100%)' }}>
@@ -235,8 +242,6 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}
         >
-
-
           <Form
             form={form}
             layout='vertical'

@@ -8,7 +8,7 @@ import { Textarea } from '../../../components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../../components/ui/form'
 import { Eye, Edit, Calendar as CalendarIcon, Save, X } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, SubmitHandler, FieldValues } from 'react-hook-form'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import {
@@ -24,7 +24,7 @@ import MedicationNoData from '../../../components/nodata/medicationNoData'
 
 interface DetailedMedicationRequest extends Omit<MedicationRequestHistory, 'medications'> {
   medications: Medication[] | { $values: Medication[] }
-  nurseNote?: string
+  nurseNote: string
 }
 
 function HistorySendMedicine({ reload }: { reload?: boolean }) {
@@ -86,7 +86,10 @@ function HistorySendMedicine({ reload }: { reload?: boolean }) {
     form.reset()
     try {
       const detail = await getRequestById(record.requestId)
-      setDetailedRecord(detail)
+      setDetailedRecord({
+        ...detail,
+        nurseNote: detail.nurseNote ?? ''
+      })
       const meds = Array.isArray(detail.medications) ? detail.medications : detail.medications?.$values || []
       const mappedMeds = meds.map((m: Medication) => ({
         name: m.name,
@@ -112,13 +115,15 @@ function HistorySendMedicine({ reload }: { reload?: boolean }) {
     setDetailedRecord(null)
   }
 
-  const handleSaveSubmit = async (values: { parentNote: string; medications: Medication[] }) => {
+  const handleSaveSubmit: SubmitHandler<FieldValues> = async (values) => {
+    // Ép kiểu values về đúng dạng
+    const { parentNote, medications } = values as { parentNote: string; medications: Medication[] }
     if (!modal.record) return
     setIsSaving(true)
     try {
       const data: MedicationRequestUpdate = {
-        parentNote: values.parentNote,
-        medications: values.medications.map((m) => ({
+        parentNote,
+        medications: medications.map((m) => ({
           ...m,
           expiredDate: m.expiredDate ? format(new Date(m.expiredDate), 'yyyy-MM-dd') : ''
         }))
@@ -231,7 +236,7 @@ function HistorySendMedicine({ reload }: { reload?: boolean }) {
                       {(Array.isArray(detailedRecord.medications)
                         ? detailedRecord.medications
                         : detailedRecord.medications?.$values || []
-                      ).map((medication: Medication, index: number) => (
+                      ).map((_: Medication, index: number) => (
                         <Card key={index} className='p-4 border border-gray-200'>
                           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <FormField

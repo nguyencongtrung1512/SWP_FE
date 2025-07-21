@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import AppointmentForm from './AppointmentForm'
 import AppointmentList from './AppointmentList'
 

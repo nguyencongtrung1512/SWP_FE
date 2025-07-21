@@ -77,7 +77,7 @@ function BlogDetail() {
               uid: '-1',
               name: 'existing_image',
               status: 'done',
-              url: data.image
+              url: `data:image/png;base64,${data.image}` // Sửa lại để hiển thị base64
             }
           ])
         }

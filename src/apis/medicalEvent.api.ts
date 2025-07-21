@@ -56,6 +56,7 @@ export interface MedicalSupplyUsed {
 }
 
 export interface CreateMedicalEventRequest {
+  studentId: number
   studentCode: string
   type: string
   description: string

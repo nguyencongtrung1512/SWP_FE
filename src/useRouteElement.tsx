@@ -12,13 +12,11 @@ import HealthRecordCensorship from './pages/nurse/healthRecordCensorship/HealthR
 import ScheduleVaccination from './pages/nurse/scheduleVaccination/ScheduleVaccination'
 import ReceiveMedicine from './pages/nurse/receiveMedicine/ReceiveMedicine'
 import MedicalReport from './pages/nurse/medicalReport/MedicalReport'
-import DashBoardNurse from './pages/nurse/dashboardNurse/DashBoardNurse'
 import PrivateConsultation from './pages/nurse/privateConsultation/PrivateConsultation'
 import Blog from './pages/parent/blog/blog'
 import BlogPost from './pages/parent/blog/blogDetail'
 import AdminLayout from './layouts/AdminLayout/AdminLayout'
 import DashBoardAdmin from './pages/admin/dashBoardAdmin/DashBoardAdmin'
-import CensorList from './pages/admin/censorManagement/CensorList'
 import UserList from './pages/admin/userManagerment/UserList'
 import StudentList from './pages/admin/studentManagement/StudentList'
 import GradeList from './pages/admin/gradeManagement/GradeList'
@@ -101,7 +99,7 @@ export default function useRouteElements() {
             },
             {
               path: 'parent/private-consultation/video-call/:appointmentId',
-              element: <VideoCall userRole="parent" />
+              element: <VideoCall /> //userRole="parent"
             }
           ]
         }
@@ -116,14 +114,6 @@ export default function useRouteElements() {
           path: '',
           element: <NurseLayout />,
           children: [
-            {
-              path: '',
-              element: <DashBoardNurse />
-            },
-            {
-              path: 'dashboard',
-              element: <DashBoardNurse />
-            },
             {
               path: path.HEALTH_RECORD_CENSORSHIP,
               element: <HealthRecordCensorship />
@@ -158,7 +148,7 @@ export default function useRouteElements() {
             },
             {
               path: 'private-consultation/video-call/:appointmentId',
-              element: <VideoCall userRole="nurse" />
+              element: <VideoCall /> //userRole="nurse" 
             },
             {
               path: path.NURSE_CATEGORY_MANAGEMENT,
@@ -192,10 +182,6 @@ export default function useRouteElements() {
             {
               path: path.DASHBOARD_ADMIN,
               element: <DashBoardAdmin />
-            },
-            {
-              path: path.CENSOR_LIST,
-              element: <CensorList />
             },
             {
               path: path.USER_MANAGEMENT,

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import AgoraRTC, {
   IAgoraRTCClient,
   IAgoraRTCRemoteUser,
@@ -38,6 +38,11 @@ const VideoPlayer: React.FC<{ user: VideoUser; style?: React.CSSProperties }> = 
 
 const client: IAgoraRTCClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
 
+// interface VideoCallProps {
+//   userRole: string
+// }
+
+// const VideoCall: React.FC<VideoCallProps> = ({ userRole }) => {
 const VideoCall: React.FC = () => {
   const { appointmentId } = useParams<{ appointmentId: string }>()
   const [users, setUsers] = useState<VideoUser[]>([])

@@ -18,7 +18,7 @@ function GradeList() {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false)
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false)
   const [selectedClass, setSelectedClass] = useState<Class | null>(null)
-  const [studentDistribution, setStudentDistribution] = useState<StudentDistributionResponse | null>(null)
+  const [, setStudentDistribution] = useState<StudentDistributionResponse | null>(null)
 
   useEffect(() => {
     fetchClasses()
@@ -27,21 +27,18 @@ function GradeList() {
 
   const fetchClasses = async () => {
     try {
-      const [classRes, studentRes] = await Promise.all([
-        getAllClasses(),
-        getAllStudents()
-      ])
+      const [classRes, studentRes] = await Promise.all([getAllClasses(), getAllStudents()])
       const classList = classRes.data.$values
       const students = studentRes.data.$values
 
       // Tạo map classId -> số lượng học sinh
       const classIdToCount: Record<number, number> = {}
-      students.forEach(stu => {
+      students.forEach((stu) => {
         classIdToCount[stu.classId] = (classIdToCount[stu.classId] || 0) + 1
       })
 
       // Gán studentCount cho từng lớp
-      const classesWithCount = classList.map(cls => ({
+      const classesWithCount = classList.map((cls) => ({
         ...cls,
         studentCount: classIdToCount[cls.classId] || 0
       }))

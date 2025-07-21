@@ -30,7 +30,9 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
   const [medicationOptions, setMedicationOptions] = useState<{ value: number; label: string }[]>([])
   const [medicalSupplyOptions, setMedicalSupplyOptions] = useState<{ value: number; label: string }[]>([])
   const [selectedMedications, setSelectedMedications] = useState<{ medicationId: number; quantityUsed: number }[]>([])
-  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<{ medicalSupplyId: number; quantityUsed: number }[]>([])
+  const [selectedMedicalSupplies, setSelectedMedicalSupplies] = useState<
+    { medicalSupplyId: number; quantityUsed: number }[]
+  >([])
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -172,6 +174,7 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
     try {
       setLoading(true)
       const data: CreateMedicalEventRequest = {
+        studentCode: foundStudent?.studentCode || '',
         studentId: values.studentId,
         type: values.type,
         description: values.description,
@@ -212,17 +215,12 @@ const UpdateEvent: React.FC<UpdateEventProps> = ({ eventId, visible, onCancel, o
                 disabledDate={(current) => {
                   const today = dayjs().startOf('day')
                   const twoWeeksAgo = today.subtract(7, 'day')
-                  return (
-                    current && (current < twoWeeksAgo || current > today)
-                  )
+                  return current && (current < twoWeeksAgo || current > today)
                 }}
                 disabledTime={() => ({
-                  disabledHours: () =>
-                    Array.from({ length: 24 }, (_, i) => i).filter(
-                      (hour) => hour < 7 || hour > 17
-                    ),
+                  disabledHours: () => Array.from({ length: 24 }, (_, i) => i).filter((hour) => hour < 7 || hour > 17),
                   disabledMinutes: () => [],
-                  disabledSeconds: () => [],
+                  disabledSeconds: () => []
                 })}
               />
             </Form.Item>

@@ -51,7 +51,7 @@ const { TextArea } = Input
 const ReceiveMedicine: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState<MedicationRequestHistory | null>(null)
-  const [form] = Form.useForm()
+  // const [form] = Form.useForm()
   const [requests, setRequests] = useState<MedicationRequestHistory[]>([])
   const [loading, setLoading] = useState(false)
   const [isRejectModalVisible, setIsRejectModalVisible] = useState(false)
@@ -123,13 +123,13 @@ const ReceiveMedicine: React.FC = () => {
     setIsModalVisible(true)
   }
 
-  const handleAddNote = (values: { nurseNotes: string }) => {
-    if (selectedRequest) {
-      toast.success(`Thêm ghi chú thành công!${values.nurseNotes ? ' Nội dung: ' + values.nurseNotes : ''}`)
-      setIsModalVisible(false)
-    }
-    form.resetFields()
-  }
+  // const handleAddNote = (values: { nurseNotes: string }) => {
+  //   if (selectedRequest) {
+  //     toast.success(`Thêm ghi chú thành công!${values.nurseNotes ? ' Nội dung: ' + values.nurseNotes : ''}`)
+  //     setIsModalVisible(false)
+  //   }
+  //   form.resetFields()
+  // }
 
   const getStatusConfig = (status: string) => {
     const configs = {

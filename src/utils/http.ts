@@ -7,12 +7,14 @@ class Http {
 
   constructor() {
     this.instance = axios.create({
-      baseURL: import.meta.env.VITE_API_URL,
+      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5057/api',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
       }
     })
+    console.log('ENV:')
+    console.log('BASE_URL:', import.meta.env.VITE_API_URL)
 
     this.instance.interceptors.request.use(this.handleBefore.bind(this), this.handleError)
 

@@ -15,7 +15,7 @@ export const getAllClasses = () => {
 }
 
 export const getClassById = (id: number, data: Partial<Class>) => {
-  return http.get<ApiResponse<Class>>(`Class/GetClassById/${id}`, data)
+  return http.get<ApiResponse<Class>>(`Class/GetClassById/${id}`, { params: data })
 }
 
 export const createClass = (data: Omit<Class, 'classId'>) => {

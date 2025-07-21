@@ -4,7 +4,7 @@ import { Card, Row, Col, Table, Button, Dropdown, message, Modal } from 'antd'
 import { FileTextOutlined, MoreOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { MenuProps } from 'antd'
-import blogApi, { type Blog, type CreateBlogRequest } from '../../../apis/blog.api'
+import blogApi, { type Blog } from '../../../apis/blog.api'
 import { categoryApi, type Category } from '../../../apis/category.api'
 import CreateBlogForm from './Create'
 import DeleteBlog from './Delete'
@@ -121,10 +121,10 @@ function BlogList() {
     setIsModalVisible(false)
   }
 
-  const handleCreateBlogSubmit = async (values: CreateBlogRequest) => {
+  const handleCreateBlogSubmit = async (formData: FormData) => {
     setIsCreating(true)
     try {
-      const response = await blogApi.createBlog(values)
+      const response = await blogApi.createBlog(formData)
       if (response.data) {
         message.success('Tạo blog thành công!')
         handleCancelModal()

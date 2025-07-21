@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import AgoraRTC, { IAgoraRTCClient, IAgoraRTCRemoteUser, ICameraVideoTrack, IMicrophoneAudioTrack, IRemoteVideoTrack, IRemoteAudioTrack } from 'agora-rtc-sdk-ng'
+import AgoraRTC, {
+  IAgoraRTCClient,
+  IAgoraRTCRemoteUser,
+  ICameraVideoTrack,
+  IMicrophoneAudioTrack,
+  IRemoteVideoTrack,
+  IRemoteAudioTrack
+} from 'agora-rtc-sdk-ng'
 import { getAgoraToken } from '../apis/healthConsultationBooking.api'
 import { useParams } from 'react-router-dom'
 import Loading from './Loading/Loading'
@@ -57,7 +64,7 @@ const VideoCall: React.FC = () => {
       } catch {
         setToken(null)
       } finally {
-      setIsLoading(false)
+        setIsLoading(false)
       }
     }
     fetchToken()
@@ -69,11 +76,13 @@ const VideoCall: React.FC = () => {
     const handleUserPublished = async (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
       await client.subscribe(user, mediaType)
       if (mediaType === 'video') {
-        setUsers(prev => {
-          const existing = prev.find(u => u.uid === user.uid)
+        setUsers((prev) => {
+          const existing = prev.find((u) => u.uid === user.uid)
           if (existing) {
             // Update videoTrack/audioTrack if user already exists
-            return prev.map(u => u.uid === user.uid ? { ...u, videoTrack: user.videoTrack, audioTrack: user.audioTrack } : u)
+            return prev.map((u) =>
+              u.uid === user.uid ? { ...u, videoTrack: user.videoTrack, audioTrack: user.audioTrack } : u
+            )
           }
           return [...prev, { uid: user.uid, videoTrack: user.videoTrack, audioTrack: user.audioTrack }]
         })
@@ -86,30 +95,22 @@ const VideoCall: React.FC = () => {
     }
     const handleUserUnpublished = (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
       if (mediaType === 'video') {
-        setUsers(prev => prev.map(u => u.uid === user.uid ? { ...u, videoTrack: undefined } : u))
+        setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, videoTrack: undefined } : u)))
       }
     }
     const handleUserLeft = (user: IAgoraRTCRemoteUser) => {
-      setUsers(prev => prev.filter(u => u.uid !== user.uid))
+      setUsers((prev) => prev.filter((u) => u.uid !== user.uid))
     }
     client.on('user-published', handleUserPublished)
     client.on('user-unpublished', handleUserUnpublished)
     client.on('user-left', handleUserLeft)
     client
       .join(APP_ID, channel, token, uid || null)
-      .then((joinedUid) =>
-        Promise.all([
-          AgoraRTC.createMicrophoneAndCameraTracks(),
-          joinedUid,
-        ])
-      )
+      .then((joinedUid) => Promise.all([AgoraRTC.createMicrophoneAndCameraTracks(), joinedUid]))
       .then(([tracks, joinedUid]) => {
         const [audioTrack, videoTrack] = tracks
         setLocalTracks(tracks)
-        setUsers(prev => [
-          ...prev.filter(u => u.uid !== joinedUid),
-          { uid: joinedUid, videoTrack, audioTrack },
-        ])
+        setUsers((prev) => [...prev.filter((u) => u.uid !== joinedUid), { uid: joinedUid, videoTrack, audioTrack }])
         client.publish([audioTrack, videoTrack])
       })
     return () => {
@@ -129,7 +130,10 @@ const VideoCall: React.FC = () => {
 
   // Hide/show local preview handler
   const handleToggleCamPreview = async () => {
-    const videoTrack = localTracks.find(track => track && 'setEnabled' in track && track.getTrackLabel && track.getTrackLabel().toLowerCase().includes('camera')) as ICameraVideoTrack | undefined
+    const videoTrack = localTracks.find(
+      (track) =>
+        track && 'setEnabled' in track && track.getTrackLabel && track.getTrackLabel().toLowerCase().includes('camera')
+    ) as ICameraVideoTrack | undefined
     if (!videoTrack) {
       setCamPreview((prev) => !prev)
       return
@@ -150,7 +154,13 @@ const VideoCall: React.FC = () => {
 
   // Mute/unmute handler
   const handleToggleMute = () => {
-    const audioTrack = localTracks.find(track => track && 'setEnabled' in track && track.getTrackLabel && track.getTrackLabel().toLowerCase().includes('microphone')) as IMicrophoneAudioTrack | undefined
+    const audioTrack = localTracks.find(
+      (track) =>
+        track &&
+        'setEnabled' in track &&
+        track.getTrackLabel &&
+        track.getTrackLabel().toLowerCase().includes('microphone')
+    ) as IMicrophoneAudioTrack | undefined
     if (audioTrack) {
       const newMutedState = !isMuted
       audioTrack.setEnabled(!newMutedState)
@@ -172,14 +182,22 @@ const VideoCall: React.FC = () => {
   }
 
   if (isLoading) return <Loading />
-  if (!token) return <div className="text-center text-red-500 mt-10">Không thể lấy token cho cuộc gọi video.</div>
+  if (!token) return <div className='text-center text-red-500 mt-10'>Không thể lấy token cho cuộc gọi video.</div>
 
   // Find local and remote users
-  const localUser = users.find(u => u.uid === uid)
-  const remoteUser = users.find(u => u.uid !== uid)
+  const localUser = users.find((u) => u.uid === uid)
+  const remoteUser = users.find((u) => u.uid !== uid)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#18181b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#18181b',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
       {!joined ? (
         <button
           onClick={() => setJoined(true)}
@@ -197,37 +215,93 @@ const VideoCall: React.FC = () => {
           Tham gia cuộc gọi
         </button>
       ) : (
-        <div style={{ position: 'relative', width: 1100, height: 700, background: '#111', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,0.25)' }}>
+        <div
+          style={{
+            position: 'relative',
+            width: 1100,
+            height: 700,
+            background: '#111',
+            borderRadius: 20,
+            boxShadow: '0 2px 16px rgba(0,0,0,0.25)'
+          }}
+        >
           {/* Remote user big cam */}
           <div style={{ width: '100%', height: '100%', borderRadius: 20, overflow: 'hidden', background: '#222' }}>
             {remoteUser ? (
               remoteUser.videoTrack ? (
                 <VideoPlayer user={remoteUser} style={{ width: '100%', height: '100%' }} />
               ) : (
-                <div style={{ color: '#aaa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                <div
+                  style={{
+                    color: '#aaa',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%'
+                  }}
+                >
                   {/* Camera-off SVG icon */}
-                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 1l22 22" />
-                    <path d="M17 17H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z" />
-                    <path d="M23 7l-5 5" />
+                  <svg
+                    width='80'
+                    height='80'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='#fff'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  >
+                    <path d='M1 1l22 22' />
+                    <path d='M17 17H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z' />
+                    <path d='M23 7l-5 5' />
                   </svg>
                   <span style={{ marginTop: 16 }}>Người dùng đã tắt camera</span>
                 </div>
               )
             ) : (
-              <div style={{ color: '#aaa', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div
+                style={{
+                  color: '#aaa',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%'
+                }}
+              >
                 Đang chờ người tham gia khác...
               </div>
             )}
           </div>
           {/* Local user small cam */}
           {localUser && camPreview && (
-            <div style={{ position: 'absolute', left: 36, bottom: 36, width: 300, height: 220, boxShadow: '0 2px 8px rgba(0,0,0,0.25)', borderRadius: 12, border: '2px solid #fff' }}>
+            <div
+              style={{
+                position: 'absolute',
+                left: 36,
+                bottom: 36,
+                width: 300,
+                height: 220,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                borderRadius: 12,
+                border: '2px solid #fff'
+              }}
+            >
               <VideoPlayer user={localUser} style={{ width: '100%', height: '100%' }} />
             </div>
           )}
           {/* End Call & Hide Cam Buttons */}
-          <div style={{ position: 'absolute', left: '50%', bottom: 36, transform: 'translateX(-50%)', display: 'flex', gap: 24, zIndex: 10 }}>
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: 36,
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: 24,
+              zIndex: 10
+            }}
+          >
             <button
               onClick={handleToggleCamPreview}
               style={{
@@ -240,16 +314,41 @@ const VideoCall: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                cursor: 'pointer',
+                cursor: 'pointer'
               }}
               title={camPreview ? 'Ẩn xem trước camera của bạn' : 'Hiện xem trước camera của bạn'}
             >
               {camPreview ? (
                 // Eye SVG (when camera is visible, show eye to indicate you can hide it)
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="10" ry="7" /><circle cx="12" cy="12" r="3" /></svg>
+                <svg
+                  width='32'
+                  height='32'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='#fff'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <ellipse cx='12' cy='12' rx='10' ry='7' />
+                  <circle cx='12' cy='12' r='3' />
+                </svg>
               ) : (
                 // Eye-off SVG (when camera is hidden, show eye-off to indicate you can show it)
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-5 0-9.27-3.11-11-7 1.21-2.61 3.16-4.77 5.66-6.11M1 1l22 22" /><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.38 0 2.63-.83 3.16-2.03" /><path d="M14.47 14.47A3.5 3.5 0 0 1 12 8.5c-.62 0-1.2.18-1.69.49" /></svg>
+                <svg
+                  width='32'
+                  height='32'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='#fff'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <path d='M17.94 17.94A10.94 10.94 0 0 1 12 19c-5 0-9.27-3.11-11-7 1.21-2.61 3.16-4.77 5.66-6.11M1 1l22 22' />
+                  <path d='M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.38 0 2.63-.83 3.16-2.03' />
+                  <path d='M14.47 14.47A3.5 3.5 0 0 1 12 8.5c-.62 0-1.2.18-1.69.49' />
+                </svg>
               )}
             </button>
             <button
@@ -264,26 +363,44 @@ const VideoCall: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                cursor: 'pointer',
+                cursor: 'pointer'
               }}
               title={isMuted ? 'Bật microphone' : 'Tắt microphone'}
             >
               {isMuted ? (
                 // Muted microphone SVG
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 1l22 22"/>
-                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/>
-                  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/>
-                  <line x1="12" y1="19" x2="12" y2="23"/>
-                  <line x1="8" y1="23" x2="16" y2="23"/>
+                <svg
+                  width='32'
+                  height='32'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='#fff'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <path d='M1 1l22 22' />
+                  <path d='M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6' />
+                  <path d='M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23' />
+                  <line x1='12' y1='19' x2='12' y2='23' />
+                  <line x1='8' y1='23' x2='16' y2='23' />
                 </svg>
               ) : (
                 // Unmuted microphone SVG
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                  <line x1="12" y1="19" x2="12" y2="23"/>
-                  <line x1="8" y1="23" x2="16" y2="23"/>
+                <svg
+                  width='32'
+                  height='32'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='#fff'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <path d='M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z' />
+                  <path d='M19 10v2a7 7 0 0 1-14 0v-2' />
+                  <line x1='12' y1='19' x2='12' y2='23' />
+                  <line x1='8' y1='23' x2='16' y2='23' />
                 </svg>
               )}
             </button>
@@ -299,18 +416,29 @@ const VideoCall: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
-                cursor: 'pointer',
+                cursor: 'pointer'
               }}
-              title="Kết thúc cuộc gọi"
+              title='Kết thúc cuộc gọi'
             >
               {/* Simple phone SVG icon */}
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92V21a2 2 0 0 1-2.18 2A19.72 19.72 0 0 1 3 5.18 2 2 0 0 1 5 3h4.09a2 2 0 0 1 2 1.72c.13 1.13.37 2.23.72 3.28a2 2 0 0 1-.45 2.11l-1.27 1.27a16 16 0 0 0 6.29 6.29l1.27-1.27a2 2 0 0 1 2.11-.45c1.05.35 2.15.59 3.28.72A2 2 0 0 1 22 16.92z"></path></svg>
+              <svg
+                width='32'
+                height='32'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='#fff'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <path d='M22 16.92V21a2 2 0 0 1-2.18 2A19.72 19.72 0 0 1 3 5.18 2 2 0 0 1 5 3h4.09a2 2 0 0 1 2 1.72c.13 1.13.37 2.23.72 3.28a2 2 0 0 1-.45 2.11l-1.27 1.27a16 16 0 0 0 6.29 6.29l1.27-1.27a2 2 0 0 1 2.11-.45c1.05.35 2.15.59 3.28.72A2 2 0 0 1 22 16.92z'></path>
+              </svg>
             </button>
-            </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   )
 }
 
-export default VideoCall 
+export default VideoCall

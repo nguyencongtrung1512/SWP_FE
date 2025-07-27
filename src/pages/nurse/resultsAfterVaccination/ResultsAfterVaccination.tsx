@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Table, Button, Modal, Form, Input, Select, DatePicker, message, Card, Row, Col } from 'antd'
+import { Table, Button, Modal, Form, Input, Select, DatePicker, message, Card, Row, Col, Space } from 'antd'
+import { DownloadOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import * as XLSX from 'xlsx'
 import {
   createVaccinationRecord,
   getConsentsByCampaign,
@@ -83,7 +85,9 @@ function ResultsAfterVaccination() {
       ])
       const agreed = consentsRes.data.$values.filter((item) => item.isAgreed === true)
       const recordsMap = new Map<number, any>()
-      recordsRes.data.$values.forEach((r) => { recordsMap.set(r.studentId, r) })
+      recordsRes.data.$values.forEach((r) => {
+        recordsMap.set(r.studentId, r)
+      })
 
       const mapped = agreed.map((item) => {
         const record = recordsMap.get(item.studentId)
@@ -108,22 +112,120 @@ function ResultsAfterVaccination() {
     }
   }
 
+  // Hàm xuất Excel cho toàn bộ danh sách
+  const exportToExcel = () => {
+    try {
+      if (records.length === 0) {
+        message.warning('Không có dữ liệu để xuất!')
+        return
+      }
+
+      const currentCampaign = campaigns.find((c) => c.campaignId === campaignId)
+      const campaignName = currentCampaign?.name || 'Không xác định'
+
+      const dataToExport = records.map((record, index) => ({
+        STT: index + 1,
+        'Học sinh': record.studentName,
+        'Kết quả': record.result,
+        'Phản ứng với Vắc-Xin': record.immediateReaction,
+        'Thời gian tiêm': record.time ? dayjs.utc(record.time).local().format('DD/MM/YYYY HH:mm') : 'Chưa cập nhật',
+        'Ghi chú': record.note && record.note.trim() ? record.note : 'Không có',
+        'Trạng thái': record.isCompleted ? 'Hoàn thành' : 'Chưa hoàn thành'
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(dataToExport)
+
+      // Điều chỉnh độ rộng cột
+      const colWidths = [
+        { wch: 5 }, // STT
+        { wch: 20 }, // Học sinh
+        { wch: 15 }, // Kết quả
+        { wch: 20 }, // Phản ứng với Vắc-Xin
+        { wch: 18 }, // Thời gian tiêm
+        { wch: 25 }, // Ghi chú
+        { wch: 15 } // Trạng thái
+      ]
+      ws['!cols'] = colWidths
+
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Kết quả sau tiêm vắc-xin')
+
+      // Tạo tên file với tên chiến dịch và thời gian hiện tại
+      const campaignNameForFile = campaignName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '')
+      const fileName = `ket-qua-tiem-vac-xin-${campaignNameForFile}-${dayjs().format('DD-MM-YYYY-HH-mm')}.xlsx`
+      XLSX.writeFile(wb, fileName)
+
+      message.success('Xuất file Excel thành công!')
+    } catch (error) {
+      console.error('Error exporting to Excel:', error)
+      message.error('Xuất file Excel thất bại!')
+    }
+  }
+
+  // Hàm xuất Excel cho một học sinh cụ thể (dùng trong modal)
+  // const exportSingleRecordToExcel = (record: HealthRecord) => {
+  //   try {
+  //     const currentCampaign = campaigns.find((c) => c.campaignId === campaignId)
+  //     const campaignName = currentCampaign?.name || 'Không xác định'
+
+  //     const dataToExport = [
+  //       {
+  //         'Chiến dịch tiêm chủng': campaignName,
+  //         'Học sinh': record.studentName,
+  //         'Kết quả tiêm chủng': record.result,
+  //         'Phản ứng với Vắc-Xin': record.immediateReaction,
+  //         'Thời gian tiêm': record.time ? dayjs.utc(record.time).local().format('DD/MM/YYYY HH:mm') : 'Chưa cập nhật',
+  //         'Ghi chú': record.note && record.note.trim() ? record.note : 'Không có',
+  //         'Trạng thái hồ sơ': record.isCompleted ? 'Hoàn thành' : 'Chưa hoàn thành',
+  //         'Ngày xuất báo cáo': dayjs().format('DD/MM/YYYY HH:mm')
+  //       }
+  //     ]
+
+  //     const ws = XLSX.utils.json_to_sheet(dataToExport)
+
+  //     // Điều chỉnh độ rộng cột
+  //     const colWidths = [
+  //       { wch: 25 }, // Chiến dịch tiêm chủng
+  //       { wch: 20 }, // Học sinh
+  //       { wch: 18 }, // Kết quả tiêm chủng
+  //       { wch: 22 }, // Phản ứng với Vắc-Xin
+  //       { wch: 18 }, // Thời gian tiêm
+  //       { wch: 30 }, // Ghi chú
+  //       { wch: 18 }, // Trạng thái hồ sơ
+  //       { wch: 18 } // Ngày xuất báo cáo
+  //     ]
+  //     ws['!cols'] = colWidths
+
+  //     const wb = XLSX.utils.book_new()
+  //     XLSX.utils.book_append_sheet(wb, ws, 'Kết quả tiêm vắc-xin')
+
+  //     // Tạo tên file với tên học sinh và thời gian
+  //     const studentName = record.studentName?.replace(/\s+/g, '-') || 'unknown'
+  //     const fileName = `tiem-vac-xin-${studentName}-${dayjs().format('DD-MM-YYYY-HH-mm')}.xlsx`
+  //     XLSX.writeFile(wb, fileName)
+
+  //     message.success('Xuất file Excel thành công!')
+  //   } catch (error) {
+  //     console.error('Error exporting to Excel:', error)
+  //     message.error('Xuất file Excel thất bại!')
+  //   }
+  // }
+
   const columns: ColumnsType<HealthRecord> = [
     { title: 'Học sinh', dataIndex: 'studentName', key: 'studentName' },
     { title: 'Kết quả', dataIndex: 'result', key: 'result' },
     { title: 'Phản ứng với Vắc-Xin', dataIndex: 'immediateReaction', key: 'immediateReaction' },
-    // { title: 'Uống thuốc', dataIndex: 'medication', key: 'medication' },
     {
       title: 'Thời gian',
       dataIndex: 'time',
       key: 'time',
-      render: (time) => time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : 'Chưa cập nhật'
+      render: (time) => (time ? dayjs.utc(time).local().format('DD/MM/YYYY HH:mm') : 'Chưa cập nhật')
     },
     {
       title: 'Ghi chú',
       dataIndex: 'note',
       key: 'note',
-      render: (value: string) => value?.trim() ? value : 'Không có',
+      render: (value: string) => (value?.trim() ? value : 'Không có')
     },
     {
       title: 'Hành động',
@@ -184,7 +286,17 @@ function ResultsAfterVaccination() {
   return (
     <div>
       <Card>
-        <Row justify='end' align='middle' style={{ marginBottom: 16 }}>
+        <Row justify='space-between' align='middle' style={{ marginBottom: 16 }}>
+          <Col>
+            <Button
+
+              icon={<DownloadOutlined />}
+              onClick={exportToExcel}
+              disabled={records.length === 0 || campaignId === null}
+            >
+              Xuất Excel
+            </Button>
+          </Col>
           <Col>
             <Select
               placeholder='Chọn chiến dịch tiêm'
@@ -220,12 +332,6 @@ function ResultsAfterVaccination() {
             >
               <Input />
             </Form.Item>
-            {/* <Form.Item name='medication' label='Uống thuốc' rules={[{ required: true, message: 'Vui lòng chọn' }]}>
-              <Select>
-                <Option value='Có'>Có</Option>
-                <Option value='Không'>Không</Option>
-              </Select>
-            </Form.Item> */}
             <Form.Item name='time' label='Thời gian' rules={[{ required: true, message: 'Vui lòng chọn thời gian' }]}>
               <DatePicker
                 showTime
@@ -233,12 +339,9 @@ function ResultsAfterVaccination() {
                 style={{ width: '100%' }}
                 disabledDate={(date) => !campaignDate || !date.isSame(campaignDate, 'day')}
                 disabledTime={() => ({
-                  disabledHours: () =>
-                    Array.from({ length: 24 }, (_, i) => i).filter(
-                      (hour) => hour < 8 || hour > 16
-                    ),
+                  disabledHours: () => Array.from({ length: 24 }, (_, i) => i).filter((hour) => hour < 8 || hour > 16),
                   disabledMinutes: () => [],
-                  disabledSeconds: () => [],
+                  disabledSeconds: () => []
                 })}
               />
             </Form.Item>
@@ -246,9 +349,16 @@ function ResultsAfterVaccination() {
               <Input.TextArea />
             </Form.Item>
             <Form.Item>
-              <Button type='primary' htmlType='submit'>
-                Lưu
-              </Button>
+              <Space>
+                <Button className='bg-green-500' htmlType='submit'>
+                  Lưu
+                </Button>
+                {/* {selectedConsent && (
+                  <Button icon={<DownloadOutlined />} onClick={() => exportSingleRecordToExcel(selectedConsent)}>
+                    Xuất Excelnha
+                  </Button>
+                )} */}
+              </Space>
             </Form.Item>
           </Form>
         </Modal>

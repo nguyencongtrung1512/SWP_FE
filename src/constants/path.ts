@@ -9,29 +9,29 @@ const path = {
   // ============ Parent ============
   appointment:'/parent/appointment',
   profile: '/parent/profile',
-  healthRecord: '/parent/health-record', //khai báo sức khỏe của con
-  sendMedicine: '/parent/send-medicine', //gửi thuốc
-  vaccinationSchedule: '/parent/vaccination-schedule', //lịch tiêm chủng cho con
-  vaccinationScheduleDetail: '/parent/vaccination-schedule-detail', //chi tiết thông báo tiêm chủng cho phụ huynh
-  historyVaccination: '/parent/history-vaccination', //lịch sử tiêm chủng
-  medicalPlan: '/parent/medical-plan', //xem kế hoạch khám bệnh
-  medicalPlanDetail: '/parent/medical-plan-detail', //chi tiết kế hoạch khám bệnh
-  medicalEvent: '/parent/medical-event', //báo cáo y tế
-  medicalEventDetail: '/parent/medical-event-detail', //chi tiết báo cáo y tế- xử lí mang con về hay ???
-  privateConsultation: '/parent/private-consultation', //tư vấn riêng
+  healthRecord: '/parent/health-record',
+  sendMedicine: '/parent/send-medicine',
+  vaccinationSchedule: '/parent/vaccination-schedule',
+  vaccinationScheduleDetail: '/parent/vaccination-schedule-detail',
+  historyVaccination: '/parent/history-vaccination',
+  medicalPlan: '/parent/medical-plan',
+  medicalPlanDetail: '/parent/medical-plan-detail',
+  medicalEvent: '/parent/medical-event',
+  medicalEventDetail: '/parent/medical-event-detail',
+  privateConsultation: '/parent/private-consultation',
 
   //=============Nurse============
   BASE_NURSE: '/nurse',
-  DASHBOARD_NURSE: '/nurse/dashboard', //trang chủ
-  NURSE_PROFILE: '/nurse/profile', //thông tin cá nhân
-  HEALTH_RECORD_CENSORSHIP: '/nurse/health-record-censorship', //xác nhận khai báo của phụ huynh 
-  SCHEDULE_VACCINATION: '/nurse/schedule-vaccination', //lịch tiêm chủng cho học sinh
-  MEDICAL_RESULT: '/nurse/medical-result', //kết quả y tế
-  RECEIVE_MEDICINE: '/nurse/receive-medicine', //nhận thuốc
-  MEDICAL_REPORT: '/nurse/medical-report', //báo cáo y tế
+  DASHBOARD_NURSE: '/nurse/dashboard',
+  NURSE_PROFILE: '/nurse/profile',
+  HEALTH_RECORD_CENSORSHIP: '/nurse/health-record-censorship',
+  SCHEDULE_VACCINATION: '/nurse/schedule-vaccination',
+  MEDICAL_RESULT: '/nurse/medical-result',
+  RECEIVE_MEDICINE: '/nurse/receive-medicine',
+  MEDICAL_REPORT: '/nurse/medical-report',
   MEDICATION: '/nurse/medication',
-  MEDICAL_PLAN: '/nurse/medical-plan', //kế hoạch khám bệnh
-  PRIVATE_CONSULTATION: '/nurse/private-consultation', //tư vấn riêng
+  MEDICAL_PLAN: '/nurse/medical-plan',
+  PRIVATE_CONSULTATION: '/nurse/private-consultation',
   MEDICAL_SUPPLIES: '/nurse/medical-supplies',
   MEDICAL_SUPPLIES_CREATE: '/nurse/medical-supplies/create',
   MEDICAL_SUPPLIES_EDIT: '/nurse/medical-supplies/edit/:id',

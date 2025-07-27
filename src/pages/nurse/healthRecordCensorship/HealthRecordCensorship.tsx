@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Table, Button, Space, Modal, Tabs, Typography, Select, Row, Col, Card } from 'antd'
+import { DownloadOutlined } from '@ant-design/icons'
 import type { TabsProps } from 'antd'
+import * as XLSX from 'xlsx'
 import { getAllClasses } from '../../../apis/class.api'
 import { getAllHealthRecords } from '../../../apis/healthRecord.api'
 import { getAllStudents, Student } from '../../../apis/student.api'
@@ -65,8 +67,8 @@ const HealthRecordCensorship: React.FC = () => {
         setClasses(classes)
 
         const transformedRecords = healthRecordsData.map((record: any) => {
-          const student = students.find(s => s.studentId === record.studentId)
-          const studentClass = classes.find(c => c.classId === student?.classId)
+          const student = students.find((s) => s.studentId === record.studentId)
+          const studentClass = classes.find((c) => c.classId === student?.classId)
 
           return {
             ...record,
@@ -89,9 +91,7 @@ const HealthRecordCensorship: React.FC = () => {
 
   useEffect(() => {
     if (classes.length > 0 && !selectedClass && selectedGrade) {
-      const defaultClass = classes.find(cls =>
-        cls.className.startsWith(selectedGrade)
-      )
+      const defaultClass = classes.find((cls) => cls.className.startsWith(selectedGrade))
       if (defaultClass) {
         setSelectedClass(defaultClass)
       }
@@ -100,10 +100,10 @@ const HealthRecordCensorship: React.FC = () => {
 
   useEffect(() => {
     if (selectedClass) {
-      const filtered = records.filter(record => record.classId === selectedClass.classId)
+      const filtered = records.filter((record) => record.classId === selectedClass.classId)
       setFilteredData(filtered)
     } else if (selectedGrade) {
-      const filtered = records.filter(record => record.className.startsWith(selectedGrade))
+      const filtered = records.filter((record) => record.className.startsWith(selectedGrade))
       setFilteredData(filtered)
     } else {
       setFilteredData(records)
@@ -127,7 +127,64 @@ const HealthRecordCensorship: React.FC = () => {
 
   const getFilteredClasses = () => {
     if (!selectedGrade) return classes
-    return classes.filter(cls => cls.className.startsWith(selectedGrade))
+    return classes.filter((cls) => cls.className.startsWith(selectedGrade))
+  }
+
+  // Hàm xuất Excel
+  const exportToExcel = () => {
+    if (filteredData.length === 0) {
+      return
+    }
+
+    // Chuẩn bị dữ liệu cho Excel
+    const excelData = filteredData.map((record, index) => ({
+      'STT': index + 1,
+      'Họ tên học sinh': record.studentName,
+      'Mã số học sinh': record.studentCode,
+      'Ngày sinh': new Date(record.dob).toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }),
+      'Giới tính': record.gender === 'Male' ? 'Nam' : 'Nữ',
+      'Lớp': record.className,
+      'Chiều cao (cm)': record.height || 'Chưa có thông tin',
+      'Cân nặng (kg)': record.weight || 'Chưa có thông tin',
+      'Thị lực mắt trái': record.leftEye ? `${record.leftEye}/10` : 'Chưa có thông tin',
+      'Thị lực mắt phải': record.rightEye ? `${record.rightEye}/10` : 'Chưa có thông tin',
+      'Ghi chú': record.note || 'Chưa có thông tin'
+    }))
+
+    // Tạo workbook và worksheet
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(excelData)
+
+    // Điều chỉnh độ rộng cột
+    const colWidths = [
+      { wch: 5 },   // STT
+      { wch: 25 },  // Họ tên
+      { wch: 15 },  // Mã số
+      { wch: 12 },  // Ngày sinh
+      { wch: 10 },  // Giới tính
+      { wch: 10 },  // Lớp
+      { wch: 15 },  // Chiều cao
+      { wch: 15 },  // Cân nặng
+      { wch: 18 },  // Thị lực trái
+      { wch: 18 },  // Thị lực phải
+      { wch: 30 }   // Ghi chú
+    ]
+    ws['!cols'] = colWidths
+
+    // Thêm worksheet vào workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Hồ sơ sức khỏe')
+
+    // Tạo tên file
+    const fileName = selectedClass 
+      ? `Ho_so_suc_khoe_lop_${selectedClass.className}_${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.xlsx`
+      : `Ho_so_suc_khoe_khoi_${selectedGrade}_${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.xlsx`
+
+    // Xuất file
+    XLSX.writeFile(wb, fileName)
   }
 
   const items: TabsProps['items'] = [
@@ -139,19 +196,27 @@ const HealthRecordCensorship: React.FC = () => {
           <div className='grid grid-cols-2 gap-4'>
             <div>
               <Text strong>Chiều cao:</Text>
-              <Text className='ml-2'>{selectedRecord?.height ? `${selectedRecord.height} cm` : 'Chưa có thông tin'}</Text>
+              <Text className='ml-2'>
+                {selectedRecord?.height ? `${selectedRecord.height} cm` : 'Chưa có thông tin'}
+              </Text>
             </div>
             <div>
               <Text strong>Cân nặng:</Text>
-              <Text className='ml-2'>{selectedRecord?.weight ? `${selectedRecord.weight} kg` : 'Chưa có thông tin'}</Text>
+              <Text className='ml-2'>
+                {selectedRecord?.weight ? `${selectedRecord.weight} kg` : 'Chưa có thông tin'}
+              </Text>
             </div>
             <div>
               <Text strong>Chỉ số đo mắt trái:</Text>
-              <Text className='ml-2'>{selectedRecord?.leftEye ? `${selectedRecord.leftEye}/10` : 'Chưa có thông tin'}</Text>
+              <Text className='ml-2'>
+                {selectedRecord?.leftEye ? `${selectedRecord.leftEye}/10` : 'Chưa có thông tin'}
+              </Text>
             </div>
             <div>
               <Text strong>Chỉ số đo mắt phải:</Text>
-              <Text className='ml-2'>{selectedRecord?.rightEye ? `${selectedRecord.rightEye}/10` : 'Chưa có thông tin'}</Text>
+              <Text className='ml-2'>
+                {selectedRecord?.rightEye ? `${selectedRecord.rightEye}/10` : 'Chưa có thông tin'}
+              </Text>
             </div>
             {/* <div>
               <Text strong>BMI:</Text>
@@ -180,7 +245,7 @@ const HealthRecordCensorship: React.FC = () => {
           </div>
         </div>
       )
-    },
+    }
     // {
     //   key: '2',
     //   label: 'Lịch sử tiêm',
@@ -227,17 +292,18 @@ const HealthRecordCensorship: React.FC = () => {
       title: 'Ngày sinh',
       dataIndex: 'dateOfBirth',
       key: 'dateOfBirth',
-      render: (date: string) => new Date(date).toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      })
+      render: (date: string) =>
+        new Date(date).toLocaleDateString('vi-VN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        })
     },
     {
       title: 'Giới tính',
       dataIndex: 'gender',
       key: 'gender',
-      render: (gender: string) => gender === 'Male' ? 'Nam' : 'Nữ'
+      render: (gender: string) => (gender === 'Male' ? 'Nam' : 'Nữ')
     },
     {
       title: 'Mã số học sinh',
@@ -260,45 +326,60 @@ const HealthRecordCensorship: React.FC = () => {
   return (
     <div>
       <Card>
-        <Space direction='vertical' style={{ width: '100%' }} size="large">
-          <Row gutter={16}>
+        <Space direction='vertical' style={{ width: '100%' }} size='large'>
+          <Row gutter={16} justify="space-between" align="middle">
             <Col>
-              <Select
-                placeholder='Chọn khối'
-                style={{ width: 120 }}
-                onChange={handleGradeChange}
-                value={selectedGrade || undefined}
-                allowClear
-              >
-                {grades.map(grade => (
-                  <Option key={grade.value} value={grade.value}>
-                    {grade.label}
-                  </Option>
-                ))}
-              </Select>
+              <Space>
+                <Select
+                  placeholder='Chọn khối'
+                  style={{ width: 120 }}
+                  onChange={handleGradeChange}
+                  value={selectedGrade || undefined}
+                  allowClear
+                >
+                  {grades.map((grade) => (
+                    <Option key={grade.value} value={grade.value}>
+                      {grade.label}
+                    </Option>
+                  ))}
+                </Select>
+                
+                <Select
+                  placeholder='Chọn lớp'
+                  style={{ width: 150 }}
+                  onChange={(value) => {
+                    const found = classes.find((cls) => cls.classId === value)
+                    setSelectedClass(found || null)
+                  }}
+                  value={selectedClass?.classId}
+                  disabled={!selectedGrade}
+                  allowClear
+                >
+                  {getFilteredClasses().map((cls) => (
+                    <Option key={cls.classId} value={cls.classId}>
+                      {cls.className}
+                    </Option>
+                  ))}
+                </Select>
+              </Space>
             </Col>
+            
             <Col>
-              <Select
-                placeholder="Chọn lớp"
-                style={{ width: 150 }}
-                onChange={(value) => {
-                  const found = classes.find((cls) => cls.classId === value)
-                  setSelectedClass(found || null)
-                }}
-                value={selectedClass?.classId}
-                disabled={!selectedGrade}
-                allowClear
+              <Button 
+               
+                size='large'
+                icon={<DownloadOutlined />}
+                onClick={exportToExcel}
+                disabled={filteredData.length === 0}
               >
-                {getFilteredClasses().map((cls) => (
-                  <Option key={cls.classId} value={cls.classId}>
-                    {cls.className}
-                  </Option>
-                ))}
-              </Select>
+                Xuất Excel
+              </Button>
             </Col>
           </Row>
 
-          <Title level={4}>Hồ sơ sức khỏe lớp {selectedClass?.className} ({filteredData.length} học sinh)</Title>
+          <Title level={4}>
+            Hồ sơ sức khỏe lớp {selectedClass?.className} ({filteredData.length} học sinh)
+          </Title>
 
           <Table
             columns={columns}

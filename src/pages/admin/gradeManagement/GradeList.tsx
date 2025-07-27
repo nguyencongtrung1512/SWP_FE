@@ -84,7 +84,7 @@ function GradeList() {
   ]
 
   return (
-    <div className='min-h-screen bg-[#f4f7fb] p-8'>
+    <div className='min-h-screen'>
       <div className='flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4'>
         <h2 className='text-3xl font-bold text-gray-800'>Quản lý lớp học</h2>
         <div className='flex gap-4 items-center'>

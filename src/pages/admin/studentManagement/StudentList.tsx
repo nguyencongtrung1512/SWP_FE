@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { Table, Button, Card, Typography, Space, message, Popconfirm } from 'antd'
+import { DownloadOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
+import * as XLSX from 'xlsx'
 import { getAllStudents, deleteStudent } from '../../../apis/student.api'
 import type { Student } from '../../../apis/student.api'
 import CreateStudent from './createStudent'
@@ -56,6 +58,52 @@ function StudentList() {
   const handleViewDetail = (studentId: number) => {
     setSelectedStudentId(studentId)
     setIsDetailModalVisible(true)
+  }
+
+  const handleExportExcel = () => {
+    try {
+      // Chuẩn bị dữ liệu cho Excel
+      const excelData = students.map((student, index) => ({
+        'STT': index + 1,
+        'Mã học sinh': student.studentCode,
+        'Họ và tên': student.fullname,
+        'Giới tính': student.gender,
+        'Ngày sinh': new Date(student.dateOfBirth).toLocaleDateString('vi-VN'),
+        'Phụ huynh': student.parentName || 
+                     (student.parent && student.parent.fullname) || 
+                     'Chưa có thông tin'
+      }))
+
+      // Tạo workbook và worksheet
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.json_to_sheet(excelData)
+
+      // Thiết lập độ rộng cột
+      const colWidths = [
+        { wch: 5 },   // STT
+        { wch: 15 },  // Mã học sinh
+        { wch: 25 },  // Họ và tên
+        { wch: 10 },  // Giới tính
+        { wch: 12 },  // Ngày sinh
+        { wch: 25 }   // Phụ huynh
+      ]
+      ws['!cols'] = colWidths
+
+      // Thêm worksheet vào workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Danh sách học sinh')
+
+      // Tạo tên file với tên lớp và ngày hiện tại
+      const currentDate = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')
+      const fileName = `Danh_sach_hoc_sinh_${className.replace(/\s+/g, '_')}_${currentDate}.xlsx`
+
+      // Xuất file
+      XLSX.writeFile(wb, fileName)
+      
+      message.success('Xuất Excel thành công!')
+    } catch (error) {
+      console.error('Error exporting Excel:', error)
+      message.error('Có lỗi xảy ra khi xuất Excel!')
+    }
   }
 
   const columns: ColumnsType<Student> = [
@@ -125,9 +173,19 @@ function StudentList() {
     <div style={{ padding: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <Title level={2}>Danh sách học sinh - Lớp {className}</Title>
-        <Button type='primary' onClick={() => setIsCreateModalVisible(true)}>
-          Thêm học sinh mới
-        </Button>
+        <Space>
+          <Button 
+            type='default' 
+            icon={<DownloadOutlined />}
+            onClick={handleExportExcel}
+            disabled={students.length === 0}
+          >
+            Xuất Excel
+          </Button>
+          <Button type='primary' onClick={() => setIsCreateModalVisible(true)}>
+            Thêm học sinh mới
+          </Button>
+        </Space>
       </div>
 
       <Card>

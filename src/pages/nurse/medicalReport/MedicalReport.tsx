@@ -18,7 +18,8 @@ import {
   Alert,
   Divider,
   Empty,
-  Input
+  Input,
+  message
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import {
@@ -35,9 +36,12 @@ import {
   UserOutlined,
   FileTextOutlined,
   ExclamationCircleOutlined,
-  HeartOutlined
+  HeartOutlined,
+  FileExcelOutlined,
+  DownloadOutlined
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import * as XLSX from 'xlsx'
 import {
   getAllMedicalEvents,
   type MedicalEvent,
@@ -61,6 +65,7 @@ const MedicalReport: React.FC = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState<string | undefined>(undefined)
   const [searchText, setSearchText] = useState('')
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [exportingExcel, setExportingExcel] = useState(false)
 
   useEffect(() => {
     fetchMedicalEvents()
@@ -118,6 +123,7 @@ const MedicalReport: React.FC = () => {
     setIsModalVisible(true)
     try {
       const res = await getMedicalEventById(record.medicalEventId)
+      console.log(res)
       setDetailEvent(res.data)
     } catch (error) {
       console.error('Lỗi khi lấy chi tiết sự kiện y tế:', error)
@@ -128,6 +134,102 @@ const MedicalReport: React.FC = () => {
   const handleEdit = (record: MedicalEvent) => {
     setSelectedEvent(record)
     setIsUpdateModalVisible(true)
+  }
+
+  // Hàm xuất Excel cho sự kiện chi tiết
+  const handleExportEventToExcel = async () => {
+    if (!detailEvent) {
+      message.error('Không có dữ liệu để xuất')
+      return
+    }
+
+    try {
+      setExportingExcel(true)
+
+      // Tạo workbook mới
+      const wb = XLSX.utils.book_new()
+
+      // Thông tin cơ bản của sự kiện
+      const eventInfo = [
+        ['BÁO CÁO CHI TIẾT SỰ KIỆN Y TẾ', ''],
+        ['', ''],
+        ['Mã sự kiện:', detailEvent.medicalEventId],
+        ['Thời gian:', dayjs(detailEvent.date).format('DD/MM/YYYY HH:mm')],
+        ['Loại sự kiện:', detailEvent.type],
+        ['Học sinh:', detailEvent.studentName],
+        ['Y tá phụ trách:', detailEvent.nurseName || 'Không có'],
+        ['Mô tả:', detailEvent.description || 'Không có'],
+        ['Ghi chú:', detailEvent.note || 'Không có'],
+        ['', ''],
+        ['Báo cáo được tạo lúc:', dayjs().format('DD/MM/YYYY HH:mm:ss')]
+      ]
+
+      // Tạo sheet thông tin cơ bản
+      const wsInfo = XLSX.utils.aoa_to_sheet(eventInfo)
+
+      // Định dạng cho sheet thông tin
+      wsInfo['A1'] = { v: eventInfo[0][0], s: { font: { bold: true, sz: 16 }, alignment: { horizontal: 'center' } } }
+      wsInfo['!cols'] = [{ width: 25 }, { width: 30 }]
+      // Thêm sheet vào workbook
+      XLSX.utils.book_append_sheet(wb, wsInfo, 'Thông tin sự kiện')
+
+      // Tạo sheet thuốc sử dụng nếu có
+      // eslint-disable-next-line prettier/prettier
+      if (
+        detailEvent.medications &&
+        detailEvent.medications.$values &&
+        detailEvent.medications.$values.length > 0) {
+        const medicationData = [
+          ['DANH SÁCH THUỐC SỬ DỤNG'],
+          [''],
+          ['STT', 'Tên thuốc', 'Số lượng sử dụng'],
+          ...detailEvent.medications.$values.map((med: any, idx: number) => [
+            idx + 1,
+            med.name || 'Không rõ tên',
+            med.quantityUsed || 0
+          ])
+        ]
+
+        const wsMedications = XLSX.utils.aoa_to_sheet(medicationData)
+        wsMedications['A1'] = { v: medicationData[0][0], s: { font: { bold: true, sz: 14 } } }
+        XLSX.utils.book_append_sheet(wb, wsMedications, 'Thuốc sử dụng')
+      }
+
+      // Tạo sheet vật tư y tế nếu có
+      if (
+        detailEvent.medicalSupplies &&
+        detailEvent.medicalSupplies.$values &&
+        detailEvent.medicalSupplies.$values.length > 0
+      ) {
+        const suppliesData = [
+          ['DANH SÁCH VẬT TƯ Y TẾ SỬ DỤNG'],
+          [''],
+          ['STT', 'Tên vật tư', 'Số lượng sử dụng'],
+          ...detailEvent.medicalSupplies.$values.map((supply: any, index: number) => [
+            index + 1,
+            supply.name || 'Không rõ tên',
+            supply.quantityUsed || 0
+          ])
+        ]
+
+        const wsSupplies = XLSX.utils.aoa_to_sheet(suppliesData)
+        wsSupplies['A1'] = { v: suppliesData[0][0], s: { font: { bold: true, sz: 14 } } }
+        XLSX.utils.book_append_sheet(wb, wsSupplies, 'Vật tư y tế')
+      }
+
+      // Tạo tên file
+      const fileName = `SuKienYTe_${detailEvent.studentName}_${dayjs(detailEvent.date).format('DDMMYYYY_HHmm')}.xlsx`
+
+      // Xuất file
+      XLSX.writeFile(wb, fileName)
+
+      message.success('Xuất Excel thành công!')
+    } catch (error) {
+      console.error('Lỗi khi xuất Excel:', error)
+      message.error('Có lỗi xảy ra khi xuất Excel')
+    } finally {
+      setExportingExcel(false)
+    }
   }
 
   // Lọc dữ liệu theo search và filter
@@ -144,13 +246,6 @@ const MedicalReport: React.FC = () => {
   // Thống kê
   const todayEvents = medicalEvents.filter((event) => dayjs(event.date).isSame(dayjs(), 'day')).length
   const thisWeekEvents = medicalEvents.filter((event) => dayjs(event.date).isSame(dayjs(), 'week')).length
-  // const eventTypeStats = medicalEvents.reduce(
-  //   (acc, event) => {
-  //     acc[event.type] = (acc[event.type] || 0) + 1
-  //     return acc
-  //   },
-  //   {} as Record<string, number>
-  // )
 
   const getEventTypeColor = (type: string) => {
     const colors: Record<string, string> = {
@@ -259,7 +354,7 @@ const MedicalReport: React.FC = () => {
     <div style={{ padding: '2px', maxWidth: 1400, margin: '0 auto' }}>
       <Space direction='vertical' style={{ width: '100%' }} size='large'>
         {/* Header */}
-        <Card style={{ background: 'linear-gradient(135deg, #7c91ef 0%, #2171cc 100%)' }}>
+        <Card style={{ background: 'linear-gradient(135deg, #06b6d4 100%)' }}>
           <Row justify='space-between' align='middle'>
             <Col>
               <Title level={3} style={{ color: 'white', margin: 0 }}>
@@ -319,23 +414,6 @@ const MedicalReport: React.FC = () => {
             </Card>
           </Col>
         </Row>
-
-        {/* Thống kê theo loại sự kiện */}
-        {/* {Object.keys(eventTypeStats).length > 0 && (
-          <Card title='Thống kê theo loại sự kiện' size='small'>
-            <Row gutter={[16, 8]}>
-              {Object.entries(eventTypeStats).map(([type, count]) => (
-                <Col key={type}>
-                  <Badge count={count} showZero>
-                    <Tag color={getEventTypeColor(type)} style={{ margin: 0 }}>
-                      {type}
-                    </Tag>
-                  </Badge>
-                </Col>
-              ))}
-            </Row>
-          </Card>
-        )} */}
 
         {/* Form tạo mới */}
         {showCreateForm && (
@@ -450,6 +528,16 @@ const MedicalReport: React.FC = () => {
           onCancel={() => setIsModalVisible(false)}
           width={900}
           footer={[
+            <Button
+              key='export'
+              type='primary'
+              icon={<FileExcelOutlined />}
+              loading={exportingExcel}
+              onClick={handleExportEventToExcel}
+              style={{ background: '#f40505' }}
+            >
+              <DownloadOutlined /> Xuất Excel
+            </Button>,
             <Button key='close' onClick={() => setIsModalVisible(false)}>
               Đóng
             </Button>

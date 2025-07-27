@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, ReferenceLine } from "recharts"
-import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "../../../components/ui/chart"
-import { ArrowUp, Activity, Users, Calendar, TrendingUp, TrendingDown } from "lucide-react"
-import { getTrends } from "../../../apis/dashboard.api"
-import type { DashboardTrends } from "../../../apis/dashboard.api"
-import { NurseActivities } from "./NurseActivities"
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, PieChart, Pie, ReferenceLine } from 'recharts'
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '../../../components/ui/chart'
+import { ArrowUp, Activity, Users, Calendar, TrendingUp, TrendingDown } from 'lucide-react'
+import { getTrends } from '../../../apis/dashboard.api'
+import type { DashboardTrends } from '../../../apis/dashboard.api'
+import { NurseActivities } from './NurseActivities'
 
 interface ChartData {
   date: string
@@ -18,32 +18,42 @@ interface ChartData {
 }
 
 const DashBoardAdmin = () => {
-  const [timeRange, setTimeRange] = useState<"7days" | "30days" | "3months" | "1year">("7days")
+  const [timeRange, setTimeRange] = useState<'7days' | '30days' | '3months' | '1year'>('7days')
   const [loading, setLoading] = useState<boolean>(true)
   const [chartData, setChartData] = useState<ChartData[]>([])
-  const [stats, setStats] = useState({ totalHealthChecks: 0, totalMedicalEvents: 0, totalConsultations: 0, totalVaccinations: 0 })
-  const [prevStats, setPrevStats] = useState({ totalHealthChecks: 0, totalMedicalEvents: 0, totalConsultations: 0, totalVaccinations: 0 })
+  const [stats, setStats] = useState({
+    totalHealthChecks: 0,
+    totalMedicalEvents: 0,
+    totalConsultations: 0,
+    totalVaccinations: 0
+  })
+  const [prevStats, setPrevStats] = useState({
+    totalHealthChecks: 0,
+    totalMedicalEvents: 0,
+    totalConsultations: 0,
+    totalVaccinations: 0
+  })
 
   const formatDate = (dateString: string): string => {
-    if (dateString.includes("-") && dateString.length === 7) {
-      const [year, month] = dateString.split("-")
+    if (dateString.includes('-') && dateString.length === 7) {
+      const [year, month] = dateString.split('-')
       const date = new Date(Number(year), Number(month) - 1)
-      return date.toLocaleDateString("vi-VN", {
-        month: "short",
-        year: "numeric",
+      return date.toLocaleDateString('vi-VN', {
+        month: 'short',
+        year: 'numeric'
       })
     }
     const date = new Date(dateString)
-    return date.toLocaleDateString("vi-VN", {
-      day: "numeric",
-      month: "short",
+    return date.toLocaleDateString('vi-VN', {
+      day: 'numeric',
+      month: 'short'
     })
   }
 
   const transformDataForChart = (data: DashboardTrends): ChartData[] => {
     const dateMap = new Map<string, ChartData>()
     const allDates = new Set<string>()
-    const dataTypes = ["healthChecks", "medicalEvents", "consultations", "vaccinations"] as const
+    const dataTypes = ['healthChecks', 'medicalEvents', 'consultations', 'vaccinations'] as const
 
     dataTypes.forEach((type) => {
       data[type]?.$values?.forEach((item) => allDates.add(item.date))
@@ -56,7 +66,7 @@ const DashBoardAdmin = () => {
         healthChecks: 0,
         medicalEvents: 0,
         consultations: 0,
-        vaccinations: 0,
+        vaccinations: 0
       })
     })
 
@@ -73,7 +83,7 @@ const DashBoardAdmin = () => {
   }
 
   const calculateStats = (data: DashboardTrends) => {
-    const dataTypes = ["healthChecks", "medicalEvents", "consultations", "vaccinations"] as const
+    const dataTypes = ['healthChecks', 'medicalEvents', 'consultations', 'vaccinations'] as const
     const newStats = {} as any
 
     dataTypes.forEach((type) => {
@@ -85,7 +95,7 @@ const DashBoardAdmin = () => {
   }
 
   const calculatePreviousStats = (data: DashboardTrends) => {
-    const dataTypes = ["healthChecks", "medicalEvents", "consultations", "vaccinations"] as const
+    const dataTypes = ['healthChecks', 'medicalEvents', 'consultations', 'vaccinations'] as const
     const newPrevStats = {} as any
     const currentMonth = new Date().getMonth()
     const currentYear = new Date().getFullYear()
@@ -95,7 +105,10 @@ const DashBoardAdmin = () => {
 
     dataTypes.forEach((type) => {
       const key = `total${type.charAt(0).toUpperCase() + type.slice(1)}`
-      newPrevStats[key] = data[type]?.$values?.filter(item => item.date.startsWith(prevMonthStr)).reduce((sum, item) => sum + item.count, 0) || 0
+      newPrevStats[key] =
+        data[type]?.$values
+          ?.filter((item) => item.date.startsWith(prevMonthStr))
+          .reduce((sum, item) => sum + item.count, 0) || 0
     })
 
     setPrevStats(newPrevStats)
@@ -117,12 +130,12 @@ const DashBoardAdmin = () => {
         const transformedData = transformDataForChart(data)
         setChartData(transformedData)
         calculateStats(data)
-        
-        if (timeRange === "30days") {
+
+        if (timeRange === '30days') {
           calculatePreviousStats(data)
         }
       } catch (error) {
-        console.error("Error fetching trends data:", error)
+        console.error('Error fetching trends data:', error)
       } finally {
         setLoading(false)
       }
@@ -132,107 +145,131 @@ const DashBoardAdmin = () => {
   }, [timeRange])
 
   const pieChartData = [
-    { name: "Khám sức khỏe", value: stats.totalHealthChecks, fill: "hsl(var(--chart-1))" },
-    { name: "Sự kiện y tế", value: stats.totalMedicalEvents, fill: "hsl(var(--chart-2))" },
-    { name: "Tư vấn", value: stats.totalConsultations, fill: "hsl(var(--chart-3))" },
-    { name: "Tiêm chủng", value: stats.totalVaccinations, fill: "hsl(var(--chart-4))" },
+    { name: 'Khám sức khỏe', value: stats.totalHealthChecks, fill: 'hsl(var(--chart-1))' },
+    { name: 'Sự kiện y tế', value: stats.totalMedicalEvents, fill: 'hsl(var(--chart-2))' },
+    { name: 'Tư vấn', value: stats.totalConsultations, fill: 'hsl(var(--chart-3))' },
+    { name: 'Tiêm chủng', value: stats.totalVaccinations, fill: 'hsl(var(--chart-4))' }
   ].filter((item) => item.value > 0)
 
   const statisticCards = [
-    { title: "Kiểm tra sức khỏe", value: stats.totalHealthChecks, prevValue: prevStats.totalHealthChecks, icon: Users, color: "hsl(var(--chart-1))" },
-    { title: "Sự kiện y tế", value: stats.totalMedicalEvents, prevValue: prevStats.totalMedicalEvents, icon: Activity, color: "hsl(var(--chart-2))" },
-    { title: "Tư vấn", value: stats.totalConsultations, prevValue: prevStats.totalConsultations, icon: Calendar, color: "hsl(var(--chart-3))" },
-    { title: "Tiêm chủng", value: stats.totalVaccinations, prevValue: prevStats.totalVaccinations, icon: ArrowUp, color: "hsl(var(--chart-4))" },
+    {
+      title: 'Kiểm tra sức khỏe',
+      value: stats.totalHealthChecks,
+      prevValue: prevStats.totalHealthChecks,
+      icon: Users,
+      color: 'hsl(var(--chart-1))'
+    },
+    {
+      title: 'Sự kiện y tế',
+      value: stats.totalMedicalEvents,
+      prevValue: prevStats.totalMedicalEvents,
+      icon: Activity,
+      color: 'hsl(var(--chart-2))'
+    },
+    {
+      title: 'Tư vấn',
+      value: stats.totalConsultations,
+      prevValue: prevStats.totalConsultations,
+      icon: Calendar,
+      color: 'hsl(var(--chart-3))'
+    },
+    {
+      title: 'Tiêm chủng',
+      value: stats.totalVaccinations,
+      prevValue: prevStats.totalVaccinations,
+      icon: ArrowUp,
+      color: 'hsl(var(--chart-4))'
+    }
   ]
 
   const lineChartConfig = {
     healthChecks: {
-      label: "Khám sức khỏe",
-      color: "hsl(var(--chart-1))",
+      label: 'Khám sức khỏe',
+      color: 'hsl(var(--chart-1))'
     },
     medicalEvents: {
-      label: "Sự kiện y tế",
-      color: "hsl(var(--chart-2))",
+      label: 'Sự kiện y tế',
+      color: 'hsl(var(--chart-2))'
     },
     consultations: {
-      label: "Tư vấn",
-      color: "hsl(var(--chart-3))",
+      label: 'Tư vấn',
+      color: 'hsl(var(--chart-3))'
     },
     vaccinations: {
-      label: "Tiêm chủng",
-      color: "hsl(var(--chart-4))",
-    },
+      label: 'Tiêm chủng',
+      color: 'hsl(var(--chart-4))'
+    }
   } satisfies ChartConfig
 
   const pieChartConfig = {
     healthChecks: {
-      label: "Khám sức khỏe",
-      color: "hsl(var(--chart-1))",
+      label: 'Khám sức khỏe',
+      color: 'hsl(var(--chart-1))'
     },
     medicalEvents: {
-      label: "Sự kiện y tế",
-      color: "hsl(var(--chart-2))",
+      label: 'Sự kiện y tế',
+      color: 'hsl(var(--chart-2))'
     },
     consultations: {
-      label: "Tư vấn",
-      color: "hsl(var(--chart-3))",
+      label: 'Tư vấn',
+      color: 'hsl(var(--chart-3))'
     },
     vaccinations: {
-      label: "Tiêm chủng",
-      color: "hsl(var(--chart-4))",
-    },
+      label: 'Tiêm chủng',
+      color: 'hsl(var(--chart-4))'
+    }
   } satisfies ChartConfig
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-24">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <div className="mt-4">Đang tải dữ liệu...</div>
+      <div className='flex flex-col items-center justify-center p-24'>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
+        <div className='mt-4'>Đang tải dữ liệu...</div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-end">
+    <div className='p-6 space-y-6'>
+      <div className='flex justify-end'>
         <Select
           value={timeRange}
-          onValueChange={(value: "7days" | "30days" | "3months" | "1year") => setTimeRange(value)}
+          onValueChange={(value: '7days' | '30days' | '3months' | '1year') => setTimeRange(value)}
         >
-          <SelectTrigger className="w-32">
+          <SelectTrigger className='w-32'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="7days">7 ngày</SelectItem>
-            <SelectItem value="30days">30 ngày</SelectItem>
-            <SelectItem value="3months">3 tháng</SelectItem>
-            <SelectItem value="1year">1 năm</SelectItem>
+            <SelectItem value='7days'>7 ngày</SelectItem>
+            <SelectItem value='30days'>30 ngày</SelectItem>
+            <SelectItem value='3months'>3 tháng</SelectItem>
+            <SelectItem value='1year'>1 năm</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
         {statisticCards.map((card, index) => {
           const Icon = card.icon
           const trending = getTrendingData(card.value, card.prevValue)
           const TrendIcon = trending.isUp ? TrendingUp : TrendingDown
-          
+
           return (
             <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>{card.title}</CardTitle>
+                <Icon className='h-4 w-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold" style={{ color: card.color }}>
+                <div className='text-2xl font-bold' style={{ color: card.color }}>
                   {card.value.toLocaleString()}
                 </div>
-                {timeRange === "30days" && (
-                  <div className="flex gap-2 leading-none font-medium text-sm mt-2">
-                    <span className={trending.isUp ? "text-green-600" : "text-red-600"}>
-                      {trending.isUp ? "Tăng" : "Giảm"} {trending.percentage.toFixed(1)}% so với tháng trước
+                {timeRange === '30days' && (
+                  <div className='flex gap-2 leading-none font-medium text-sm mt-2'>
+                    <span className={trending.isUp ? 'text-green-600' : 'text-red-600'}>
+                      {trending.isUp ? 'Tăng' : 'Giảm'} {trending.percentage.toFixed(1)}% so với tháng trước
                     </span>
-                    <TrendIcon className={`h-4 w-4 ${trending.isUp ? "text-green-600" : "text-red-600"}`} />
+                    <TrendIcon className={`h-4 w-4 ${trending.isUp ? 'text-green-600' : 'text-red-600'}`} />
                   </div>
                 )}
               </CardContent>
@@ -241,15 +278,15 @@ const DashBoardAdmin = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        <div className='lg:col-span-2'>
           <Card>
             <CardHeader>
               <CardTitle>Thống kê theo thời gian</CardTitle>
               <CardDescription>Biểu đồ hoạt động y tế theo thời gian</CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={lineChartConfig} className="h-[300px] w-[95%] mx-auto">
+              <ChartContainer config={lineChartConfig} className='h-[300px] w-[95%] mx-auto'>
                 <LineChart
                   accessibilityLayer
                   data={chartData}
@@ -257,63 +294,45 @@ const DashBoardAdmin = () => {
                     top: 15,
                     left: 15,
                     right: 60,
-                    bottom: 15,
+                    bottom: 15
                   }}
                 >
                   <CartesianGrid vertical={false} />
-                  <XAxis 
-                    dataKey="date" 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickMargin={12}
-                    fontSize={13}
-                    interval={0}
-                  />
-                  <YAxis 
-                    tickLine={false} 
-                    axisLine={false}
-                    fontSize={13}
-                    tickMargin={12}
-                  />
-                  <ReferenceLine
-                    x={chartData[0]?.date}
-                    stroke="#ccc"
-                  />
-                  <ReferenceLine
-                    x={chartData[chartData.length - 1]?.date}
-                    stroke="#ccc"
-                  />
+                  <XAxis dataKey='date' tickLine={false} axisLine={false} tickMargin={12} fontSize={13} interval={0} />
+                  <YAxis tickLine={false} axisLine={false} fontSize={13} tickMargin={12} />
+                  <ReferenceLine x={chartData[0]?.date} stroke='#ccc' />
+                  <ReferenceLine x={chartData[chartData.length - 1]?.date} stroke='#ccc' />
                   <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                   <Line
-                    dataKey="healthChecks"
-                    type="monotone"
-                    stroke="var(--color-healthChecks)"
+                    dataKey='healthChecks'
+                    type='monotone'
+                    stroke='var(--color-healthChecks)'
                     strokeWidth={2}
-                    dot={{ fill: "var(--color-healthChecks)", strokeWidth: 2, r: 3 }}
+                    dot={{ fill: 'var(--color-healthChecks)', strokeWidth: 2, r: 3 }}
                     connectNulls={false}
                   />
                   <Line
-                    dataKey="medicalEvents"
-                    type="monotone"
-                    stroke="var(--color-medicalEvents)"
+                    dataKey='medicalEvents'
+                    type='monotone'
+                    stroke='var(--color-medicalEvents)'
                     strokeWidth={2}
-                    dot={{ fill: "var(--color-medicalEvents)", strokeWidth: 2, r: 3 }}
+                    dot={{ fill: 'var(--color-medicalEvents)', strokeWidth: 2, r: 3 }}
                     connectNulls={false}
                   />
                   <Line
-                    dataKey="consultations"
-                    type="monotone"
-                    stroke="var(--color-consultations)"
+                    dataKey='consultations'
+                    type='monotone'
+                    stroke='var(--color-consultations)'
                     strokeWidth={2}
-                    dot={{ fill: "var(--color-consultations)", strokeWidth: 2, r: 3 }}
+                    dot={{ fill: 'var(--color-consultations)', strokeWidth: 2, r: 3 }}
                     connectNulls={false}
                   />
                   <Line
-                    dataKey="vaccinations"
-                    type="monotone"
-                    stroke="var(--color-vaccinations)"
+                    dataKey='vaccinations'
+                    type='monotone'
+                    stroke='var(--color-vaccinations)'
                     strokeWidth={2}
-                    dot={{ fill: "var(--color-vaccinations)", strokeWidth: 2, r: 3 }}
+                    dot={{ fill: 'var(--color-vaccinations)', strokeWidth: 2, r: 3 }}
                     connectNulls={false}
                   />
                 </LineChart>
@@ -322,22 +341,22 @@ const DashBoardAdmin = () => {
           </Card>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className='lg:col-span-1'>
           <Card>
             <CardHeader>
               <CardTitle>Phân bố hoạt động</CardTitle>
               <CardDescription>Tỷ lệ các loại hoạt động y tế</CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center items-center">
-              <ChartContainer config={pieChartConfig} className="h-[300px] w-full">
+            <CardContent className='flex justify-center items-center'>
+              <ChartContainer config={pieChartConfig} className='h-[300px] w-full'>
                 <PieChart>
                   <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                   <Pie
                     data={pieChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
+                    dataKey='value'
+                    nameKey='name'
+                    cx='50%'
+                    cy='50%'
                     outerRadius={80}
                     innerRadius={0}
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}

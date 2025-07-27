@@ -332,9 +332,9 @@ const PrivateConsultation: React.FC = () => {
               </Button>
             )}
             {!isDoneOrCancelled && record.status === 'Confirmed' && (
-              <Button 
-                type='primary' 
-                size='small' 
+              <Button
+                type='primary'
+                size='small'
                 onClick={() => window.location.href = `/nurse/private-consultation/video-call/${record.bookingId}`}
               >
                 Tham gia cuộc gọi
@@ -372,7 +372,7 @@ const PrivateConsultation: React.FC = () => {
     <div style={{ padding: '2px', maxWidth: 1400, margin: '0 auto' }}>
       <Space direction='vertical' size='large' style={{ width: '100%' }}>
         {/* Header */}
-        <Card style={{ background: 'linear-gradient(135deg, #7c91ef 0%, #2171cc 100%)' }}>
+        <Card style={{ background: 'linear-gradient(135deg, #06b6d4 100%)' }}>
           <Row justify='space-between' align='middle'>
             <Col>
               <Title level={3} style={{ color: 'white', margin: 0 }}>

@@ -1,7 +1,23 @@
 import { useState, useEffect } from 'react'
-import { Table, Button, Modal, Form, Input, Select, message, Card, Row, Col, Space, InputNumber, DatePicker } from 'antd'
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Card,
+  Row,
+  Col,
+  Space,
+  InputNumber,
+  DatePicker
+} from 'antd'
+import { DownloadOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
+import * as XLSX from 'xlsx'
 import { getRecordsByNurse, HealthCheckRecord, updateHealthCheck } from '../../../apis/healthCheck.api'
 import { getAllStudents } from '../../../apis/student.api'
 import { Class, getAllClasses } from '../../../apis/class.api'
@@ -48,11 +64,7 @@ function ResultsAfterHealthCheck() {
     const init = async () => {
       setLoading(true)
       try {
-        await Promise.all([
-          fetchClasses(),
-          fetchStudents(),
-          fetchAllRecords()
-        ])
+        await Promise.all([fetchClasses(), fetchStudents(), fetchAllRecords()])
       } finally {
         setLoading(false)
       }
@@ -67,9 +79,7 @@ function ResultsAfterHealthCheck() {
 
   useEffect(() => {
     if (classes.length > 0 && !selectedClass && selectedGrade) {
-      const defaultClass = classes.find(cls =>
-        cls.className.startsWith(selectedGrade)
-      )
+      const defaultClass = classes.find((cls) => cls.className.startsWith(selectedGrade))
       if (defaultClass) {
         setSelectedClass(defaultClass)
       }
@@ -80,15 +90,13 @@ function ResultsAfterHealthCheck() {
     let filtered = records
 
     if (selectedClass) {
-      filtered = filtered.filter(record => record.classId === selectedClass.classId)
+      filtered = filtered.filter((record) => record.classId === selectedClass.classId)
     } else if (selectedGrade) {
-      filtered = filtered.filter(record =>
-        record.className && record.className.startsWith(selectedGrade)
-      )
+      filtered = filtered.filter((record) => record.className && record.className.startsWith(selectedGrade))
     }
 
     if (selectedDate) {
-      filtered = filtered.filter(record => {
+      filtered = filtered.filter((record) => {
         const recordDate = dayjs(record.date).format('YYYY-MM-DD')
         return recordDate === selectedDate
       })
@@ -132,14 +140,14 @@ function ResultsAfterHealthCheck() {
         const healthCheckRecords = res.data.$values
 
         const recordsWithNames = healthCheckRecords.map((record: HealthCheckRecord) => {
-          const student = students.find(s => s.studentId === record.studentID)
-          const studentClass = student ? classes.find(c => c.classId === student.classId) : null
+          const student = students.find((s) => s.studentId === record.studentID)
+          const studentClass = student ? classes.find((c) => c.classId === student.classId) : null
 
           return {
             ...record,
             studentName: student?.fullname || '',
             classId: student?.classId,
-            className: studentClass?.className || '',
+            className: studentClass?.className || ''
           }
         })
         setRecords(recordsWithNames)
@@ -163,12 +171,109 @@ function ResultsAfterHealthCheck() {
 
   const getFilteredClasses = () => {
     if (!selectedGrade) return classes
-    return classes.filter(cls => cls.className.startsWith(selectedGrade))
+    return classes.filter((cls) => cls.className.startsWith(selectedGrade))
   }
 
   const checkIfCompleted = (record: FullHealthCheckRecord) => {
-    return record.result && record.height != null && record.weight != null && record.leftEye != null && record.rightEye != null
+    return (
+      record.result &&
+      record.height != null &&
+      record.weight != null &&
+      record.leftEye != null &&
+      record.rightEye != null
+    )
   }
+
+  // Hàm xuất Excel cho toàn bộ danh sách
+  const exportToExcel = () => {
+    try {
+      const dataToExport = filteredRecords.map((record, index) => ({
+        'STT': index + 1,
+        'Học sinh': record.studentName || 'Unknown Student',
+        'Lớp': record.className || 'Unknown Class',
+        'Thời gian': record.date ? dayjs(record.date).format('DD/MM/YYYY HH:mm') : '',
+        'Kết quả': record.result || 'Chưa cập nhật',
+        'Chiều cao (cm)': record.height != null ? record.height : 'Chưa cập nhật',
+        'Cân nặng (kg)': record.weight != null ? record.weight : 'Chưa cập nhật',
+        'Mắt trái': record.leftEye != null && record.leftEye !== '' ? `${record.leftEye}/10` : 'Chưa cập nhật',
+        'Mắt phải': record.rightEye != null && record.rightEye !== '' ? `${record.rightEye}/10` : 'Chưa cập nhật',
+        'Trạng thái': checkIfCompleted(record) ? 'Hoàn thành' : 'Chưa hoàn thành'
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(dataToExport)
+      const colWidths = [
+        { wch: 5 },   // STT
+        { wch: 20 },  // Học sinh
+        { wch: 10 },  // Lớp
+        { wch: 18 },  // Thời gian
+        { wch: 15 },  // Kết quả
+        { wch: 12 },  // Chiều cao
+        { wch: 12 },  // Cân nặng
+        { wch: 12 },  // Mắt trái
+        { wch: 12 },  // Mắt phải
+        { wch: 15 }   // Trạng thái
+      ]
+      ws['!cols'] = colWidths
+
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Kết quả khám sức khỏe')
+
+      // Tạo tên file với thời gian hiện tại
+      const fileName = `ket-qua-kham-suc-khoe-${dayjs().format('DD-MM-YYYY-HH-mm')}.xlsx`
+      XLSX.writeFile(wb, fileName)
+
+      message.success('Xuất file Excel thành công!')
+    } catch (error) {
+      console.error('Error exporting to Excel:', error)
+      message.error('Xuất file Excel thất bại!')
+    }
+  }
+
+  // Hàm xuất Excel cho một học sinh cụ thể (dùng trong modal)
+  // const exportSingleRecordToExcel = (record: FullHealthCheckRecord) => {
+  //   try {
+  //     const dataToExport = [{
+  //       'Học sinh': record.studentName || 'Unknown Student',
+  //       'Lớp': record.className || 'Unknown Class',
+  //       'Thời gian khám': record.date ? dayjs(record.date).format('DD/MM/YYYY HH:mm') : '',
+  //       'Kết quả tổng quát': record.result || 'Chưa cập nhật',
+  //       'Chiều cao (cm)': record.height != null ? record.height : 'Chưa cập nhật',
+  //       'Cân nặng (kg)': record.weight != null ? record.weight : 'Chưa cập nhật',
+  //       'Thị lực mắt trái': record.leftEye != null && record.leftEye !== '' ? `${record.leftEye}/10` : 'Chưa cập nhật',
+  //       'Thị lực mắt phải': record.rightEye != null && record.rightEye !== '' ? `${record.rightEye}/10` : 'Chưa cập nhật',
+  //       'Trạng thái hồ sơ': checkIfCompleted(record) ? 'Hoàn thành' : 'Chưa hoàn thành'
+  //     }]
+
+  //     const ws = XLSX.utils.json_to_sheet(dataToExport)
+
+  //     // Điều chỉnh độ rộng cột
+  //     const colWidths = [
+  //       { wch: 20 },  // Học sinh
+  //       { wch: 10 },  // Lớp
+  //       { wch: 18 },  // Thời gian khám
+  //       { wch: 20 },  // Kết quả tổng quát
+  //       { wch: 15 },  // Chiều cao
+  //       { wch: 15 },  // Cân nặng
+  //       { wch: 18 },  // Thị lực mắt trái
+  //       { wch: 18 },  // Thị lực mắt phải
+  //       { wch: 18 }   // Trạng thái hồ sơ
+  //     ]
+  //     ws['!cols'] = colWidths
+
+  //     const wb = XLSX.utils.book_new()
+  //     XLSX.utils.book_append_sheet(wb, ws, 'Kết quả khám sức khỏe')
+
+  //     // Tạo tên file với tên học sinh và thời gian
+  //     const studentName = record.studentName?.replace(/\s+/g, '-') || 'unknown'
+  //     const fileName = `kham-suc-khoe-${studentName}-${dayjs().format('DD-MM-YYYY-HH-mm')}.xlsx`
+  //     XLSX.writeFile(wb, fileName)
+
+  //     message.success('Xuất file Excel thành công!')
+  //   } catch (error) {
+  //     console.error('Error exporting to Excel:', error)
+  //     message.error('Xuất file Excel thất bại!')
+  //   }
+  // }
 
   const columns: ColumnsType<FullHealthCheckRecord> = [
     {
@@ -187,7 +292,7 @@ function ResultsAfterHealthCheck() {
       title: 'Thời gian',
       dataIndex: 'date',
       key: 'date',
-      render: (date) => date ? dayjs(new Date(date)).format('DD/MM/YYYY HH:mm') : ''
+      render: (date) => (date ? dayjs(new Date(date)).format('DD/MM/YYYY HH:mm') : '')
     },
     {
       title: 'Kết quả',
@@ -200,32 +305,28 @@ function ResultsAfterHealthCheck() {
       title: 'Chiều cao',
       dataIndex: 'height',
       key: 'height',
-      render: (height: number) =>
-        height != null ? `${height} cm` : 'Chưa cập nhật',
+      render: (height: number) => (height != null ? `${height} cm` : 'Chưa cập nhật'),
       align: 'center' as const
     },
     {
       title: 'Cân nặng',
       dataIndex: 'weight',
       key: 'weight',
-      render: (weight: number) =>
-        weight != null ? `${weight} kg` : 'Chưa cập nhật',
+      render: (weight: number) => (weight != null ? `${weight} kg` : 'Chưa cập nhật'),
       align: 'center' as const
     },
     {
       title: 'Mắt trái',
       dataIndex: 'leftEye',
       key: 'leftEye',
-      render: (value: number | string) =>
-        value != null && value !== '' ? `${value}/10` : 'Chưa cập nhật',
+      render: (value: number | string) => (value != null && value !== '' ? `${value}/10` : 'Chưa cập nhật'),
       align: 'center' as const
     },
     {
       title: 'Mắt phải',
       dataIndex: 'rightEye',
       key: 'rightEye',
-      render: (value: number | string) =>
-        value != null && value !== '' ? `${value}/10` : 'Chưa cập nhật',
+      render: (value: number | string) => (value != null && value !== '' ? `${value}/10` : 'Chưa cập nhật'),
       align: 'center' as const
     },
     {
@@ -263,7 +364,7 @@ function ResultsAfterHealthCheck() {
       height: values.height,
       weight: values.weight,
       leftEye: values.leftEye,
-      rightEye: values.rightEye,
+      rightEye: values.rightEye
     }
 
     try {
@@ -282,54 +383,60 @@ function ResultsAfterHealthCheck() {
   return (
     <div>
       <Card>
-        <Space direction='vertical' style={{ width: '100%' }} size="large">
-
-        </Space>
-        <Row justify='end' align='middle' style={{ marginBottom: 16 }}>
+        <Space direction='vertical' style={{ width: '100%' }} size='large'></Space>
+        <Row justify='space-between' align='middle' style={{ marginBottom: 16 }}>
           <Col>
-            <Select
-              placeholder='Chọn khối'
-              style={{ width: 120 }}
-              onChange={handleGradeChange}
-              value={selectedGrade || undefined}
-              allowClear
+            <Button
+              size='large'
+              icon={<DownloadOutlined />}
+              onClick={exportToExcel}
+              disabled={filteredRecords.length === 0}
             >
-              {grades.map(grade => (
-                <Option key={grade.value} value={grade.value}>
-                  {grade.label}
-                </Option>
-              ))}
-            </Select>
+              Xuất Excel
+            </Button>
           </Col>
-          <Col className='ml-3'>
-            <Select
-              placeholder="Chọn lớp"
-              style={{ width: 150 }}
-              onChange={(value) => {
-                const found = classes.find((cls) => cls.classId === value)
-                setSelectedClass(found || null)
-              }}
-              value={selectedClass?.classId}
-              disabled={!selectedGrade}
-              allowClear
-            >
-              {getFilteredClasses().map((cls) => (
-                <Option key={cls.classId} value={cls.classId}>
-                  {cls.className}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col className='ml-3'>
-            <DatePicker
-              placeholder='Ngày diễn ra'
-              format='DD/MM/YYYY'
-              value={selectedDate ? dayjs(selectedDate) : null}
-              onChange={(date) => {
-                setSelectedDate(date ? date.format('YYYY-MM-DD') : null)
-              }}
-              allowClear
-            />
+          <Col>
+            <Space>
+              <Select
+                placeholder='Chọn khối'
+                style={{ width: 120 }}
+                onChange={handleGradeChange}
+                value={selectedGrade || undefined}
+                allowClear
+              >
+                {grades.map((grade) => (
+                  <Option key={grade.value} value={grade.value}>
+                    {grade.label}
+                  </Option>
+                ))}
+              </Select>
+              <Select
+                placeholder='Chọn lớp'
+                style={{ width: 150 }}
+                onChange={(value) => {
+                  const found = classes.find((cls) => cls.classId === value)
+                  setSelectedClass(found || null)
+                }}
+                value={selectedClass?.classId}
+                disabled={!selectedGrade}
+                allowClear
+              >
+                {getFilteredClasses().map((cls) => (
+                  <Option key={cls.classId} value={cls.classId}>
+                    {cls.className}
+                  </Option>
+                ))}
+              </Select>
+              <DatePicker
+                placeholder='Ngày diễn ra'
+                format='DD/MM/YYYY'
+                value={selectedDate ? dayjs(selectedDate) : null}
+                onChange={(date) => {
+                  setSelectedDate(date ? date.format('YYYY-MM-DD') : null)
+                }}
+                allowClear
+              />
+            </Space>
           </Col>
         </Row>
 
@@ -338,7 +445,7 @@ function ResultsAfterHealthCheck() {
           dataSource={filteredRecords}
           pagination={false}
           loading={loading}
-          rowKey="healthCheckID"
+          rowKey='healthCheckID'
         />
 
         <Modal
@@ -358,92 +465,67 @@ function ResultsAfterHealthCheck() {
 
             <Form.Item
               name='height'
-              label={
-                <span className='flex items-center space-x-2'>
-                  Chiều cao (cm)
-                </span>
-              }
+              label={<span className='flex items-center space-x-2'>Chiều cao (cm)</span>}
               rules={[
                 { required: true, message: 'Vui lòng nhập chiều cao!' },
                 { type: 'number', min: 110, max: 160, message: 'Chiều cao phải từ 110-160cm!' },
                 { pattern: /^\d+(\.\d+)?$/, message: 'Chiều cao phải là số dương!' }
               ]}
             >
-              <InputNumber
-                placeholder='Nhập chiều cao'
-                style={{ width: '100%' }}
-                step={1}
-                precision={1}
-              />
+              <InputNumber placeholder='Nhập chiều cao' style={{ width: '100%' }} step={1} precision={1} />
             </Form.Item>
 
             <Form.Item
               name='weight'
-              label={
-                <span className='flex items-center space-x-2'>
-                  Cân nặng (kg)
-                </span>
-              }
+              label={<span className='flex items-center space-x-2'>Cân nặng (kg)</span>}
               rules={[
                 { required: true, message: 'Vui lòng nhập cân nặng!' },
                 { type: 'number', min: 20, max: 70, message: 'Cân nặng phải từ 20-70kg!' },
                 { pattern: /^\d+(\.\d+)?$/, message: 'Cân nặng phải là số dương!' }
               ]}
             >
-              <InputNumber
-                placeholder='Nhập cân nặng'
-                style={{ width: '100%' }}
-                step={1}
-                precision={1}
-              />
+              <InputNumber placeholder='Nhập cân nặng' style={{ width: '100%' }} step={1} precision={1} />
             </Form.Item>
 
             <Form.Item
               name='leftEye'
-              label={
-                <span className='flex items-center space-x-2'>
-                  Mắt trái (trên thang điểm 10 - VD: 10/10)
-                </span>
-              }
+              label={<span className='flex items-center space-x-2'>Mắt trái (trên thang điểm 10 - VD: 10/10)</span>}
               rules={[
                 { required: true, message: 'Vui lòng nhập thông tin cho mắt trái!' },
                 { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
                 { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số dương!' }
               ]}
             >
-              <InputNumber
-                placeholder='Nhập mắt trái'
-                style={{ width: '100%' }}
-                step={1}
-                precision={1}
-              />
+              <InputNumber placeholder='Nhập mắt trái' style={{ width: '100%' }} step={1} precision={1} />
             </Form.Item>
 
             <Form.Item
               name='rightEye'
-              label={
-                <span className='flex items-center space-x-2'>
-                  Mắt phải (trên thang điểm 10 - VD: 10/10)
-                </span>
-              }
+              label={<span className='flex items-center space-x-2'>Mắt phải (trên thang điểm 10 - VD: 10/10)</span>}
               rules={[
                 { required: true, message: 'Vui lòng nhập thông tin cho mắt phải!' },
                 { type: 'number', min: 0, max: 10, message: 'Thị lực đo được phải từ 0-10!' },
                 { pattern: /^\d+(\.\d+)?$/, message: 'Thị lực đo được phải là số dương!' }
               ]}
             >
-              <InputNumber
-                placeholder='Nhập mắt phải'
-                style={{ width: '100%' }}
-                step={1}
-                precision={1}
-              />
+              <InputNumber placeholder='Nhập mắt phải' style={{ width: '100%' }} step={1} precision={1} />
             </Form.Item>
 
             <Form.Item>
-              <Button type='primary' htmlType='submit'>
-                Lưu
-              </Button>
+              <Space>
+                <Button type='primary' htmlType='submit'>
+                  Lưu
+                </Button>
+                {/* {currentRecord && (
+                  <Button
+                    size='large'
+                    icon={<DownloadOutlined />}
+                    onClick={() => exportSingleRecordToExcel(currentRecord)}
+                  >
+                    Xuất Excel
+                  </Button>
+                )} */}
+              </Space>
             </Form.Item>
           </Form>
         </Modal>

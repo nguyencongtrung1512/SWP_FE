@@ -40,8 +40,8 @@ export interface HealthCheckRecord {
   result: string
   height: number
   weight: number
-  leftEye: number
-  rightEye: number
+  leftEye: string
+  rightEye: string
 }
 
 export const getHealthCheckNotifications = () => {

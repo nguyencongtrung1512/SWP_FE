@@ -33,10 +33,12 @@ import {
   EyeOutlined,
   CheckOutlined,
   CloseOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  DownloadOutlined
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
+import * as XLSX from 'xlsx'
 import {
   getAllRequests,
   type MedicationRequestHistory,
@@ -121,6 +123,74 @@ const ReceiveMedicine: React.FC = () => {
   const handleViewDetails = (record: MedicationRequestHistory) => {
     setSelectedRequest(record)
     setIsModalVisible(true)
+  }
+
+  // Hàm xuất Excel cho đơn thuốc chi tiết
+  const handleExportExcel = () => {
+    if (!selectedRequest) return
+
+    try {
+      // Tạo workbook mới
+      const wb = XLSX.utils.book_new()
+
+      // Sheet 1: Thông tin đơn thuốc
+      const requestInfo = [
+        ['THÔNG TIN ĐÔN THUỐC'],
+        [''],
+        ['Mã đơn thuốc:', selectedRequest.requestId],
+        ['Học sinh:', selectedRequest.studentName],
+        ['Mã học sinh:', selectedRequest.studentCode],
+        ['Lớp học:', selectedRequest.className],
+        ['Ngày gửi:', dayjs(selectedRequest.dateCreated).format('DD/MM/YYYY HH:mm')],
+        ['Trạng thái:', getStatusConfig(selectedRequest.status).text],
+        [''],
+        ['Ghi chú từ phụ huynh:'],
+        [selectedRequest.parentNote || 'Không có ghi chú'],
+        ['']
+      ]
+
+      // Thêm ghi chú từ y tá nếu có
+      if (selectedRequest.status === 'Rejected' && selectedRequest.nurseNote) {
+        requestInfo.push(['Lý do từ chối:'])
+        requestInfo.push([selectedRequest.nurseNote])
+        requestInfo.push([''])
+      }
+
+      const ws1 = XLSX.utils.aoa_to_sheet(requestInfo)
+      XLSX.utils.book_append_sheet(wb, ws1, 'Thông tin đơn thuốc')
+
+      // Sheet 2: Danh sách thuốc
+      const medications = selectedRequest.medications?.$values || []
+      const medicationData = [
+        ['DANH SÁCH THUỐC'],
+        [''],
+        ['STT', 'Tên thuốc', 'Loại thuốc', 'Liều lượng', 'Cách sử dụng', 'Hạn sử dụng', 'Ghi chú']
+      ]
+
+      medications.forEach((med: Medication, index: number) => {
+        medicationData.push([
+          index + 1,
+          med.name,
+          med.type,
+          med.dosage,
+          med.usage,
+          dayjs(med.expiredDate).format('DD/MM/YYYY'),
+          med.note || 'Không có'
+        ])
+      })
+
+      const ws2 = XLSX.utils.aoa_to_sheet(medicationData)
+      XLSX.utils.book_append_sheet(wb, ws2, 'Danh sách thuốc')
+
+      // Tạo file và tải xuống
+      const fileName = `Don_thuoc_${selectedRequest.studentName}_${selectedRequest.requestId}_${dayjs().format('DDMMYYYY_HHmm')}.xlsx`
+      XLSX.writeFile(wb, fileName)
+
+      toast.success('Xuất file Excel thành công!')
+    } catch (error) {
+      console.error('Error exporting Excel:', error)
+      toast.error('Có lỗi xảy ra khi xuất file Excel!')
+    }
   }
 
   // const handleAddNote = (values: { nurseNotes: string }) => {
@@ -297,7 +367,7 @@ const ReceiveMedicine: React.FC = () => {
     <div style={{ padding: '24px', maxWidth: 1400, margin: '0 auto' }}>
       <Space direction='vertical' style={{ width: '100%' }} size='large'>
         {/* Header */}
-        <Card style={{ background: 'linear-gradient(135deg, #7c91ef 0%, #2171cc 100%)' }}>
+        <Card style={{ background: 'linear-gradient(135deg, #06b6d4 100%)' }}>
           <Row justify='space-between' align='middle'>
             <Col>
               <Title level={3} style={{ color: 'white', margin: 0 }}>
@@ -411,6 +481,15 @@ const ReceiveMedicine: React.FC = () => {
           onCancel={() => setIsModalVisible(false)}
           width={900}
           footer={[
+            <Button
+              key='export'
+              type='primary'
+              style={{ background: '#f40505' }}
+              icon={<DownloadOutlined />}
+              onClick={handleExportExcel}
+            >
+              Xuất Excel
+            </Button>,
             <Button key='close' onClick={() => setIsModalVisible(false)}>
               Đóng
             </Button>

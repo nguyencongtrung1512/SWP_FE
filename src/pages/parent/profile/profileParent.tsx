@@ -118,7 +118,6 @@ const ProfileParent = () => {
         getMedicalEventByStudent(student.studentId),
         getVaccinationRecordsByStudent(student.studentId),
         getHealthCheckRecordsByStudent(student.studentId),
-        console.log("trang 2 :getMedicalEventByStudent", getMedicalEventByStudent(4))
       ])
       setMedicalEvents(medicalEventRes.data?.events?.$values || [])
       setVaccinations(vaccinationRes.data?.$values || [])
@@ -257,7 +256,9 @@ const ProfileParent = () => {
                   x
                 </button>
               </div>
-              <div className={`transition-all duration-500 ease-in-out ${loadingBook ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'}`}>
+              <div
+                className={`transition-all duration-500 ease-in-out ${loadingBook ? 'opacity-0 translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'}`}
+              >
                 {loadingBook ? (
                   <div className='text-center py-8 text-gray-500'>Đang tải dữ liệu sổ sức khỏe...</div>
                 ) : (

@@ -132,9 +132,9 @@ const ReceiveMedicine: React.FC = () => {
     try {
       // Tạo workbook mới
       const wb = XLSX.utils.book_new()
-
+      type Cell = string | number
       // Sheet 1: Thông tin đơn thuốc
-      const requestInfo = [
+      const requestInfo: Cell[][] = [
         ['THÔNG TIN ĐÔN THUỐC'],
         [''],
         ['Mã đơn thuốc:', selectedRequest.requestId],
@@ -161,7 +161,7 @@ const ReceiveMedicine: React.FC = () => {
 
       // Sheet 2: Danh sách thuốc
       const medications = selectedRequest.medications?.$values || []
-      const medicationData = [
+      const medicationData: Cell[][] = [
         ['DANH SÁCH THUỐC'],
         [''],
         ['STT', 'Tên thuốc', 'Loại thuốc', 'Liều lượng', 'Cách sử dụng', 'Hạn sử dụng', 'Ghi chú']

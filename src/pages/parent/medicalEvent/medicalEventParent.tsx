@@ -1,11 +1,24 @@
-import React, { useEffect, useState } from 'react'
+'use client'
+
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '../../../components/ui/card'
 import { Button } from '../../../components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../components/ui/dialog'
 import { Badge } from '../../../components/ui/badge'
 import { Separator } from '../../../components/ui/separator'
 import { ScrollArea } from '../../../components/ui/scroll-area'
-import { User, Calendar, FileText, Stethoscope, GraduationCap, Hash } from 'lucide-react'
+import {
+  User,
+  Calendar,
+  FileText,
+  Stethoscope,
+  GraduationCap,
+  Hash,
+  ShieldAlert,
+  Thermometer,
+  WormIcon as Virus
+} from 'lucide-react'
 import { getAllMedicalEventsForParent } from '../../../apis/parent.api'
 import MedicalEventDetail from './medicalEventDetail'
 import Loading from '../../../components/Loading/Loading'
@@ -15,6 +28,7 @@ interface MedicationUsed {
   name: string
   quantityUsed: number
 }
+
 interface MedicalSupplyUsed {
   medicalSupplyId: number
   name: string
@@ -114,13 +128,13 @@ const MedicalEventParent: React.FC = () => {
   const getEventIcon = (type: string) => {
     switch (type) {
       case 'Sốt':
-        return '🌡️'
+        return <Thermometer className='h-5 w-5' />
       case 'Tai nạn':
-        return '⚠️'
+        return <ShieldAlert className='h-5 w-5' />
       case 'Dịch bệnh':
-        return '🦠'
+        return <Virus className='h-5 w-5' />
       default:
-        return '💊'
+        return <Stethoscope className='h-5 w-5' />
     }
   }
 
@@ -130,10 +144,13 @@ const MedicalEventParent: React.FC = () => {
 
   if (error) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center'>
-        <div className='bg-white rounded-xl shadow-lg p-8 text-center'>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 flex items-center justify-center'>
+        <div className='bg-white rounded-xl shadow-lg p-8 text-center max-w-md w-full'>
           <div className='text-red-500 text-6xl mb-4'>⚠️</div>
           <p className='text-red-600 font-semibold text-lg'>Lỗi: {error}</p>
+          <Button className='mt-4 bg-blue-600 hover:bg-blue-700 text-white' onClick={() => window.location.reload()}>
+            Thử lại
+          </Button>
         </div>
       </div>
     )
@@ -150,45 +167,59 @@ const MedicalEventParent: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-100 to-cyan-50'>
-      <div className='container mx-auto p-4'>
+      <div className='container mx-auto p-4 py-6'>
         <div className='mb-6'>
-          <h1 className='text-2xl font-extrabold text-gray-800 mb-1 tracking-tight drop-shadow'>Sức khỏe con em</h1>
-          <p className='text-gray-600 text-base'>Theo dõi tình hình sức khỏe và các sự kiện y tế của con</p>
+          <h1 className='text-2xl font-extrabold mb-2 tracking-tight drop-shadow-md'>Sức khỏe con em</h1>
+          <p className='text-blue-500 text-lg'>Theo dõi tình hình sức khỏe và các sự kiện y tế của con</p>
         </div>
 
-        <div className='flex gap-4'>
-          <div className='w-64'>
-            <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-[1.01]'>
-              <div className='p-4'>
-                <div className='flex items-center gap-2 mb-4'>
-                  <User className='h-5 w-5 text-blue-600 drop-shadow' />
-                  <h2 className='text-lg font-extrabold text-gray-800 tracking-tight'>Danh sách con</h2>
+        <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
+          <div className='md:col-span-1'>
+            <Card className='bg-white/90 shadow-xl border-0 rounded-xl backdrop-blur-md h-full'>
+              <div className='p-5'>
+                <div className='flex items-center gap-2 mb-5'>
+                  <div className='bg-blue-500 p-2 rounded-lg'>
+                    <User className='h-5 w-5' />
+                  </div>
+                  <h2 className='text-lg font-bold text-blue-900'>Danh sách con</h2>
                 </div>
-                <ScrollArea className='h-[400px] pr-1.5'>
-                  <div className='space-y-2'>
+
+                <ScrollArea className='h-[500px] pr-2'>
+                  <div className='space-y-3'>
                     {students.map((stu) => (
                       <div
                         key={stu.studentId}
-                        className={`cursor-pointer p-3 rounded-xl transition-all duration-300 border-2 hover:shadow-xl hover:scale-105 ${
-                          selectedStudentId === stu.studentId
-                            ? 'border-blue-500 bg-gradient-to-r from-blue-100 to-indigo-100 shadow-lg scale-105'
-                            : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50'
-                        }`}
+                        className={`cursor-pointer p-4 rounded-xl transition-all duration-300 ${selectedStudentId === stu.studentId
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg scale-[1.02]'
+                          : 'bg-blue-50 hover:bg-blue-100'
+                          }`}
                         onClick={() => setSelectedStudentId(stu.studentId)}
                       >
-                        <div className='flex items-start gap-2'>
-                          <div className='w-8 h-8 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 rounded-full flex items-center justify-center text-white font-extrabold text-base shadow border-2 border-white'>
+                        <div className='flex items-start gap-3'>
+                          <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center text-blue-400 font-bold text-base shadow-md ${selectedStudentId === stu.studentId ? 'bg-white text-blue-600' : 'bg-blue-600'
+                              }`}
+                          >
                             {stu.studentName.charAt(0)}
                           </div>
                           <div className='flex-1'>
-                            <h3 className='font-bold text-gray-800 mb-0.5 text-base tracking-tight'>
+                            <h3
+                              className={`font-bold mb-1 text-base ${selectedStudentId === stu.studentId ? 'text-white' : 'text-blue-900'
+                                }`}
+                            >
                               {stu.studentName}
                             </h3>
-                            <div className='flex items-center gap-1 text-xs text-gray-500 mb-0.5'>
+                            <div
+                              className={`flex items-center gap-1 text-xs ${selectedStudentId === stu.studentId ? 'text-blue-100' : 'text-blue-700'
+                                } mb-1`}
+                            >
                               <Hash className='h-3 w-3' />
                               <span>Mã HS: {stu.studentCode}</span>
                             </div>
-                            <div className='flex items-center gap-1 text-xs text-gray-500'>
+                            <div
+                              className={`flex items-center gap-1 text-xs ${selectedStudentId === stu.studentId ? 'text-blue-100' : 'text-blue-700'
+                                }`}
+                            >
                               <GraduationCap className='h-3 w-3' />
                               <span>Lớp: {stu.className}</span>
                             </div>
@@ -202,20 +233,15 @@ const MedicalEventParent: React.FC = () => {
             </Card>
           </div>
 
-          <div className='flex-1'>
+          <div className='md:col-span-3'>
             {selectedStudent ? (
-              <div className='space-y-4'>
-                <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300 min-h-[110px]'>
-                  <div className='p-4'>
+              <div className='space-y-5'>
+                <Card className='bg-white/90 shadow-xl border-0 rounded-xl backdrop-blur-md'>
+                  <div className='p-5'>
                     <div className='flex items-center gap-4'>
-                      <div className='w-12 h-12 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 rounded-full flex items-center justify-center text-white font-extrabold text-xl shadow border-2 border-white'>
-                        {selectedStudent.studentName.charAt(0)}
-                      </div>
                       <div>
-                        <h2 className='text-xl font-extrabold text-gray-800 mb-1 tracking-tight drop-shadow'>
-                          {selectedStudent.studentName}
-                        </h2>
-                        <div className='flex items-center gap-4 text-base text-gray-600'>
+                        <h2 className='text-2xl font-bold text-blue-900 mb-1'>{selectedStudent.studentName}</h2>
+                        <div className='flex flex-wrap items-center gap-4 text-sm text-blue-700'>
                           <div className='flex items-center gap-1'>
                             <GraduationCap className='h-4 w-4' />
                             <span>Lớp: {selectedStudent.className || 'Không có'}</span>
@@ -230,71 +256,76 @@ const MedicalEventParent: React.FC = () => {
                   </div>
                 </Card>
 
-                <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300'>
-                  <div className='p-4'>
-                    <div className='flex items-center gap-2 mb-4'>
-                      <Stethoscope className='h-5 w-5 text-blue-500 drop-shadow' />
-                      <h3 className='text-lg font-extrabold text-gray-800 tracking-tight'>Lịch sử sự kiện y tế</h3>
+                <Card className='bg-white/90 shadow-xl border-0 rounded-xl backdrop-blur-md'>
+                  <div className='p-5'>
+                    <div className='flex items-center gap-2 mb-5'>
+                      <div className='bg-blue-600 p-2 rounded-lg'>
+                        <Stethoscope className='h-5 w-5 text-white' />
+                      </div>
+                      <h3 className='text-lg font-bold text-blue-900'>Lịch sử sự kiện y tế</h3>
                     </div>
-                    <ScrollArea className='h-[450px] pr-1.5'>
+
+                    <ScrollArea className='h-[450px] pr-2'>
                       {selectedStudent.events.$values.length === 0 ? (
-                        <div className='text-center py-8'>
-                          <div className='text-gray-400 text-5xl mb-2 animate-bounce'>🏥</div>
-                          <p className='text-gray-500 font-semibold text-base'>Hiện chưa có sự kiện y tế nào</p>
-                          <p className='text-gray-400 text-xs mt-1'>Điều này có nghĩa là con bạn rất khỏe mạnh!</p>
+                        <div className='text-center py-12 bg-blue-50 rounded-xl'>
+                          <div className='text-blue-400 text-6xl mb-4'>🏥</div>
+                          <p className='text-blue-700 font-semibold text-lg'>Hiện chưa có sự kiện y tế nào</p>
+                          <p className='text-blue-500 mt-2'>Điều này có nghĩa là con bạn rất khỏe mạnh!</p>
                         </div>
                       ) : (
-                        <div className='space-y-3'>
+                        <div className='space-y-5'>
                           {selectedStudent.events.$values.map((event: StudentEvent, index: number) => (
-                            <div key={event.medicalEventId} className='relative group'>
+                            <div key={event.medicalEventId} className='relative'>
                               {/* Timeline line */}
                               {index !== selectedStudent.events.$values.length - 1 && (
-                                <div className='absolute left-5 top-10 w-0.5 h-full bg-gradient-to-b from-blue-200 to-transparent'></div>
+                                <div className='absolute left-6 top-12 w-0.5 h-full bg-blue-200'></div>
                               )}
-                              <div className='flex gap-3'>
+
+                              <div className='flex gap-4'>
                                 {/* Timeline dot */}
                                 <div className='flex flex-col items-center'>
-                                  <div className='w-10 h-10 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 rounded-full flex items-center justify-center text-white font-extrabold text-lg shadow border-2 border-white group-hover:scale-110 transition-transform duration-300'>
-                                    <span className='text-lg'>{getEventIcon(event.type)}</span>
+                                  <div className='w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-md'>
+                                    {getEventIcon(event.type)}
                                   </div>
                                 </div>
+
                                 {/* Event content */}
                                 <div className='flex-1'>
-                                  <div
-                                    className={`bg-white rounded-xl p-4 shadow hover:shadow-xl transition-shadow border-2 ${getEventTypeColor(event.type)} border-opacity-40 group-hover:scale-[1.01] duration-300`}
-                                  >
-                                    <div className='flex justify-between items-start mb-2'>
-                                      <div className='flex items-center gap-2'>
-                                        <Badge
-                                          className={`rounded-full px-3 py-0.5 text-sm font-semibold shadow ${getEventTypeColor(event.type)}`}
-                                        >
+                                  <div className='bg-white rounded-xl p-5 shadow-md border-l-4 border-blue-600'>
+                                    <div className='flex flex-wrap justify-between items-start mb-3 gap-2'>
+                                      <div className='flex flex-wrap items-center gap-2'>
+                                        <Badge className={`rounded-full px-3 py-1 ${getEventTypeColor(event.type)}`}>
                                           {event.type}
                                         </Badge>
-                                        <div className='flex items-center gap-1 text-xs text-gray-500'>
+                                        <div className='flex items-center gap-1 text-xs text-blue-700'>
                                           <Calendar className='h-4 w-4' />
                                           <span>{new Date(event.date).toLocaleString('vi-VN')}</span>
                                         </div>
                                       </div>
+
                                       <Button
-                                        variant='outline'
-                                        size='sm'
                                         onClick={() => handleViewDetails(event)}
-                                        className='bg-gradient-to-r from-blue-100 to-indigo-100 border-0 text-blue-700 font-semibold shadow hover:scale-110 transition-all px-3 py-1 rounded'
+                                        className='bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+                                        size='sm'
                                       >
                                         <FileText className='h-4 w-4 mr-1' />
                                         Chi tiết
                                       </Button>
                                     </div>
-                                    <p className='text-gray-700 font-semibold mb-1 text-sm'>{event.description}</p>
+
+                                    <p className='text-blue-900 font-medium mb-3'>{event.description}</p>
+
                                     {event.note && (
-                                      <div className='bg-blue-50 rounded p-2 border-l-4 border-blue-500'>
-                                        <p className='text-xs text-blue-700 italic'>Ghi chú: {event.note}</p>
+                                      <div className='bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400 mb-3'>
+                                        <p className='text-sm text-blue-700'>
+                                          <span className='font-semibold'>Ghi chú:</span> {event.note}
+                                        </p>
                                       </div>
                                     )}
-                                    <div className='mt-2 pt-2 border-t border-gray-200'>
-                                      <p className='text-xs text-gray-500'>
-                                        Được chăm sóc bởi:{' '}
-                                        <span className='font-bold text-blue-700'>{event.nurseName}</span>
+
+                                    <div className='pt-2 border-t border-blue-100'>
+                                      <p className='text-xs text-blue-600'>
+                                        Được chăm sóc bởi: <span className='font-bold'>{event.nurseName}</span>
                                       </p>
                                     </div>
                                   </div>
@@ -309,15 +340,11 @@ const MedicalEventParent: React.FC = () => {
                 </Card>
               </div>
             ) : (
-              <Card className='bg-white/70 shadow-xl border-0 rounded-xl backdrop-blur-md transition-all duration-300'>
+              <Card className='bg-white/90 shadow-xl border-0 rounded-xl backdrop-blur-md h-full'>
                 <div className='p-10 text-center'>
-                  <div className='text-gray-400 text-5xl mb-4 animate-bounce'>👶</div>
-                  <h3 className='text-lg font-extrabold text-gray-600 mb-2 tracking-tight'>
-                    Chọn một bé để xem chi tiết
-                  </h3>
-                  <p className='text-gray-400 text-base'>
-                    Vui lòng chọn tên con từ danh sách bên trái để xem thông tin sức khỏe
-                  </p>
+                  <div className='text-blue-400 text-6xl mb-6'>👶</div>
+                  <h3 className='text-xl font-bold text-blue-900 mb-3'>Chọn một bé để xem chi tiết</h3>
+                  <p className='text-blue-600'>Vui lòng chọn tên con từ danh sách bên trái để xem thông tin sức khỏe</p>
                 </div>
               </Card>
             )}
@@ -325,22 +352,21 @@ const MedicalEventParent: React.FC = () => {
         </div>
 
         <Dialog open={isModalVisible} onOpenChange={setIsModalVisible}>
-          <DialogContent className='max-w-xl max-h-[80vh] overflow-y-auto bg-white/80 rounded-2xl shadow-2xl backdrop-blur-lg border-0 animate-fade-in'>
+          <DialogContent className='max-w-xl max-h-[80vh] overflow-y-auto bg-white rounded-xl shadow-xl border-0'>
             <DialogHeader>
-              <DialogTitle className='text-xl font-extrabold text-blue-700 flex items-center gap-3 tracking-tight drop-shadow-md'>
-                <span className='inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 text-white shadow-lg mr-2'>
-                  <Stethoscope className='h-6 w-6' />
+              <DialogTitle className='text-xl font-bold text-blue-700 flex items-center gap-3'>
+                <span className='inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 text-white shadow-md'>
+                  <Stethoscope className='h-5 w-5' />
                 </span>
                 Chi tiết báo cáo y tế
               </DialogTitle>
             </DialogHeader>
-            <Separator className='my-2' />
+            <Separator className='my-3' />
             <div className='py-4 px-1'>{selectedEvent && <MedicalEventDetail selectedEvent={selectedEvent} />}</div>
             <DialogFooter>
               <Button
-                variant='outline'
                 onClick={() => setIsModalVisible(false)}
-                className='px-8 py-2 rounded-xl font-bold text-blue-700 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 hover:bg-blue-100 hover:border-blue-300 shadow-lg transition-all duration-200 text-base'
+                className='bg-blue-600 hover:bg-blue-700 text-white px-6'
               >
                 Đóng
               </Button>

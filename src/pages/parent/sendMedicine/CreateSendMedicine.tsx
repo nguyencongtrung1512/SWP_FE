@@ -168,7 +168,7 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
       <div className='w-full mx-auto'>
         <Card className='shadow-2xl border-0 bg-white/95 backdrop-blur-sm'>
-          <CardHeader className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg'>
+          <CardHeader className='bg-gradient-to-r bg-blue-500 text-white shadow-lg text-white rounded-t-lg'>
             <CardTitle className='flex items-center gap-3 text-2xl'>
               <Pill className='w-8 h-8' />
               Form Gửi Thuốc Cho Học Sinh

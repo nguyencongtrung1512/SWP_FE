@@ -47,8 +47,6 @@ interface MedicalEventDetailProps {
 }
 
 const MedicalEventDetail: React.FC<MedicalEventDetailProps> = ({ selectedEvent, studentDetail }) => {
-  console.log('selectedEvent:', selectedEvent)
-  console.log('studentDetail:', studentDetail)
 
   const getEventTypeColor = (type: string) => {
     switch (type) {

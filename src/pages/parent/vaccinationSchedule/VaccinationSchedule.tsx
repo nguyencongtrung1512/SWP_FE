@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Table, Tag, Space, Button, Modal, Descriptions, message } from 'antd'
-import { FileTextOutlined, HistoryOutlined, CalendarOutlined, MedicineBoxOutlined, HeartOutlined } from '@ant-design/icons'
+import {
+  FileTextOutlined,
+  HistoryOutlined,
+  CalendarOutlined,
+  MedicineBoxOutlined,
+  HeartOutlined
+} from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { FaRegBell } from 'react-icons/fa'
 import HistoryVaccination from './HistoryVaccination'
@@ -77,10 +83,8 @@ const VaccinationSchedule: React.FC = () => {
       const res = await getParentNotifications()
       const allVaccinationData = res.data.$values || []
 
-      const childrenIds = childrenList.map(child => child.studentId)
-      const filteredData = allVaccinationData.filter((item: VaccinationConsent) =>
-        childrenIds.includes(item.studentId)
-      )
+      const childrenIds = childrenList.map((child) => child.studentId)
+      const filteredData = allVaccinationData.filter((item: VaccinationConsent) => childrenIds.includes(item.studentId))
 
       const mapped = filteredData.map((item: VaccinationConsent) => ({
         ...item,
@@ -103,7 +107,7 @@ const VaccinationSchedule: React.FC = () => {
       console.log('Fetched health check data:', res.data)
       const allHealthCheckData = res.data.$values || []
 
-      const childrenIds = childrenList.map(child => child.studentId)
+      const childrenIds = childrenList.map((child) => child.studentId)
       const filteredData = allHealthCheckData.filter((item: HealthCheckNotification) =>
         childrenIds.includes(item.studentID)
       )
@@ -153,18 +157,18 @@ const VaccinationSchedule: React.FC = () => {
   }
 
   const filteredVaccinationData = selectedChild
-    ? vaccinationData.filter(item => item.studentId === selectedChild.studentId)
+    ? vaccinationData.filter((item) => item.studentId === selectedChild.studentId)
     : vaccinationData
 
   const filteredHealthCheckData = selectedChild
-    ? healthCheckData.filter(item => item.studentID === selectedChild.studentId)
+    ? healthCheckData.filter((item) => item.studentID === selectedChild.studentId)
     : healthCheckData
 
   const columns: ColumnsType<VaccinationConsent> = [
     {
       title: 'Tên chiến dịch',
       dataIndex: 'campaignName',
-      key: 'campaignName',
+      key: 'campaignName'
     },
     {
       title: 'Trạng thái',
@@ -204,7 +208,7 @@ const VaccinationSchedule: React.FC = () => {
       title: 'Mô tả',
       dataIndex: 'healthCheckDescription',
       key: 'healthCheckDescription',
-      align: 'center' as const,
+      align: 'center' as const
     },
     {
       title: 'Ngày khám',
@@ -225,16 +229,17 @@ const VaccinationSchedule: React.FC = () => {
 
         return dateA.unix() - dateB.unix()
       },
-      align: 'center' as const,
-    },
+      align: 'center' as const
+    }
   ]
 
   return (
     <div
-      className={`flex ${isHealthCheck
-        ? 'bg-gradient-to-br from-blue-100 via-red-100 to-purple-100'
-        : 'bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100'
-        }`}
+      className={`flex ${
+        isHealthCheck
+          ? 'bg-gradient-to-br from-blue-100 via-red-100 to-purple-100'
+          : 'bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100'
+      }`}
     >
       <div className='w-80 bg-gray-50 shadow-lg p-6 overflow-y-auto'>
         <div className='mb-6'>
@@ -247,17 +252,19 @@ const VaccinationSchedule: React.FC = () => {
             <div
               key={child.studentId}
               onClick={() => handleChildSelect(child)}
-              className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-2 ${selectedChild?.studentId === child.studentId
-                ? 'border-blue-500 bg-white shadow-md'
-                : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
-                }`}
+              className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-2 ${
+                selectedChild?.studentId === child.studentId
+                  ? 'border-blue-500 bg-white shadow-md'
+                  : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
+              }`}
             >
               <div className='flex items-center space-x-3'>
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium ${selectedChild?.studentId === child.studentId
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-blue-100 text-blue-500'
-                    }`}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium ${
+                    selectedChild?.studentId === child.studentId
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-blue-100 text-blue-500'
+                  }`}
                 >
                   {child.fullname.trim().split(' ').pop()?.charAt(0).toUpperCase()}
                 </div>
@@ -281,14 +288,16 @@ const VaccinationSchedule: React.FC = () => {
               <div className='flex justify-start mb-6 space-x-4'>
                 <button
                   onClick={() => handleSwitchChange(false)}
-                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${!isHealthCheck
-                    ? 'bg-blue-500 text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
-                    }`}
+                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
+                    !isHealthCheck
+                      ? 'bg-blue-500 text-white shadow-lg scale-105'
+                      : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
+                  }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${!isHealthCheck ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'
-                      }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                      !isHealthCheck ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'
+                    }`}
                   >
                     <MedicineBoxOutlined />
                   </div>
@@ -297,14 +306,16 @@ const VaccinationSchedule: React.FC = () => {
 
                 <button
                   onClick={() => handleSwitchChange(true)}
-                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${isHealthCheck
-                    ? 'bg-red-500 text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-600 hover:bg-red-50 shadow-md'
-                    }`}
+                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
+                    isHealthCheck
+                      ? 'bg-red-500 text-white shadow-lg scale-105'
+                      : 'bg-white text-gray-600 hover:bg-red-50 shadow-md'
+                  }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${isHealthCheck ? 'bg-white text-red-500' : 'bg-red-100 text-red-500'
-                      }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                      isHealthCheck ? 'bg-white text-red-500' : 'bg-red-100 text-red-500'
+                    }`}
                   >
                     <HeartOutlined />
                   </div>
@@ -315,22 +326,22 @@ const VaccinationSchedule: React.FC = () => {
 
             {!isHealthCheck ? (
               <>
-                {filteredVaccinationData.some(item => item.isAgreed === null) && (
+                {filteredVaccinationData.some((item) => item.isAgreed === null) && (
                   <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6'>
                     <div className='flex items-center'>
                       <div className='w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-3'>
                         <span className='text-white text-sm font-bold'>!</span>
                       </div>
                       <span className='text-yellow-800 text-sm'>
-                        Có {filteredVaccinationData.filter(item => item.isAgreed === null).length} sự kiện y tế cần được xác nhận
+                        Có {filteredVaccinationData.filter((item) => item.isAgreed === null).length} sự kiện y tế cần
+                        được xác nhận
                       </span>
                     </div>
                   </div>
                 )}
               </>
             ) : (
-              <>
-              </>
+              <></>
             )}
 
             <Card className='mb-6 shadow-sm'>
@@ -338,7 +349,9 @@ const VaccinationSchedule: React.FC = () => {
                 <div className='w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3'>
                   <FaRegBell className='text-lg text-white' />
                 </div>
-                <h2 className='text-lg font-semibold text-gray-800'>Thông báo lịch {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}</h2>
+                <h2 className='text-lg font-semibold text-gray-800'>
+                  Thông báo lịch {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}
+                </h2>
               </div>
 
               {isHealthCheck ? (
@@ -373,19 +386,15 @@ const VaccinationSchedule: React.FC = () => {
                 <div className='w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3'>
                   <HistoryOutlined className='text-white text-lg' />
                 </div>
-                <h2 className='text-lg font-semibold text-gray-800'>Lịch sử {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}</h2>
+                <h2 className='text-lg font-semibold text-gray-800'>
+                  Lịch sử {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}
+                </h2>
               </div>
 
               {!isHealthCheck ? (
-                <HistoryVaccination
-                  key={selectedChild.studentId}
-                  studentId={selectedChild.studentId}
-                />
+                <HistoryVaccination key={selectedChild.studentId} studentId={selectedChild.studentId} />
               ) : (
-                <HistoryHealthCheck
-                  key={selectedChild.studentId}
-                  studentId={selectedChild.studentId}
-                />
+                <HistoryHealthCheck key={selectedChild.studentId} studentId={selectedChild.studentId} />
               )}
             </Card>
           </>
@@ -396,8 +405,13 @@ const VaccinationSchedule: React.FC = () => {
                 <CalendarOutlined className='text-3xl text-gray-400' />
               </div>
               <div className='text-gray-500 text-xl font-medium'>Danh sách học sinh trống</div>
-              <p className='text-gray-400 mt-2 text-lg mb-6'>Vui lòng thêm thông tin con của bạn để bắt đầu xem lịch y tế</p>
-              <a href='/parent/profile' className='px-6 py-3 border border-blue-500 text-blue-500 rounded-lg font-medium hover:bg-blue-50 transition-colors'>
+              <p className='text-gray-400 mt-2 text-lg mb-6'>
+                Vui lòng thêm thông tin con của bạn để bắt đầu xem lịch y tế
+              </p>
+              <a
+                href='/parent/profile'
+                className='px-6 py-3 border border-blue-500 text-blue-500 rounded-lg font-medium hover:bg-blue-50 transition-colors'
+              >
                 Đi đến hồ sơ
               </a>
             </div>
@@ -427,7 +441,9 @@ const VaccinationSchedule: React.FC = () => {
               {selectedSchedule.isAgreed === false && 'Đã từ chối'}
               {selectedSchedule.isAgreed === null && 'Chờ phản hồi'}
             </Descriptions.Item>
-            <Descriptions.Item label='Ghi chú'>{selectedSchedule.note ? selectedSchedule.note : 'Không có'}</Descriptions.Item>
+            <Descriptions.Item label='Ghi chú'>
+              {selectedSchedule.note ? selectedSchedule.note : 'Không có'}
+            </Descriptions.Item>
             <Descriptions.Item label='Ngày xác nhận'>
               {selectedSchedule.dateConfirmed
                 ? dayjs.utc(selectedSchedule.dateConfirmed).local().format('DD/MM/YYYY HH:mm')

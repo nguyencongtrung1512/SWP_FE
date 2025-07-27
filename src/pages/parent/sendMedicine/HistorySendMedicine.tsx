@@ -143,7 +143,7 @@ function HistorySendMedicine({ reload }: { reload?: boolean }) {
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-100 to-cyan-50 p-6'>
       <Card className='shadow-xl border-0 bg-white/80 backdrop-blur-sm'>
-        <CardHeader className='bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg'>
+        <CardHeader className='bg-gradient-to-r bg-blue-500 text-white shadow-lg text-white rounded-t-lg'>
           <CardTitle className='text-2xl font-bold flex items-center gap-2'>
             <CalendarIcon className='h-6 w-6' />
             Lịch sử gửi thuốc

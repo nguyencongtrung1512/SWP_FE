@@ -7,7 +7,7 @@ class Http {
 
   constructor() {
     this.instance = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5057/api',
+      baseURL: import.meta.env.VITE_API_URL || 'https://educareswp.azurewebsites.net/api',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'

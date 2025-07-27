@@ -56,8 +56,8 @@ interface HealthCheckRecord {
   result: string
   height: number
   weight: number
-  leftEye: number
-  rightEye: number
+  leftEye: string
+  rightEye: string
 }
 interface Student {
   studentId: number

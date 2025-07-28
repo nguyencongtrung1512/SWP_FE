@@ -10,9 +10,7 @@ function App() {
   const location = useLocation()
 
   const showChatBot =
-    location.pathname.startsWith('/parent') ||
-    location.pathname === '/' ||
-    location.pathname.startsWith('/blog')
+    location.pathname.startsWith('/parent') || location.pathname === '/' || location.pathname.startsWith('/blog')
 
   return (
     <AuthProvider>

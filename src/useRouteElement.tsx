@@ -66,7 +66,7 @@ export default function useRouteElements() {
     },
     // PARENT routes with protection
     {
-      path: '',
+      path: '/',
       element: <ProtectedRoute requiredRole='Parent' />,
       children: [
         {

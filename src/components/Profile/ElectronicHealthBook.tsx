@@ -184,7 +184,6 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
             <div className='text-center mb-4'>
               <h1 className='text-xl font-bold mb-2 text-white drop-shadow-lg'>SỔ SỨC KHỎE ĐIỆN TỬ</h1>
               <div className='w-16 h-0.5 bg-white/60 mx-auto mb-3'></div>
-              <p className='text-blue-100 text-sm font-medium'>Trường Tiểu học ABC</p>
             </div>
 
             {/* Additional info */}
@@ -233,7 +232,9 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
                   <Users className='w-3 h-3 text-pink-600 mr-1' />
                   <div>
                     <p className='text-pink-800 font-medium'>Giới tính</p>
-                    <p className='text-pink-600'>{student.gender}</p>
+                    <p className='text-pink-600'>
+                      {student.gender === 'Male' ? 'Nam' : student.gender === 'Female' ? 'Nữ' : ''}
+                    </p>
                   </div>
                 </div>
 

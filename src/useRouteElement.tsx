@@ -39,34 +39,34 @@ export default function useRouteElements() {
   const routeElements = useRoutes([
     // MAIN routes
     {
-      path: '',
+      path: '/',
       element: <MainLayout />,
       children: [
         {
-          path: path.home,
+          path: '',
           element: <Home />
         },
         {
-          path: path.login,
+          path: 'login',
           element: <Login />
         },
         {
-          path: path.resetPassword,
+          path: 'reset-password',
           element: <ResetPassword />
         },
         {
-          path: path.blog,
+          path: 'blog',
           element: <Blog />
         },
         {
-          path: path.blogDetail,
+          path: 'blog/:id',
           element: <BlogPost />
         }
       ]
     },
     // PARENT routes with protection
     {
-      path: '/',
+      path: '/parent',
       element: <ProtectedRoute requiredRole='Parent' />,
       children: [
         {
@@ -74,31 +74,31 @@ export default function useRouteElements() {
           element: <ParentLayout />,
           children: [
             {
-              path: path.healthRecord,
+              path: 'health-record',
               element: <HealthRecord />
             },
             {
-              path: path.sendMedicine,
+              path: 'send-medicine',
               element: <SendMedicine />
             },
             {
-              path: path.appointment,
+              path: 'appointment',
               element: <AppointmentPage />
             },
             {
-              path: path.vaccinationSchedule,
+              path: 'vaccination-schedule',
               element: <VaccinationSchedule />
             },
             {
-              path: path.medicalEvent,
+              path: 'medical-event',
               element: <MedicalEventParent />
             },
             {
-              path: path.profile,
+              path: 'profile',
               element: <ProfileParent />
             },
             {
-              path: 'parent/private-consultation/video-call/:appointmentId',
+              path: 'private-consultation/video-call/:appointmentId',
               element: <VideoCall /> //userRole="parent"
             }
           ]

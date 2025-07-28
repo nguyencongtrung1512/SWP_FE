@@ -16,7 +16,7 @@ export default function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
   if (requiredRole) {
     if (user?.roleName !== requiredRole) {
       if (user?.roleName === 'Parent') {
-        return <Navigate to={path.home} replace />
+        return <Navigate to={path.healthRecord} replace />
       } else if (user?.roleName === 'Nurse') {
         return <Navigate to={path.HEALTH_RECORD_CENSORSHIP} replace />
       } else if (user?.roleName === 'Admin') {

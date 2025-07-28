@@ -239,11 +239,11 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
                 </div>
 
                 <div className='bg-green-50 rounded-lg p-2 flex items-center col-span-2'>
-                  <div className='flex items-center mb-1'>
-                    <MapPin className='w-3 h-3 text-green-600 mr-1' />
+                  <MapPin className='w-3 h-3 text-green-600 mr-1' />
+                  <div>
                     <p className='text-green-800 font-medium text-xs'>Lớp học</p>
+                    <p className='text-green-600 font-normal'>{student.className}</p>
                   </div>
-                  <p className='text-green-600 font-semibold'>{student.className}</p>
                 </div>
               </div>
 
@@ -296,7 +296,7 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
                         <p className='text-purple-800 font-medium'>Chiều cao</p>
                         <p className='text-purple-600 font-bold'>{hc.height}cm</p>
                       </div>
-                      <div className='bg-orange-50 rounded p-2 text-center'>
+                      <div className='bg-green-200 rounded p-2 text-center'>
                         <p className='text-orange-800 font-medium'>Mắt trái</p>
                         <p className='text-orange-600 font-bold'>{hc.leftEye}</p>
                       </div>

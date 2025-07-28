@@ -111,8 +111,7 @@ const AddStudentModal: React.FC<AddStudentModalProps> = ({ isOpen, onClose, onAd
               <b>Giới tính:</b> {studentInfo.gender}
             </div>
             <div>
-              <b>Ngày sinh:</b> 
-              {
+              <b>Ngày sinh:</b> {
                 studentInfo.dateOfBirth &&
                 (() => {
                   const [year, month, day] = studentInfo.dateOfBirth.split('T')[0].split('-');

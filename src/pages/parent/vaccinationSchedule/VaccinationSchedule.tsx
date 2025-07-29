@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Tag, Space, Button, Modal, Descriptions, message } from 'antd'
-import {
-  FileTextOutlined,
-  HistoryOutlined,
-  CalendarOutlined,
-  MedicineBoxOutlined,
-  HeartOutlined,
-  ExclamationCircleOutlined
-} from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
-import { FaRegBell } from 'react-icons/fa'
+import { Card, CardContent, CardHeader } from '../../../components/ui/card'
+import { Button } from '../../../components/ui/button'
+import { Alert, AlertDescription } from '../../../components/ui/alert'
+import { Table, Tag, Space, Button as AntButton, Modal, Descriptions } from 'antd'
+import { ColumnsType } from 'antd/es/table'
+import { History, Calendar, Pill, Heart, AlertTriangle, Bell, User } from 'lucide-react'
+import { FileTextOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import HistoryVaccination from './HistoryVaccination'
 import HistoryHealthCheck from './HistoryHealthCheck'
 import { getParentNotifications, VaccinationConsent, sendConsent } from '../../../apis/vaccinatapi.api'
@@ -17,6 +13,7 @@ import { getHealthCheckNotifications, HealthCheckNotification } from '../../../a
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getAccountInfo } from '../../../apis/parent.api'
+import { toast } from 'react-toastify'
 
 const { confirm } = Modal
 
@@ -68,7 +65,7 @@ const VaccinationSchedule: React.FC = () => {
       setChildrenList(children)
     } catch (err) {
       console.error(err)
-      message.error('Lấy danh sách học sinh thất bại!')
+      toast.error('Lấy danh sách học sinh thất bại!')
     } finally {
       setLoading(false)
     }
@@ -85,19 +82,16 @@ const VaccinationSchedule: React.FC = () => {
       setLoading(true)
       const res = await getParentNotifications()
       const allVaccinationData = res.data.$values || []
-
       const childrenIds = childrenList.map((child) => child.studentId)
       const filteredData = allVaccinationData.filter((item: VaccinationConsent) => childrenIds.includes(item.studentId))
-
       const mapped = filteredData.map((item: VaccinationConsent) => ({
         ...item,
         key: item.consentId.toString()
       }))
-
       setVaccinationData(mapped)
     } catch (err) {
       console.error(err)
-      message.error('Lấy dữ liệu lịch tiêm thất bại!')
+      toast.error("Lấy dữ liệu lịch tiêm thất bại!")
     } finally {
       setLoading(false)
     }
@@ -108,6 +102,7 @@ const VaccinationSchedule: React.FC = () => {
       setLoading(true)
       const res = await getHealthCheckNotifications()
       console.log('Fetched health check data:', res.data)
+
       const allHealthCheckData = res.data.$values || []
 
       const childrenIds = childrenList.map((child) => child.studentId)
@@ -118,7 +113,7 @@ const VaccinationSchedule: React.FC = () => {
       setHealthCheckData(filteredData)
     } catch (err) {
       console.error(err)
-      message.error('Lấy dữ liệu lịch khám thất bại!')
+      toast.error('Lấy dữ liệu lịch khám thất bại!')
     } finally {
       setLoading(false)
     }
@@ -153,9 +148,6 @@ const VaccinationSchedule: React.FC = () => {
         style: { backgroundColor: actionColor, borderColor: actionColor }
       },
       onOk: () => handleConsent(record, isAgreed)
-      // onCancel: () => {
-      //   message.info('Đã hủy bỏ thao tác')
-      // }
     })
   }
 
@@ -168,11 +160,11 @@ const VaccinationSchedule: React.FC = () => {
         isAgreed,
         note
       })
-      message.success(isAgreed ? 'Đã đồng ý tiêm!' : 'Đã từ chối tiêm!')
+      toast.success(isAgreed ? 'Đã đồng ý tiêm!' : 'Đã từ chối tiêm!')
       await fetchVaccinationData()
     } catch (err) {
       console.error(err)
-      message.error('Xử lý thất bại!')
+      toast.error('Xử lý thất bại!')
     }
   }
 
@@ -206,7 +198,8 @@ const VaccinationSchedule: React.FC = () => {
     {
       title: 'Tên chiến dịch',
       dataIndex: 'campaignName',
-      key: 'campaignName'
+      key: 'campaignName',
+      align: 'center' as const
     },
     {
       title: 'Trạng thái',
@@ -225,17 +218,17 @@ const VaccinationSchedule: React.FC = () => {
         <Space>
           {record.isAgreed === null && (
             <>
-              <Button type='primary' className='bg-green-500' onClick={() => showConsentConfirm(record, true)}>
+              <AntButton type='primary' className='bg-green-500' onClick={() => showConsentConfirm(record, true)}>
                 Đồng ý
-              </Button>
-              <Button type='primary' danger onClick={() => showConsentConfirm(record, false)}>
+              </AntButton>
+              <AntButton type='primary' danger onClick={() => showConsentConfirm(record, false)}>
                 Từ chối
-              </Button>
+              </AntButton>
             </>
           )}
-          <Button type='link' icon={<FileTextOutlined />} onClick={() => handleViewDetails(record)}>
+          <AntButton type='link' icon={<FileTextOutlined />} onClick={() => handleViewDetails(record)}>
             Xem chi tiết
-          </Button>
+          </AntButton>
         </Space>
       )
     }
@@ -273,44 +266,48 @@ const VaccinationSchedule: React.FC = () => {
 
   return (
     <div
-      className={`flex ${
+      className={`flex min-h-screen ${
         isHealthCheck
           ? 'bg-gradient-to-br from-blue-100 via-red-100 to-purple-100'
           : 'bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100'
       }`}
     >
-      <div className='w-80 bg-gray-50 shadow-lg p-6 overflow-y-auto'>
+      <div className='w-80 bg-white/90 backdrop-blur-sm shadow-2xl p-6 overflow-y-auto border-r border-gray-200'>
         <div className='mb-6'>
-          <h2 className='text-2xl font-bold text-gray-800'>Danh sách con</h2>
-          <p className='text-lg text-gray-500'>Chọn để xem lịch y tế</p>
+          <h2 className='text-xl font-bold text-gray-800 flex items-center'>
+            <div className='w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mr-3 shadow-lg'>
+              <User className='text-white w-6 h-6' />
+            </div>
+            Danh sách con
+          </h2>
         </div>
-
+        
         <div className='space-y-3'>
           {childrenList.map((child) => (
             <div
               key={child.studentId}
               onClick={() => handleChildSelect(child)}
-              className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-2 ${
+              className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border-2 shadow-sm hover:shadow-md ${
                 selectedChild?.studentId === child.studentId
-                  ? 'border-blue-500 bg-white shadow-md'
-                  : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
+                  ? 'border-cyan-400 bg-gradient-to-r from-cyan-50 to-blue-50 shadow-lg transform scale-105'
+                  : 'border-gray-200 bg-white/80 hover:border-cyan-300 hover:bg-white'
               }`}
             >
               <div className='flex items-center space-x-3'>
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium ${
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shadow-md transition-all duration-300 ${
                     selectedChild?.studentId === child.studentId
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-blue-100 text-blue-500'
+                      ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
+                      : 'bg-gradient-to-br from-cyan-100 to-blue-100 text-cyan-700'
                   }`}
                 >
-                  {child.fullname.trim().split(' ').pop()?.charAt(0).toUpperCase()}
+                  {child.fullname.trim().split(" ").pop()?.charAt(0).toUpperCase()}
                 </div>
                 <div className='flex-1'>
                   <h3 className='text-gray-800 text-sm font-bold'>{child.fullname}</h3>
-                  <div className='flex flex-col'>
-                    <span className='text-sm text-gray-500'>Mã HS: {child.studentCode}</span>
-                    <span className='text-sm text-gray-500'>Lớp: {child.className}</span>
+                  <div className='flex flex-col space-y-1'>
+                    <span className='text-xs text-gray-600'>Mã HS: {child.studentCode}</span>
+                    <span className='text-xs text-gray-600'>Lớp: {child.className}</span>
                   </div>
                 </div>
               </div>
@@ -319,128 +316,129 @@ const VaccinationSchedule: React.FC = () => {
         </div>
       </div>
 
-      <div className='flex-1 p-12 overflow-y-hidden'>
+      <div className='flex-1 p-8 overflow-y-auto'>
         {selectedChild ? (
           <>
             <div className='mb-6'>
               <div className='flex justify-start mb-6 space-x-4'>
-                <button
+                <Button
                   onClick={() => handleSwitchChange(false)}
-                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
+                  variant={!isHealthCheck ? 'default' : 'outline'}
+                  className={`px-6 py-3 h-auto transition-all duration-300 flex items-center space-x-2 whitespace-nowrap transform hover:scale-105 hover:shadow-lg ${
                     !isHealthCheck
-                      ? 'bg-blue-500 text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-600 hover:bg-blue-50 shadow-md'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-xl border-0'
+                      : 'bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white shadow-md border-cyan-200 hover:border-cyan-400'
                   }`}
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                      !isHealthCheck ? 'bg-white text-blue-500' : 'bg-blue-100 text-blue-500'
+                      !isHealthCheck
+                        ? 'bg-white text-cyan-600 shadow-md'
+                        : 'bg-gradient-to-br from-cyan-100 to-blue-100 text-cyan-700'
                     }`}
                   >
-                    <MedicineBoxOutlined />
+                    <Pill className='w-4 h-4' />
                   </div>
-                  <span className='font-medium text-md'>Tiêm chủng</span>
-                </button>
-
-                <button
+                  <span className='font-semibold'>Tiêm chủng</span>
+                </Button>
+                <Button
                   onClick={() => handleSwitchChange(true)}
-                  className={`px-6 py-3 rounded-full transition-all duration-300 flex items-center space-x-2 whitespace-nowrap ${
+                  variant={isHealthCheck ? 'default' : 'outline'}
+                  className={`px-6 py-3 h-auto transition-all duration-300 flex items-center space-x-2 whitespace-nowrap transform hover:scale-105 hover:shadow-lg ${
                     isHealthCheck
-                      ? 'bg-red-500 text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-600 hover:bg-red-50 shadow-md'
+                      ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-xl border-0'
+                      : 'bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white shadow-md border-red-200 hover:border-red-400'
                   }`}
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                      isHealthCheck ? 'bg-white text-red-500' : 'bg-red-100 text-red-500'
+                      isHealthCheck
+                        ? 'bg-white text-red-600 shadow-md'
+                        : 'bg-gradient-to-br from-red-100 to-pink-100 text-red-700'
                     }`}
                   >
-                    <HeartOutlined />
+                    <Heart className='w-4 h-4' />
                   </div>
-                  <span className='font-medium text-md'>Khám sức khỏe</span>
-                </button>
+                  <span className='font-semibold'>Khám sức khỏe</span>
+                </Button>
               </div>
             </div>
 
-            {!isHealthCheck ? (
-              <>
-                {filteredVaccinationData.some((item) => item.isAgreed === null) && (
-                  <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6'>
-                    <div className='flex items-center'>
-                      <div className='w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-3'>
-                        <span className='text-white text-sm font-bold'>!</span>
-                      </div>
-                      <span className='text-yellow-800 text-sm'>
-                        Có {filteredVaccinationData.filter((item) => item.isAgreed === null).length} sự kiện y tế cần
-                        được xác nhận
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <></>
+            {!isHealthCheck && filteredVaccinationData.some((item) => item.isAgreed === null) && (
+              <Alert className='mb-6 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 shadow-sm'>
+                <div className='w-5 h-5 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center'>
+                  <AlertTriangle className='text-white w-3 h-3' />
+                </div>
+                <AlertDescription className='font-medium text-amber-800'>
+                  Có {filteredVaccinationData.filter((item) => item.isAgreed === null).length} sự kiện y tế cần được xác
+                  nhận
+                </AlertDescription>
+              </Alert>
             )}
 
-            <Card className='mb-6 shadow-sm'>
-              <div className='flex items-center mb-4'>
-                <div className='w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3'>
-                  <FaRegBell className='text-lg text-white' />
+            <Card className='mb-6 shadow-xl border-0 bg-white/95 backdrop-blur-sm'>
+              <CardHeader className='pb-4'>
+                <div className='flex items-center'>
+                  <div className='w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mr-3 shadow-lg'>
+                    <Bell className='text-white w-5 h-5' />
+                  </div>
+                  <h2 className='text-lg font-bold text-gray-800'>
+                    Thông báo lịch {isHealthCheck ? 'khám sức khỏe' : 'tiêm chủng'}
+                  </h2>
                 </div>
-                <h2 className='text-lg font-semibold text-gray-800'>
-                  Thông báo lịch {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}
-                </h2>
-              </div>
-
-              {isHealthCheck ? (
-                <Table
-                  columns={healthCheckColumns}
-                  dataSource={filteredHealthCheckData}
-                  loading={loading}
-                  pagination={{
-                    pageSize: 5,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Tổng số ${total} kế hoạch`
-                  }}
-                  locale={{
-                    triggerDesc: 'Nhấn để sắp xếp giảm dần',
-                    triggerAsc: 'Nhấn để sắp xếp tăng dần',
-                    cancelSort: 'Hủy sắp xếp',
-                    emptyText: 'Không có dữ liệu',
-                  }}
-                  rowKey={(record: HealthCheckNotification) => record.healthCheckID.toString()}
-                />
-              ) : (
-                <Table
-                  columns={columns}
-                  dataSource={filteredVaccinationData}
-                  loading={loading}
-                  pagination={{
-                    pageSize: 5,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Tổng số ${total} kế hoạch`
-                  }}
-                  locale={{
-                    triggerDesc: 'Nhấn để sắp xếp giảm dần',
-                    triggerAsc: 'Nhấn để sắp xếp tăng dần',
-                    cancelSort: 'Hủy sắp xếp',
-                    emptyText: 'Không có dữ liệu',
-                  }}
-                  rowKey={(record: VaccinationConsent) => record.campaignId.toString()}
-                />
-              )}
+              </CardHeader>
+              <CardContent>
+                {isHealthCheck ? (
+                  <Table
+                    columns={healthCheckColumns}
+                    dataSource={filteredHealthCheckData}
+                    loading={loading}
+                    pagination={{
+                      pageSize: 5,
+                      showSizeChanger: true,
+                      showTotal: (total) => `Tổng số ${total} kế hoạch`
+                    }}
+                    locale={{
+                      triggerDesc: 'Nhấn để sắp xếp giảm dần',
+                      triggerAsc: 'Nhấn để sắp xếp tăng dần',
+                      cancelSort: 'Hủy sắp xếp',
+                      emptyText: 'Không có dữ liệu',
+                    }}
+                    rowKey={(record: HealthCheckNotification) => record.healthCheckID.toString()}
+                  />
+                ) : (
+                  <Table
+                    columns={columns}
+                    dataSource={filteredVaccinationData}
+                    loading={loading}
+                    pagination={{
+                      pageSize: 5,
+                      showSizeChanger: true,
+                      showTotal: (total) => `Tổng số ${total} kế hoạch`
+                    }}
+                    locale={{
+                      triggerDesc: 'Nhấn để sắp xếp giảm dần',
+                      triggerAsc: 'Nhấn để sắp xếp tăng dần',
+                      cancelSort: 'Hủy sắp xếp',
+                      emptyText: 'Không có dữ liệu',
+                    }}
+                    rowKey={(record: VaccinationConsent) => record.campaignId.toString()}
+                  />
+                )}
+              </CardContent>
             </Card>
 
-            <Card className='shadow-sm'>
-              <div className='flex items-center mb-4'>
-                <div className='w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3'>
-                  <HistoryOutlined className='text-white text-lg' />
+            <Card className='shadow-xl border-0 bg-white/95 backdrop-blur-sm'>
+              <CardHeader className='pb-4'>
+                <div className='flex items-center'>
+                  <div className='w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg'>
+                    <History className='text-white w-5 h-5' />
+                  </div>
+                  <h2 className='text-lg font-bold text-gray-800'>
+                    Lịch sử {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}
+                  </h2>
                 </div>
-                <h2 className='text-lg font-semibold text-gray-800'>
-                  Lịch sử {isHealthCheck ? 'khám sức khỏe' : 'tiêm'}
-                </h2>
-              </div>
-
+              </CardHeader>
               {!isHealthCheck ? (
                 <HistoryVaccination key={selectedChild.studentId} studentId={selectedChild.studentId} />
               ) : (
@@ -451,33 +449,34 @@ const VaccinationSchedule: React.FC = () => {
         ) : (
           <div className='flex items-center justify-center h-full'>
             <div className='text-center'>
-              <div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto'>
-                <CalendarOutlined className='text-3xl text-gray-400' />
+              <div className='w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4 mx-auto shadow-lg'>
+                <Calendar className='text-3xl text-gray-400' />
               </div>
-              <div className='text-gray-500 text-xl font-medium'>Danh sách học sinh trống</div>
-              <p className='text-gray-400 mt-2 text-lg mb-6'>
+              <div className='text-gray-600 text-xl font-bold'>Danh sách học sinh trống</div>
+              <p className='text-gray-500 mt-2 text-sm mb-6'>
                 Vui lòng thêm thông tin con của bạn để bắt đầu xem lịch y tế
               </p>
-              <a
-                href='/parent/profile'
-                className='px-6 py-3 border border-blue-500 text-blue-500 rounded-lg font-medium hover:bg-blue-50 transition-colors'
+              <Button
+                asChild
+                className='bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105'
               >
-                Đi đến hồ sơ
-              </a>
+                <a href='/parent/profile'>Đi đến hồ sơ</a>
+              </Button>
             </div>
           </div>
         )}
       </div>
 
+      {/* Details Modal */}
       <Modal
         title={isHealthCheck ? 'Chi tiết kế hoạch khám' : 'Chi tiết kế hoạch tiêm'}
         open={isModalOpen}
         onCancel={handleCloseModal}
         width={800}
         footer={[
-          <Button key='close' onClick={handleCloseModal}>
+          <AntButton key='close' onClick={handleCloseModal}>
             Đóng
-          </Button>
+          </AntButton>
         ]}
       >
         {selectedSchedule && (

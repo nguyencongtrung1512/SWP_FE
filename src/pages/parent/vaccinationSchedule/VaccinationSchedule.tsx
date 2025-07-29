@@ -5,7 +5,8 @@ import {
   HistoryOutlined,
   CalendarOutlined,
   MedicineBoxOutlined,
-  HeartOutlined
+  HeartOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { FaRegBell } from 'react-icons/fa'
@@ -16,6 +17,8 @@ import { getHealthCheckNotifications, HealthCheckNotification } from '../../../a
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getAccountInfo } from '../../../apis/parent.api'
+
+const { confirm } = Modal
 
 dayjs.extend(utc)
 
@@ -121,6 +124,41 @@ const VaccinationSchedule: React.FC = () => {
     }
   }
 
+  const showConsentConfirm = (record: VaccinationConsent, isAgreed: boolean) => {
+    const actionText = isAgreed ? 'đồng ý' : 'từ chối'
+    const actionColor = isAgreed ? '#52c41a' : '#ff4d4f'
+
+    confirm({
+      title: `Xác nhận ${actionText}`,
+      icon: <ExclamationCircleOutlined style={{ color: actionColor }} />,
+      content: (
+        <div>
+          <p>
+            Bạn có chắc chắn muốn <strong>{actionText}</strong> cho:
+          </p>
+          <div style={{ marginTop: 12, padding: 12, backgroundColor: '#f5f5f5', borderRadius: 6 }}>
+            <p>
+              <strong>Chiến dịch:</strong> {record.campaignName}
+            </p>
+            <p>
+              <strong>Học sinh:</strong> {record.studentName}
+            </p>
+          </div>
+          <p style={{ marginTop: 12, color: '#666' }}>Hành động này không thể hoàn tác.</p>
+        </div>
+      ),
+      okText: `Xác nhận ${actionText}`,
+      cancelText: 'Hủy bỏ',
+      okButtonProps: {
+        style: { backgroundColor: actionColor, borderColor: actionColor }
+      },
+      onOk: () => handleConsent(record, isAgreed)
+      // onCancel: () => {
+      //   message.info('Đã hủy bỏ thao tác')
+      // }
+    })
+  }
+
   const handleConsent = async (record: VaccinationConsent, isAgreed: boolean) => {
     try {
       const note = isAgreed ? 'Phụ huynh đồng ý' : 'Phụ huynh từ chối'
@@ -187,10 +225,10 @@ const VaccinationSchedule: React.FC = () => {
         <Space>
           {record.isAgreed === null && (
             <>
-              <Button type='primary' className='bg-green-500' onClick={() => handleConsent(record, true)}>
+              <Button type='primary' className='bg-green-500' onClick={() => showConsentConfirm(record, true)}>
                 Đồng ý
               </Button>
-              <Button type='primary' danger onClick={() => handleConsent(record, false)}>
+              <Button type='primary' danger onClick={() => showConsentConfirm(record, false)}>
                 Từ chối
               </Button>
             </>

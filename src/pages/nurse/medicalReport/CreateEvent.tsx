@@ -56,6 +56,28 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   >([])
 
   console.log('Da chon', selectedMedicalSupplies)
+
+  // Check if form can be submitted based on quantities
+  const canSubmit = () => {
+    // Check medications
+    for (const selectedMed of selectedMedications) {
+      const medication = medicationOptions.find((opt) => opt.value === selectedMed.medicationId)
+      if (!medication || medication.quantity === 0) {
+        return false
+      }
+    }
+
+    // Check medical supplies
+    for (const selectedSupply of selectedMedicalSupplies) {
+      const supply = medicalSupplyOptions.find((opt) => opt.value === selectedSupply.medicalSupplyId)
+      if (!supply || supply.quantity === 0) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   const getMedicationUnit = (type: string): string => {
     const typeUpper = type.toUpperCase()
     switch (typeUpper) {
@@ -175,6 +197,12 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   const onFinish = async (values: Record<string, unknown>) => {
     if (!foundStudent) return
 
+    // Validate quantities before submission
+    if (!canSubmit()) {
+      toast.error('Không thể tạo báo cáo vì có thuốc hoặc vật tư y tế đã hết hàng!')
+      return
+    }
+
     try {
       setIsSubmitting(true)
 
@@ -224,18 +252,6 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto' }}>
       <Space direction='vertical' size='large' style={{ width: '100%' }}>
-        {/* Header */}
-        {/* <Card style={{ background: 'linear-gradient(135deg, #06b6d4 100%)' }}>
-          <Row justify='space-between' align='middle'>
-            <Col>
-              <Title level={3} style={{ color: 'white', margin: 0 }}>
-                <MedicineBoxOutlined style={{ marginRight: 12 }} />
-                báo cáo sự kiện y tế
-              </Title>
-              <Text style={{ color: 'rgba(255,255,255,0.8)' }}>Ghi nhận và theo dõi các sự kiện y tế của học sinh</Text>
-            </Col>
-          </Row>
-        </Card> */}
         <Card
           style={{
             borderRadius: 12,
@@ -432,12 +448,22 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                       showSearch
                       optionFilterProp='label'
                       placeholder='Chọn thuốc đã sử dụng'
-                      options={medicationOptions}
+                      options={medicationOptions.map((option) => ({
+                        ...option,
+                        disabled: option.quantity === 0,
+                        label: `${option.label} ${option.quantity === 0 ? '(Hết hàng)' : `(Còn: ${option.quantity})`}`
+                      }))}
                       value={selectedMedications.map((m) => m.medicationId)}
                       size='large'
                       onChange={(ids: number[]) => {
+                        // Filter out medications with 0 quantity
+                        const validIds = ids.filter((id) => {
+                          const medication = medicationOptions.find((opt) => opt.value === id)
+                          return medication && medication.quantity > 0
+                        })
+
                         setSelectedMedications(
-                          ids.map((id) => {
+                          validIds.map((id) => {
                             const exist = selectedMedications.find((m) => m.medicationId === id)
                             return exist || { medicationId: id, quantityUsed: 1 }
                           })
@@ -448,14 +474,28 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                       {selectedMedications.map((item) => {
                         const medication = medicationOptions.find((opt) => opt.value === item.medicationId)
                         const unitName = medication ? getMedicationUnit(medication.type) : 'đơn vị'
+                        const isOutOfStock = medication && medication.quantity === 0
+
                         return (
-                          <Card key={item.medicationId} size='small' style={{ marginBottom: 8 }}>
+                          <Card
+                            key={item.medicationId}
+                            size='small'
+                            style={{
+                              marginBottom: 8,
+                              backgroundColor: isOutOfStock ? '#fff2f0' : undefined,
+                              borderColor: isOutOfStock ? '#ffccc7' : undefined
+                            }}
+                          >
                             <Row align='middle' justify='space-between'>
                               <Col>
-                                <Text strong>{medication?.label}</Text>
-                                {medication && medication.quantity !== undefined && (
-                                  <div style={{ color: '#888', fontSize: 12 }}>
-                                    Số lượng còn lại: {medication.quantity} {unitName}
+                                <Text strong style={{ color: isOutOfStock ? '#ff4d4f' : undefined }}>
+                                  {medication?.label}
+                                </Text>
+                                {medication && (
+                                  <div style={{ color: isOutOfStock ? '#ff4d4f' : '#888', fontSize: 12 }}>
+                                    {isOutOfStock
+                                      ? 'Hết hàng!'
+                                      : `Số lượng còn lại: ${medication.quantity} ${unitName}`}
                                   </div>
                                 )}
                               </Col>
@@ -466,6 +506,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                                     min={1}
                                     max={medication?.quantity ?? 10}
                                     value={item.quantityUsed}
+                                    disabled={isOutOfStock}
                                     onChange={(val) => {
                                       setSelectedMedications(
                                         selectedMedications.map((m) =>
@@ -496,12 +537,22 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                       showSearch
                       optionFilterProp='label'
                       placeholder='Chọn vật tư y tế đã sử dụng'
-                      options={medicalSupplyOptions}
+                      options={medicalSupplyOptions.map((option) => ({
+                        ...option,
+                        disabled: option.quantity === 0,
+                        label: `${option.label} ${option.quantity === 0 ? '(Hết hàng)' : `(Còn: ${option.quantity})`}`
+                      }))}
                       value={selectedMedicalSupplies.map((m) => m.medicalSupplyId)}
                       size='large'
                       onChange={(ids: number[]) => {
+                        // Filter out supplies with 0 quantity
+                        const validIds = ids.filter((id) => {
+                          const supply = medicalSupplyOptions.find((opt) => opt.value === id)
+                          return supply && supply.quantity > 0
+                        })
+
                         setSelectedMedicalSupplies(
-                          ids.map((id) => {
+                          validIds.map((id) => {
                             const exist = selectedMedicalSupplies.find((m) => m.medicalSupplyId === id)
                             return exist || { medicalSupplyId: id, quantityUsed: 1 }
                           })
@@ -512,14 +563,26 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                       {selectedMedicalSupplies.map((item) => {
                         const supply = medicalSupplyOptions.find((opt) => opt.value === item.medicalSupplyId)
                         const unitName = supply ? getMedicalSupplyUnit(supply.type, supply.label) : 'đơn vị'
+                        const isOutOfStock = supply && supply.quantity === 0
+
                         return (
-                          <Card key={item.medicalSupplyId} size='small' style={{ marginBottom: 8 }}>
+                          <Card
+                            key={item.medicalSupplyId}
+                            size='small'
+                            style={{
+                              marginBottom: 8,
+                              backgroundColor: isOutOfStock ? '#fff2f0' : undefined,
+                              borderColor: isOutOfStock ? '#ffccc7' : undefined
+                            }}
+                          >
                             <Row align='middle' justify='space-between'>
                               <Col>
-                                <Text strong>{supply?.label}</Text>
-                                {supply && supply.quantity !== undefined && (
-                                  <div style={{ color: '#888', fontSize: 12 }}>
-                                    Số lượng còn lại: {supply.quantity} {unitName}
+                                <Text strong style={{ color: isOutOfStock ? '#ff4d4f' : undefined }}>
+                                  {supply?.label}
+                                </Text>
+                                {supply && (
+                                  <div style={{ color: isOutOfStock ? '#ff4d4f' : '#888', fontSize: 12 }}>
+                                    {isOutOfStock ? 'Hết hàng!' : `Số lượng còn lại: ${supply.quantity} ${unitName}`}
                                   </div>
                                 )}
                               </Col>
@@ -530,6 +593,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                                     min={1}
                                     max={supply?.quantity ?? 50}
                                     value={item.quantityUsed}
+                                    disabled={isOutOfStock}
                                     onChange={(val) => {
                                       setSelectedMedicalSupplies(
                                         selectedMedicalSupplies.map((m) =>
@@ -552,6 +616,17 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
               </Row>
             </Card>
 
+            {/* Show warning if any selected items are out of stock */}
+            {!canSubmit() && (selectedMedications.length > 0 || selectedMedicalSupplies.length > 0) && (
+              <Alert
+                message='Cảnh báo'
+                description='Có thuốc hoặc vật tư y tế đã hết hàng. Vui lòng bỏ chọn các mục đã hết hàng để có thể tạo báo cáo.'
+                type='warning'
+                showIcon
+                style={{ marginBottom: 24 }}
+              />
+            )}
+
             <Divider />
 
             <Row justify='center'>
@@ -561,6 +636,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onSuccess }) => {
                   icon={<PlusOutlined />}
                   onClick={() => form.submit()}
                   loading={isSubmitting}
+                  disabled={!canSubmit() || !foundStudent}
                   size='large'
                   style={{
                     height: 48,

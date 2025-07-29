@@ -364,7 +364,7 @@ const ReceiveMedicine: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: '24px', maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
       <Space direction='vertical' style={{ width: '100%' }} size='large'>
         {/* Header */}
         <Card style={{ background: 'linear-gradient(135deg, #06b6d4 100%)' }}>

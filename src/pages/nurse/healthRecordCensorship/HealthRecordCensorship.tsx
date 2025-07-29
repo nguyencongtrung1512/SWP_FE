@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Table, Button, Space, Modal, Tabs, Typography, Select, Row, Col, Card } from 'antd'
-import { DownloadOutlined } from '@ant-design/icons'
+import { DownloadOutlined, UsergroupDeleteOutlined } from '@ant-design/icons'
 import type { TabsProps } from 'antd'
 import * as XLSX from 'xlsx'
 import { getAllClasses } from '../../../apis/class.api'
@@ -179,7 +179,7 @@ const HealthRecordCensorship: React.FC = () => {
     XLSX.utils.book_append_sheet(wb, ws, 'Hồ sơ sức khỏe')
 
     // Tạo tên file
-    const fileName = selectedClass 
+    const fileName = selectedClass
       ? `Ho_so_suc_khoe_lop_${selectedClass.className}_${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.xlsx`
       : `Ho_so_suc_khoe_khoi_${selectedGrade}_${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.xlsx`
 
@@ -324,8 +324,18 @@ const HealthRecordCensorship: React.FC = () => {
   ]
 
   return (
-    <div>
-      <Card>
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+      <Card style={{ background: 'linear-gradient(135deg, #06b6d4 100%)' }}>
+        <Row justify='space-between' align='middle'>
+          <Col>
+            <Title level={3} style={{ color: 'white', margin: 0 }}>
+              <UsergroupDeleteOutlined style={{ marginRight: 12 }} />
+              Quản lý hồ sơ sức khỏe
+            </Title>
+          </Col>
+        </Row>
+      </Card>
+      <Card style={{ marginTop: 16 }}>
         <Space direction='vertical' style={{ width: '100%' }} size='large'>
           <Row gutter={16} justify="space-between" align="middle">
             <Col>
@@ -343,7 +353,7 @@ const HealthRecordCensorship: React.FC = () => {
                     </Option>
                   ))}
                 </Select>
-                
+
                 <Select
                   placeholder='Chọn lớp'
                   style={{ width: 150 }}
@@ -363,10 +373,10 @@ const HealthRecordCensorship: React.FC = () => {
                 </Select>
               </Space>
             </Col>
-            
+
             <Col>
-              <Button 
-               
+              <Button
+
                 size='large'
                 icon={<DownloadOutlined />}
                 onClick={exportToExcel}

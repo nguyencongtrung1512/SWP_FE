@@ -291,7 +291,7 @@ const CreateSendMedicine: React.FC<{ onSuccess?: () => void }> = ({ onSuccess })
                               mode='single'
                               selected={medication.expiredDate}
                               onSelect={(date) => date && updateMedication(index, 'expiredDate', date)}
-                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                              disabled={(date) => date <= new Date(new Date().setHours(0, 0, 0, 0))}
                               initialFocus
                             />
                           </PopoverContent>

@@ -114,7 +114,12 @@ const HistoryHealthCheck: React.FC<HistoryHealthCheckProps> = ({ studentId }) =>
           dataSource={Array.isArray(records) ? records : []}
           rowKey='recordId'
           pagination={false}
-          locale={{ emptyText: 'Không có dữ liệu' }}
+          locale={{
+            triggerDesc: 'Nhấn để sắp xếp giảm dần',
+            triggerAsc: 'Nhấn để sắp xếp tăng dần',
+            cancelSort: 'Hủy sắp xếp',
+            emptyText: 'Không có dữ liệu',
+          }}
         />
       </Spin>
     </Card>

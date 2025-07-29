@@ -402,6 +402,12 @@ const VaccinationSchedule: React.FC = () => {
                     showSizeChanger: true,
                     showTotal: (total) => `Tổng số ${total} kế hoạch`
                   }}
+                  locale={{
+                    triggerDesc: 'Nhấn để sắp xếp giảm dần',
+                    triggerAsc: 'Nhấn để sắp xếp tăng dần',
+                    cancelSort: 'Hủy sắp xếp',
+                    emptyText: 'Không có dữ liệu',
+                  }}
                   rowKey={(record: HealthCheckNotification) => record.healthCheckID.toString()}
                 />
               ) : (
@@ -413,6 +419,12 @@ const VaccinationSchedule: React.FC = () => {
                     pageSize: 5,
                     showSizeChanger: true,
                     showTotal: (total) => `Tổng số ${total} kế hoạch`
+                  }}
+                  locale={{
+                    triggerDesc: 'Nhấn để sắp xếp giảm dần',
+                    triggerAsc: 'Nhấn để sắp xếp tăng dần',
+                    cancelSort: 'Hủy sắp xếp',
+                    emptyText: 'Không có dữ liệu',
                   }}
                   rowKey={(record: VaccinationConsent) => record.campaignId.toString()}
                 />

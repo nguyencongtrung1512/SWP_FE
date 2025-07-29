@@ -184,7 +184,6 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
             <div className='text-center mb-4'>
               <h1 className='text-xl font-bold mb-2 text-white drop-shadow-lg'>SỔ SỨC KHỎE ĐIỆN TỬ</h1>
               <div className='w-16 h-0.5 bg-white/60 mx-auto mb-3'></div>
-              <p className='text-blue-100 text-sm font-medium'>Trường Tiểu học ABC</p>
             </div>
 
             {/* Additional info */}
@@ -233,16 +232,18 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
                   <Users className='w-3 h-3 text-pink-600 mr-1' />
                   <div>
                     <p className='text-pink-800 font-medium'>Giới tính</p>
-                    <p className='text-pink-600'>{student.gender}</p>
+                    <p className='text-pink-600'>
+                      {student.gender === 'Male' ? 'Nam' : student.gender === 'Female' ? 'Nữ' : ''}
+                    </p>
                   </div>
                 </div>
 
                 <div className='bg-green-50 rounded-lg p-2 flex items-center col-span-2'>
-                  <div className='flex items-center mb-1'>
-                    <MapPin className='w-3 h-3 text-green-600 mr-1' />
+                  <MapPin className='w-3 h-3 text-green-600 mr-1' />
+                  <div>
                     <p className='text-green-800 font-medium text-xs'>Lớp học</p>
+                    <p className='text-green-600 font-normal'>{student.className}</p>
                   </div>
-                  <p className='text-green-600 font-semibold'>{student.className}</p>
                 </div>
               </div>
 
@@ -295,7 +296,7 @@ const ElectronicHealthBook: React.FC<ElectronicHealthBookProps> = ({
                         <p className='text-purple-800 font-medium'>Chiều cao</p>
                         <p className='text-purple-600 font-bold'>{hc.height}cm</p>
                       </div>
-                      <div className='bg-orange-50 rounded p-2 text-center'>
+                      <div className='bg-green-200 rounded p-2 text-center'>
                         <p className='text-orange-800 font-medium'>Mắt trái</p>
                         <p className='text-orange-600 font-bold'>{hc.leftEye}</p>
                       </div>

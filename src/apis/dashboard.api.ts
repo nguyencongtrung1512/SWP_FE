@@ -49,7 +49,11 @@ export const getTrends = (period: string) => {
   return http.get<DashboardTrends>(`${API_URL}/trends?period=${period}`)
 }
 
-export interface NurseActivity {
+export interface NurseActivityResponse {
+  totalNurses: number
+  byNurse: {
+    $values: NurseActivity[]
+  }
   workloadDistribution: {
     healthChecks: number
     medicalEvents: number
@@ -58,13 +62,22 @@ export interface NurseActivity {
   }
 }
 
+export interface NurseActivity {
+  nurseName: string
+  healthChecks: number
+  medicalEvents: number
+  consultations: number
+  workingDays: number
+  averagePerDay: number
+}
+
 export interface Nurse {
   id: number
   accountID: number
   fullname: string
 }
 
-export const getNurseActivity = (nurseId: number) => {
-  return http.get<NurseActivity>(`${API_URL}/analytics/nurses/activity-in-1month?nurseId=${nurseId}&period=1month`)
+export const getNurseActivity = () => {
+  return http.get<NurseActivityResponse>(`${API_URL}/analytics/nurses/activity-in-1month?period=1month`)
 }
 

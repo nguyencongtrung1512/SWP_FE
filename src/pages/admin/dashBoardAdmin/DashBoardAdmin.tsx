@@ -6,7 +6,7 @@ import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } f
 import { ArrowUp, Activity, Users, Calendar, TrendingUp, TrendingDown } from 'lucide-react'
 import { getTrends } from '../../../apis/dashboard.api'
 import type { DashboardTrends } from '../../../apis/dashboard.api'
-import { NurseActivities } from './NurseActivities'
+// import { NurseActivities } from './NurseActivities'
 
 interface ChartData {
   date: string
@@ -369,7 +369,7 @@ const DashBoardAdmin = () => {
         </div>
       </div>
 
-      <NurseActivities />
+      {/* <NurseActivities /> */}
     </div>
   )
 }

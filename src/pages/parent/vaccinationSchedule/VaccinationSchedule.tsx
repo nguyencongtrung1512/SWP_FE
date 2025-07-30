@@ -365,13 +365,12 @@ const VaccinationSchedule: React.FC = () => {
             </div>
 
             {!isHealthCheck && filteredVaccinationData.some((item) => item.isAgreed === null) && (
-              <Alert className='mb-6 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 shadow-sm'>
-                <div className='w-5 h-5 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center'>
+              <Alert className='mb-6 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 shadow-sm flex items-center space-x-3'>
+                <div className='w-5 h-5 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center flex-shrink-0'>
                   <AlertTriangle className='text-white w-3 h-3' />
                 </div>
                 <AlertDescription className='font-medium text-amber-800'>
-                  Có {filteredVaccinationData.filter((item) => item.isAgreed === null).length} sự kiện y tế cần được xác
-                  nhận
+                  Có {filteredVaccinationData.filter((item) => item.isAgreed === null).length} sự kiện y tế cần được xác nhận
                 </AlertDescription>
               </Alert>
             )}

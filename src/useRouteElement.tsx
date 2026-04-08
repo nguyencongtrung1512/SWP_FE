@@ -1,39 +1,42 @@
 import { useRoutes } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import path from './constants/path'
-import MainLayout from './layouts/MainLayout/MainLayout'
-import Login from './pages/login/login'
-import ResetPassword from './pages/login/resetPassword'
-import Home from './pages/home/home'
-import HealthRecord from './pages/parent/healthRecord/healthRecord'
-import SendMedicine from './pages/parent/sendMedicine/sendMedicine'
-import ProfileParent from './pages/parent/profile/profileParent'
-import NurseLayout from './layouts/NurseLayout/NurseLayout'
-import HealthRecordCensorship from './pages/nurse/healthRecordCensorship/HealthRecordCensorship'
-import ScheduleVaccination from './pages/nurse/scheduleVaccination/ScheduleVaccination'
-import ReceiveMedicine from './pages/nurse/receiveMedicine/ReceiveMedicine'
-import MedicalReport from './pages/nurse/medicalReport/MedicalReport'
-import PrivateConsultation from './pages/nurse/privateConsultation/PrivateConsultation'
-import Blog from './pages/parent/blog/blog'
-import BlogPost from './pages/parent/blog/blogDetail'
-import AdminLayout from './layouts/AdminLayout/AdminLayout'
-import DashBoardAdmin from './pages/admin/dashBoardAdmin/DashBoardAdmin'
-import UserList from './pages/admin/userManagerment/UserList'
-import StudentList from './pages/admin/studentManagement/StudentList'
-import GradeList from './pages/admin/gradeManagement/GradeList'
-import ParentLayout from './layouts/ParentLayout/ParentLayout'
-import VaccinationSchedule from './pages/parent/vaccinationSchedule/VaccinationSchedule'
-import MedicalEventParent from './pages/parent/medicalEvent/medicalEventParent'
-import ProtectedRoute from './components/ProtectedRoute'
-import CategoryList from './pages/admin/categoryManagement/List'
-import BlogList from './pages/admin/blogManagement/BlogList'
-import BlogDetail from './pages/admin/blogManagement/BlogDetail'
-import MedicationList from './pages/nurse/Medication/MedicationList'
-import MedicalSuppliesList from './pages/nurse/medicalSupplies/medicalSupliesList'
-import Vaccination from './pages/admin/vaccineManagement/createVaccine'
-import AppointmentPage from './pages/parent/privateConsultation/AppointmentPage'
-import HealthCheck from './pages/admin/healthCheckManagement/createHealthCheck'
-import MedicalResult from './pages/nurse/resultsAfterVaccination'
-import VideoCall from './components/VideoCall'
+import Loading from './components/Loading/Loading'
+
+const MainLayout = lazy(() => import('./layouts/MainLayout/MainLayout'))
+const Login = lazy(() => import('./pages/login/login'))
+const ResetPassword = lazy(() => import('./pages/login/resetPassword'))
+const Home = lazy(() => import('./pages/home/home'))
+const HealthRecord = lazy(() => import('./pages/parent/healthRecord/healthRecord'))
+const SendMedicine = lazy(() => import('./pages/parent/sendMedicine/sendMedicine'))
+const ProfileParent = lazy(() => import('./pages/parent/profile/profileParent'))
+const NurseLayout = lazy(() => import('./layouts/NurseLayout/NurseLayout'))
+const HealthRecordCensorship = lazy(() => import('./pages/nurse/healthRecordCensorship/HealthRecordCensorship'))
+const ScheduleVaccination = lazy(() => import('./pages/nurse/scheduleVaccination/ScheduleVaccination'))
+const ReceiveMedicine = lazy(() => import('./pages/nurse/receiveMedicine/ReceiveMedicine'))
+const MedicalReport = lazy(() => import('./pages/nurse/medicalReport/MedicalReport'))
+const PrivateConsultation = lazy(() => import('./pages/nurse/privateConsultation/PrivateConsultation'))
+const Blog = lazy(() => import('./pages/parent/blog/blog'))
+const BlogPost = lazy(() => import('./pages/parent/blog/blogDetail'))
+const AdminLayout = lazy(() => import('./layouts/AdminLayout/AdminLayout'))
+const DashBoardAdmin = lazy(() => import('./pages/admin/dashBoardAdmin/DashBoardAdmin'))
+const UserList = lazy(() => import('./pages/admin/userManagerment/UserList'))
+const StudentList = lazy(() => import('./pages/admin/studentManagement/StudentList'))
+const GradeList = lazy(() => import('./pages/admin/gradeManagement/GradeList'))
+const ParentLayout = lazy(() => import('./layouts/ParentLayout/ParentLayout'))
+const VaccinationSchedule = lazy(() => import('./pages/parent/vaccinationSchedule/VaccinationSchedule'))
+const MedicalEventParent = lazy(() => import('./pages/parent/medicalEvent/medicalEventParent'))
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'))
+const CategoryList = lazy(() => import('./pages/admin/categoryManagement/List'))
+const BlogList = lazy(() => import('./pages/admin/blogManagement/BlogList'))
+const BlogDetail = lazy(() => import('./pages/admin/blogManagement/BlogDetail'))
+const MedicationList = lazy(() => import('./pages/nurse/Medication/MedicationList'))
+const MedicalSuppliesList = lazy(() => import('./pages/nurse/medicalSupplies/medicalSupliesList'))
+const Vaccination = lazy(() => import('./pages/admin/vaccineManagement/createVaccine'))
+const AppointmentPage = lazy(() => import('./pages/parent/privateConsultation/AppointmentPage'))
+const HealthCheck = lazy(() => import('./pages/admin/healthCheckManagement/createHealthCheck'))
+const MedicalResult = lazy(() => import('./pages/nurse/resultsAfterVaccination'))
+const VideoCall = lazy(() => import('./components/VideoCall'))
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
@@ -148,7 +151,7 @@ export default function useRouteElements() {
             },
             {
               path: 'private-consultation/video-call/:appointmentId',
-              element: <VideoCall /> //userRole="nurse" 
+              element: <VideoCall /> //userRole="nurse"
             },
             {
               path: path.NURSE_CATEGORY_MANAGEMENT,
@@ -220,5 +223,5 @@ export default function useRouteElements() {
       ]
     }
   ])
-  return routeElements
+  return <Suspense fallback={<Loading />}>{routeElements}</Suspense>
 }

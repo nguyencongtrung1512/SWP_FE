@@ -24,6 +24,5 @@ export default function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
       }
     }
   }
-
   return <Outlet />
-} 
+}

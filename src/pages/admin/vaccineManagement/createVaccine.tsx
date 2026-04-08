@@ -30,8 +30,6 @@ import {
 } from '../../../apis/vaccinatapi.api'
 import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-dayjs.extend(utc)
 
 const { Title } = Typography
 const { Option } = Select
@@ -62,6 +60,7 @@ interface VaccinationCampaignWithConsent extends VaccinationCampaign {
     studentCode: string
   }[]
 }
+
 const ScheduleVaccination: React.FC = () => {
   const [vaccineForm] = Form.useForm()
   const [campaignForm] = Form.useForm()
@@ -84,7 +83,6 @@ const ScheduleVaccination: React.FC = () => {
     try {
       const res = await getVaccines()
       setVaccines(res.data?.$values || [])
-      console.log('API trả về:', res.data)
     } catch (err) {
       message.error('Lấy danh sách vaccine thất bại!')
     }
@@ -103,6 +101,7 @@ const ScheduleVaccination: React.FC = () => {
     try {
       const res = await getAllVaccinationCampaigns()
       const campaignsData = res.data?.$values || []
+      console.log('Campaigns data:', campaignsData)
       
       const campaignsWithConsents = await Promise.all(
         campaignsData.map(async (campaign) => {
@@ -121,7 +120,6 @@ const ScheduleVaccination: React.FC = () => {
               studentName: consent.studentName,
               studentCode: consent.studentCode
             }))
-            console.log(`Consents for campaign ${campaign.campaignId}:`, consents)
             const consentedCount = consents.filter(consent => consent.isAgreed === true).length
 
             const participatedRes = await getRecordsByCampaign(campaign.campaignId) 
@@ -170,10 +168,12 @@ const ScheduleVaccination: React.FC = () => {
       const payload = {
         name: values.name,
         vaccineId: values.vaccineId,
-        date: values.date.format(),
+        date: values.date.format('YYYY-MM-DDTHH:mm:ss'),
         description: values.description,
         classIds: values.classIds
       }
+
+      console.log('Payload for creating campaign:', payload)
       await createVaccinationCampaign(payload)
       message.success('Tạo lịch tiêm thành công!')
       campaignForm.resetFields()
@@ -188,15 +188,16 @@ const ScheduleVaccination: React.FC = () => {
     if (!selectedDate) return { disabledHours: [], disabledMinutes: [] }
 
     const selectedDateStr = selectedDate.format('YYYY-MM-DD')
-    const campaignsOnDate = campaigns.filter(campaign =>
-      dayjs(campaign.date).format('YYYY-MM-DD') === selectedDateStr
-    )
+    const campaignsOnDate = campaigns.filter(campaign => {
+      const campaignDate = dayjs(campaign.date)
+      return campaignDate.format('YYYY-MM-DD') === selectedDateStr
+    })
 
     const disabledHours: number[] = []
     const disabledMinutes: number[] = []
 
     campaignsOnDate.forEach(campaign => {
-      const campaignTime = dayjs.utc(campaign.date).local()
+      const campaignTime = dayjs(campaign.date)
 
       const startTime = campaignTime.subtract(30, 'minute')
       const endTime = campaignTime.add(30, 'minute')
@@ -222,7 +223,9 @@ const ScheduleVaccination: React.FC = () => {
       dataIndex: 'date',
       key: 'date',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
-      sorter: (a: VaccinationCampaignWithConsent, b: VaccinationCampaignWithConsent) => a.date.localeCompare(b.date)
+      sorter: (a: VaccinationCampaignWithConsent, b: VaccinationCampaignWithConsent) => {
+        return dayjs(a.date).valueOf() - dayjs(b.date).valueOf()
+      }
     },
     {
       title: 'Hành động',
@@ -303,7 +306,13 @@ const ScheduleVaccination: React.FC = () => {
             <Form.Item name='date' label='Ngày tiêm' rules={[{ required: true, message: 'Vui lòng chọn ngày tiêm' }]}>
               <DatePicker
                 placeholder='Chọn ngày tiêm'
-                showTime={{ format: 'HH:mm', defaultValue: dayjs('08:00', 'HH:mm') }}
+                showTime={{ 
+                  format: 'HH:mm', 
+                  defaultValue: dayjs('08:00', 'HH:mm') 
+                }}
+                onChange={(value) => {
+                  console.log('Selected date (local):', value?.format())
+                }}
                 style={{ width: '100%' }}
                 disabledDate={(current) => {
                   return current && current < dayjs().add(3, 'day').startOf('day') || current.day() === 0
@@ -384,7 +393,17 @@ const ScheduleVaccination: React.FC = () => {
               <Search placeholder='Tìm kiếm' allowClear enterButton={<SearchOutlined />} onSearch={setSearchText} onChange={(e) => setSearchText(e.target.value)} />
             </Col>
           </Row>
-          <Table columns={columns} dataSource={filteredCampaigns} rowKey='campaignId' />
+          <Table 
+            columns={columns} 
+            dataSource={filteredCampaigns} 
+            rowKey='campaignId' 
+            locale={{
+              triggerDesc: 'Nhấn để sắp xếp giảm dần',
+              triggerAsc: 'Nhấn để sắp xếp tăng dần',
+              cancelSort: 'Hủy sắp xếp',
+              emptyText: 'Không có dữ liệu',
+            }}
+          />
         </div>
       )
     }
@@ -408,7 +427,9 @@ const ScheduleVaccination: React.FC = () => {
           <Descriptions bordered column={1}>
             <Descriptions.Item label='Tên chiến dịch'>{selectedCampaign.name}</Descriptions.Item>
             <Descriptions.Item label='Vaccine'>{selectedCampaign.vaccineName}</Descriptions.Item>
-            <Descriptions.Item label='Ngày dự kiến'>{dayjs.utc(selectedCampaign.date).local().format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
+            <Descriptions.Item label='Ngày dự kiến'>
+              {dayjs(selectedCampaign.date).format('DD/MM/YYYY HH:mm')}
+            </Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedCampaign.description}</Descriptions.Item>
             <Descriptions.Item label='Đã đồng ý tham gia'>{selectedCampaign.consentedCount || 0} học sinh</Descriptions.Item>
             <Descriptions.Item label='Đã ghi nhận kết quả'>{selectedCampaign.participated || 0} học sinh</Descriptions.Item>
@@ -441,7 +462,12 @@ const ScheduleVaccination: React.FC = () => {
                 render: (_, record) => record.class?.className || 'N/A'
               },
               { title: 'Phụ huynh', dataIndex: 'parentName', key: 'parentName' },
-              { title: 'Ngày xác nhận', dataIndex: 'dateConfirmed', key: 'dateConfirmed', render: (date: string) => date ? dayjs(date).format('HH:mm DD/MM/YYYY') : 'Chưa xác nhận' },
+              { 
+                title: 'Ngày xác nhận', 
+                dataIndex: 'dateConfirmed', 
+                key: 'dateConfirmed', 
+                render: (date: string) => date ? dayjs(date).format('HH:mm DD/MM/YYYY') : 'Chưa xác nhận' 
+              },
               { 
                 title: 'Trạng thái', 
                 dataIndex: 'isAgreed', 

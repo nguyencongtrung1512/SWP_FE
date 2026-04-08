@@ -21,10 +21,8 @@ import type { TabsProps } from 'antd'
 import { createHealthCheckList, getAllHealthChecks, HealthCheckList } from '../../../apis/healthCheck.api'
 import { getAllClasses, Class } from '../../../apis/class.api'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { getNurseListForHealthConsultation } from '../../../apis/healthConsultationBooking.api'
 import { getAllStudents } from '../../../apis/student.api'
-dayjs.extend(utc)
 
 const { Title } = Typography
 const { Option } = Select
@@ -128,7 +126,7 @@ const ScheduleHealthCheck: React.FC = () => {
     )
 
     for (const exam of nurseExaminations) {
-      const examStart = dayjs.utc(exam.date).local()
+      const examStart = dayjs(exam.date)
       const examEnd = examStart.add(30, 'minute')
       const selectedStart = selectedTime
       const selectedEnd = selectedTime.add(30, 'minute')
@@ -144,7 +142,7 @@ const ScheduleHealthCheck: React.FC = () => {
     try {
       const payload = {
         nurseID: values.nurseID,
-        date: values.date.format(),
+        date: values.date.format('YYYY-MM-DDTHH:mm:ss'),
         healthCheckDescription: values.description,
         classIds: values.classIds
       }
@@ -331,7 +329,17 @@ const ScheduleHealthCheck: React.FC = () => {
               />
             </Col>
           </Row>
-          <Table columns={columns} dataSource={filteredHealthChecks} rowKey='campaignId' />
+          <Table 
+            columns={columns} 
+            dataSource={filteredHealthChecks} 
+            rowKey='campaignId'
+            locale={{
+              triggerDesc: 'Nhấn để sắp xếp giảm dần',
+              triggerAsc: 'Nhấn để sắp xếp tăng dần',
+              cancelSort: 'Hủy sắp xếp',
+              emptyText: 'Không có dữ liệu',
+            }}
+          />
         </div>
       )
     }
@@ -355,7 +363,7 @@ const ScheduleHealthCheck: React.FC = () => {
           <Descriptions bordered column={1}>
             <Descriptions.Item label='Y tá phụ trách'>{selectedExamination.nurseFullName}</Descriptions.Item>
             <Descriptions.Item label='Ngày dự kiến'>
-              {dayjs.utc(selectedExamination.date).local().format('DD/MM/YYYY HH:mm')}
+              {dayjs(selectedExamination.date).format('DD/MM/YYYY HH:mm')}
             </Descriptions.Item>
             <Descriptions.Item label='Mô tả'>{selectedExamination.healthCheckDescription}</Descriptions.Item>
             <Descriptions.Item label='Đã ghi nhận kết quả'>

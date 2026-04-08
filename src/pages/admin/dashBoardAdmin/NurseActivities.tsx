@@ -3,14 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '../../../components/ui/chart'
 import { useEffect, useState } from 'react'
 import { getNurseActivity } from '../../../apis/dashboard.api'
-import { getNurseListForHealthConsultation } from '../../../apis/healthConsultationBooking.api'
 
 interface ChartData {
   nurseName: string
   healthChecks: number
   medicalEvents: number
   consultations: number
-  medicationApprovals: number
   total: number
 }
 
@@ -40,39 +38,24 @@ export function NurseActivities() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const nurseRes = await getNurseListForHealthConsultation()
-        const nurses = nurseRes.data.$values
-        console.log(nurses)
+        const res = await getNurseActivity()
+        const nurseStats = res.data.byNurse.$values
 
-        const data: ChartData[] = []
-        for (const nurse of nurses) {
-          try {
-            const activityRes = await getNurseActivity(nurse.accountID)
-            const activity = activityRes.data
-            const distribution = activity.workloadDistribution
-
-            const entry: ChartData = {
-              nurseName: nurse.fullname,
-              healthChecks: distribution?.healthChecks || 0,
-              medicalEvents: distribution?.medicalEvents || 0,
-              consultations: distribution?.consultations || 0,
-              medicationApprovals: distribution?.medicationApprovals || 0,
-              total:
-                (distribution?.healthChecks || 0) +
-                (distribution?.medicalEvents || 0) +
-                (distribution?.consultations || 0) +
-                (distribution?.medicationApprovals || 0)
-            }
-
-            data.push(entry)
-          } catch (error) {
-            console.log(`Ko fetch duoc ${nurse.fullname}:`, error)
-          }
-        }
+        const data: ChartData[] = nurseStats.map((nurse) => ({
+          nurseName: nurse.nurseName,
+          healthChecks: nurse.healthChecks,
+          medicalEvents: nurse.medicalEvents,
+          consultations: nurse.consultations,
+          total: nurse.healthChecks + nurse.medicalEvents +nurse.consultations
+        }))
+        
         console.log(data)
         setChartData(data)
+
+        const { medicationApprovals } = res.data.workloadDistribution
+        console.log('Total medication approvals:', medicationApprovals)
       } catch (error) {
-        console.log(error)
+        console.error('Error fetching nurse activity:', error)
       } finally {
         setLoading(false)
       }

@@ -73,29 +73,74 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    to='/about'
+                    to='/parent/health-record'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
-                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>→</span>
-                    Về Chúng Tôi
+                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2.414a2 2 0 01.586-1.414z"
+                      />
+                      </svg>
+                    </span>
+                    Khai Báo Sức Khỏe
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to='/faq'
+                    to='/parent/vaccination-schedule'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
-                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>?</span>
-                    Câu Hỏi Thường Gặp
+                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                      </svg>
+                    </span>
+                    Lịch Y Tế
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to='/help'
+                    to='/parent/send-medicine'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
-                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>!</span>
-                    Trung Tâm Hỗ Trợ
+                    <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l1.5-4.5A2 2 0 018.4 7h7.2a2 2 0 011.9 1.5L19 13v5a1 1 0 01-1 1h-1a2 2 0 11-4 0H9a2 2 0 11-4 0H4a1 1 0 01-1-1v-5z"
+                        />
+                      </svg>
+                    </span>
+                    Gửi Thuốc
                   </Link>
                 </li>
               </ul>
@@ -125,20 +170,20 @@ export default function Footer() {
               <ul className='space-y-3'>
                 <li>
                   <Link
-                    to='/faq'
+                    to='/parent/appointment'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
                     <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>?</span>
-                    FAQ
+                    Tư vấn
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to='/help'
+                    to='/parent/medical-event'
                     className='text-white/80 hover:text-white transition-colors duration-300 flex items-center'
                   >
                     <span className='bg-white/10 w-6 h-6 rounded flex items-center justify-center mr-2 text-xs'>!</span>
-                    Help Center
+                    Báo Cáo Y Tế
                   </Link>
                 </li>
               </ul>
@@ -227,7 +272,7 @@ export default function Footer() {
                       />
                     </svg>
                   </span>
-                  <span className='text-white/80'>info@eduCare.edu</span>
+                  <span className='text-white/80'>educareswp@gmail.com</span>
                 </li>
               </ul>
             </div>
